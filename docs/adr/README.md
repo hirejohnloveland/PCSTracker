@@ -2,4 +2,4 @@
 
 | ADR | Topic |
 |-----|-------|
-| _None yet_ | |
+| [0001](0001-host-registration-pattern.md) | Host registration pattern |

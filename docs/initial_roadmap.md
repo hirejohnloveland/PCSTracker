@@ -12,7 +12,7 @@ data sources, CI / CD pipeline, front end, etc.  The goal is a "clone-and-click"
 - API host project
 - Class library for the actual buiness code
 - Migration classs library sekeleton based on ziosk portal migratoin project
-- NUnit Unit test project
+- XUnit Unit test project
 
 
 ## 2. API Surface

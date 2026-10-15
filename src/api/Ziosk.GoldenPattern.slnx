@@ -1,5 +1,6 @@
 <Solution>
   <Project Path="../../tests/api/Ziosk.GoldenPattern.Tests/Ziosk.GoldenPattern.Tests.csproj" />
   <Project Path="Ziosk.GoldenPattern.Api/Ziosk.GoldenPattern.Api.csproj" />
+  <Project Path="Ziosk.GoldenPattern.Core/Ziosk.GoldenPattern.Core.csproj" />
   <Project Path="Ziosk.GoldenPattern.Migrations/Ziosk.GoldenPattern.Migrations.csproj" />
 </Solution>

@@ -7,6 +7,7 @@ The Golden Pattern for Ziosk microservice APIs: .NET services built with Domain-
 | Path | Purpose |
 |------|---------|
 | `src/api/Ziosk.GoldenPattern.Api` | The API project |
+| `src/api/Ziosk.GoldenPattern.Core` | Class library for the business logic, shared by all hosts |
 | `docs/` | ADRs, coding standards, project structure, getting started |
 | `.agents/` | Harness-agnostic agents, skills, and commands |
 | `.cursor/`, `.claude/`, `.github/` | Harness registration for the shared `.agents/` content |

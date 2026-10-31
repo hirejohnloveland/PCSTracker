@@ -5,41 +5,21 @@ using PartsTrackerErp.GoldenPattern.Core.Contracts.Requests;
 
 namespace PartsTrackerErp.GoldenPattern.Api.Controllers;
 
-[ApiController]
 [Route("[controller]")]
-public class VendorsController(IVendorsApplicationService vendorsApplicationService) : ControllerBase
+public class VendorsController(IVendorsApplicationService vendorsApplicationService) : ApiControllerBase
 {
     [HttpPost]
-    public async Task<IActionResult> Add(
+    public Task<IActionResult> Add(
         [FromBody] CreateVendorDto request,
         IValidator<CreateVendorDto> validator,
-        CancellationToken cancellationToken)
-    {
-        var result = await validator.ValidateAsync(request, cancellationToken);
-        if (!result.IsValid)
-            return BadRequest(result.Errors);
-
-        var vendor = await vendorsApplicationService.AddAsync(request.Name, cancellationToken);
-        return Ok(vendor);
-    }
+        CancellationToken cancellationToken) =>
+        ExecuteAsync(request, validator, (r, ct) => vendorsApplicationService.AddAsync(r.Name, ct), cancellationToken);
 
     [HttpPost("{id}/activate")]
-    public async Task<IActionResult> Activate(string id, CancellationToken cancellationToken)
-    {
-        var vendor = await vendorsApplicationService.ActivateAsync(id, cancellationToken);
-        if (vendor is null)
-            return NotFound();
-
-        return Ok(vendor);
-    }
+    public async Task<IActionResult> Activate(string id, CancellationToken cancellationToken) =>
+        ToResult(await vendorsApplicationService.ActivateAsync(id, cancellationToken));
 
     [HttpPost("{id}/deactivate")]
-    public async Task<IActionResult> Deactivate(string id, CancellationToken cancellationToken)
-    {
-        var vendor = await vendorsApplicationService.DeactivateAsync(id, cancellationToken);
-        if (vendor is null)
-            return NotFound();
-
-        return Ok(vendor);
-    }
+    public async Task<IActionResult> Deactivate(string id, CancellationToken cancellationToken) =>
+        ToResult(await vendorsApplicationService.DeactivateAsync(id, cancellationToken));
 }

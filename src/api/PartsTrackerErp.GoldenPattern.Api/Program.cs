@@ -1,5 +1,4 @@
 using PartsTrackerErp.GoldenPattern.Api;
-using PartsTrackerErp.GoldenPattern.Api.ErrorHandling;
 using PartsTrackerErp.GoldenPattern.Core.DependencyInjection;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -9,8 +8,9 @@ builder.AddApi();
 
 var app = builder.Build();
 
-// First, so it wraps every stage after it.
-app.UseMiddleware<GlobalExceptionHandler>();
+// First, so they wrap every stage after them.
+app.UseExceptionHandler();
+app.UseStatusCodePages();
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
@@ -25,3 +25,6 @@ app.UseAuthorization();
 app.MapControllers();
 
 app.Run();
+
+// Lets the test project's WebApplicationFactory reference the entry point.
+public partial class Program;

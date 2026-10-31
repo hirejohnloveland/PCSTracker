@@ -8,7 +8,7 @@ public enum ErrorType
     Validation = 0,
     NotFound = 1,
     Unauthorized = 2,
-    BusinessRule = 3,
+    BusinessRuleViolation = 3,
     Unexpected = 4,
     Forbidden = 5
 }

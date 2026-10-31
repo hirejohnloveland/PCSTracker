@@ -13,7 +13,7 @@ public class Given_ErrorTypeExtensions
         [ErrorType.Unauthorized] = StatusCodes.Status401Unauthorized,
         [ErrorType.Forbidden] = StatusCodes.Status403Forbidden,
         [ErrorType.NotFound] = StatusCodes.Status404NotFound,
-        [ErrorType.BusinessRule] = StatusCodes.Status409Conflict,
+        [ErrorType.BusinessRuleViolation] = StatusCodes.Status409Conflict,
         [ErrorType.Unexpected] = StatusCodes.Status500InternalServerError
     };
 

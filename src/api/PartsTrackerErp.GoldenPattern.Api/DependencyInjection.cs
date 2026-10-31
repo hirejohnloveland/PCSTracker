@@ -11,6 +11,7 @@ public static class DependencyInjection
     {
         builder.AddApiAuthentication();
         builder.AddApiControllers();
+        builder.AddApiErrorHandling();
         builder.AddApiOpenApi();
 
         return builder;

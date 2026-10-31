@@ -11,9 +11,9 @@ public class Given_DomainException
     [Fact]
     public void Constructor_WithErrorTypeAndErrors_CarriesBothOnTheEnvelope()
     {
-        var exception = new DomainException(ErrorType.BusinessRule, NotFound, Inactive);
+        var exception = new DomainException(ErrorType.BusinessRuleViolation, NotFound, Inactive);
 
-        Assert.Equal(ErrorType.BusinessRule, exception.ErrorEnvelope.ErrorType);
+        Assert.Equal(ErrorType.BusinessRuleViolation, exception.ErrorEnvelope.ErrorType);
         Assert.Equal([NotFound, Inactive], exception.ErrorEnvelope.Errors);
         Assert.Equal(exception.ErrorEnvelope.Errors, exception.Errors);
     }
@@ -53,7 +53,7 @@ public class Given_DomainException
     [Fact]
     public void Message_ListsEachErrorCodeAndMessage()
     {
-        var exception = new DomainException(ErrorType.BusinessRule, NotFound, Inactive);
+        var exception = new DomainException(ErrorType.BusinessRuleViolation, NotFound, Inactive);
 
         Assert.Equal(
             "[VendorNotFound] Vendor 7 was not found. | [VendorInactive] Vendor 7 is inactive.",

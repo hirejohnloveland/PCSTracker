@@ -1,4 +1,4 @@
-﻿namespace PartsTrackerErp.GoldenPattern.Tests;
+namespace PartsTrackerErp.GoldenPattern.Tests;
 
 [Trait(Constants.TestCategory, Constants.UnitTestCategory)]
 public class UnitTest1

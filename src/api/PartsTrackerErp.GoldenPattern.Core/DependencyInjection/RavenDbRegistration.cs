@@ -17,7 +17,7 @@ internal static class RavenDbRegistration
 
             return new DocumentStore
             {
-                Urls = section.GetSection("Urls").GetChildren().Select(url => url.Value!).ToArray(),
+                Urls = [.. section.GetSection("Urls").GetChildren().Select(url => url.Value!)],
                 Database = section["Database"]
             }.Initialize();
         });

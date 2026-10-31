@@ -6,14 +6,8 @@ namespace PartsTrackerErp.GoldenPattern.Core.Domain.Exceptions;
 /// <see cref="ErrorType"/> and <see cref="DomainError"/> items carry the detail, and the API's global
 /// exception handler turns them into the HTTP response.
 /// </summary>
-public class DomainException : Exception
+public class DomainException(DomainErrorEnvelope errorEnvelope, Exception? innerException = null) : Exception(BuildMessage(errorEnvelope), innerException)
 {
-    public DomainException(DomainErrorEnvelope errorEnvelope, Exception? innerException = null)
-        : base(BuildMessage(errorEnvelope), innerException)
-    {
-        ErrorEnvelope = errorEnvelope;
-    }
-
     public DomainException(ErrorType errorType, params DomainError[] errors)
         : this(new DomainErrorEnvelope { ErrorType = errorType, Errors = [.. errors] })
     {
@@ -24,7 +18,7 @@ public class DomainException : Exception
     {
     }
 
-    public DomainErrorEnvelope ErrorEnvelope { get; }
+    public DomainErrorEnvelope ErrorEnvelope { get; } = errorEnvelope;
 
     public IReadOnlyList<DomainError> Errors => ErrorEnvelope.Errors;
 

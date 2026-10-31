@@ -7,7 +7,7 @@ An API client has to handle failures from domain rules, request validation, unex
 ## Decision
 
 - Every failure is `application/problem+json`: the RFC's members, plus an `errors` array.
-- Each `errors` entry is a `ProblemError` (`Contracts/Responses/ProblemError.cs`) with `code`, `detail`, and `pointer`. `pointer` is a JSON Pointer into the request body, such as `#/name`, and appears only for request problems. The array follows the example in RFC 9457 and adds `code`.
+- Each `errors` entry is a `ProblemError` ([`Contracts/Responses/ProblemError.cs`](../../src/api/PartsTrackerErp.GoldenPattern.Core/Contracts/Responses/ProblemError.cs)) with `code`, `detail`, and `pointer`. `pointer` is a JSON Pointer into the request body, such as `#/name`, and appears only for request problems. The array follows the example in RFC 9457 and adds `code`.
 - A response has one category, the `ErrorType` ([ADR 0010](0010-service-response.md)), and it sets `status` and `type`. RFC 9457 recommends reporting only the most relevant problem when problems differ in type. `ErrorTypeExtensions.ToHttpStatusCode` is the only mapping: Validation 400, Unauthorized 401, Forbidden 403, NotFound 404, BusinessRuleViolation 409, Unexpected 500, and anything else 500.
 - `type` is `https://api.example.com/problems/{category}` with the category in kebab-case, such as `business-rule-violation`. The base is one constant in `ProblemDetailsMapper`. A status with no category keeps the framework's `type`.
 - `title` is "Validation Failed" for validation and the framework's title for the status otherwise. `detail` is the message of a single error, or a generic summary when there are several.
@@ -21,3 +21,10 @@ An API client has to handle failures from domain rules, request validation, unex
 - A client reads `status` and `type` for the category and `errors[].code` for the failure.
 - `errors` is an array, not ASP.NET's default field-keyed object, so each error carries its own code.
 - Nothing serves documents at the `type` URIs, and the base host is `api.example.com` for now.
+
+## Reference implementation
+
+- Type: [`ProblemError.cs`](../../src/api/PartsTrackerErp.GoldenPattern.Core/Contracts/Responses/ProblemError.cs), constructed as `new ProblemError("UpstreamServiceUnavailable", "A required upstream service is unavailable.", null)`.
+- Building the problem for a domain failure: [`ProblemDetailsMapper.ToProblemDetails(DomainErrorEnvelope)`](../../src/api/PartsTrackerErp.GoldenPattern.Api/ErrorHandling/ProblemDetailsMapper.cs)
+- Giving a framework-built problem the same shape: [`ProblemDetailsMapper.Customize`](../../src/api/PartsTrackerErp.GoldenPattern.Api/ErrorHandling/ProblemDetailsMapper.cs)
+- The status mapping: [`ErrorTypeExtensions.ToHttpStatusCode`](../../src/api/PartsTrackerErp.GoldenPattern.Api/ErrorHandling/ErrorTypeExtensions.cs)

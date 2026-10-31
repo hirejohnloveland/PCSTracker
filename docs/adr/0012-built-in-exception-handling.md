@@ -6,7 +6,7 @@ An unexpected exception has to reach the caller as a safe response, and its deta
 
 ## Decision
 
-- `Program.cs` calls `UseExceptionHandler()` and `UseStatusCodePages()` first, so they wrap every later stage ([ADR 0001](0001-host-registration-pattern.md)). `AddApiErrorHandling()` (`Registration/ErrorHandlingRegistration.cs`), called from `AddApi()`, registers `AddProblemDetails` and `ApiExceptionHandler`. There is no custom exception middleware.
+- `Program.cs` calls `UseExceptionHandler()` and `UseStatusCodePages()` first, so they wrap every later stage ([ADR 0001](0001-host-registration-pattern.md)). `AddApiErrorHandling()` ([`Registration/ErrorHandlingRegistration.cs`](../../src/api/PartsTrackerErp.GoldenPattern.Api/Registration/ErrorHandlingRegistration.cs)), called from `AddApi()`, registers `AddProblemDetails` and `ApiExceptionHandler`. There is no custom exception middleware.
 - `ApiExceptionHandler` answers four cases:
   - `DomainException`, by its category, through `ProblemDetailsMapper` ([ADR 0011](0011-problem-details.md)).
   - `BadHttpRequestException`, with its own status. .NET 10 would otherwise answer these 500.
@@ -21,3 +21,8 @@ An unexpected exception has to reach the caller as a safe response, and its deta
 
 - An exception type gets its own response only by adding a case to `ApiExceptionHandler`. Until then it is a 500.
 - A caller sees a generic message for an unexpected failure. The cause is in the log.
+
+## Reference implementation
+
+- Registration: [`ErrorHandlingRegistration.AddApiErrorHandling`](../../src/api/PartsTrackerErp.GoldenPattern.Api/Registration/ErrorHandlingRegistration.cs)
+- The handler's four cases, and the shape a new one follows, in [`ApiExceptionHandler.TryHandleAsync`](../../src/api/PartsTrackerErp.GoldenPattern.Api/ErrorHandling/ApiExceptionHandler.cs): `BadHttpRequestException badRequest => ProblemDetailsMapper.ToProblemDetails(badRequest.StatusCode),`

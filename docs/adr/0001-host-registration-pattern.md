@@ -6,7 +6,7 @@ Service registrations in `Program.cs` grow without bound and cannot be reused. A
 
 ## Decision
 
-- Each project exposes one public entry point: an extension method on `IHostApplicationBuilder` that returns the builder. Core: `AddCore()` in `DependencyInjection/CoreRegistration.cs`. API: `AddApi()` in `DependencyInjection.cs`.
+- Each project exposes one public entry point: an extension method on `IHostApplicationBuilder` that returns the builder. Core: `AddCore()` in [`DependencyInjection/CoreRegistration.cs`](../../src/api/PartsTrackerErp.GoldenPattern.Core/DependencyInjection/CoreRegistration.cs). API: `AddApi()` in [`DependencyInjection.cs`](../../src/api/PartsTrackerErp.GoldenPattern.Api/DependencyInjection.cs).
 - Host-only concerns are `internal static` classes, one per file, in the host's `Registration/` folder. The entry point calls them.
 - `Program.cs` calls entry points only. The middleware pipeline stays in `Program.cs` so its order is visible.
 - A Functions host calls `AddCore()` and adds its own host-only registrations.
@@ -16,3 +16,9 @@ Service registrations in `Program.cs` grow without bound and cannot be reused. A
 - `Program.cs` stays short.
 - Core registrations are written once and reused by every host.
 - Core depends on `Microsoft.Extensions.Hosting.Abstractions`.
+
+## Reference implementation
+
+- Core's entry point: [`CoreRegistration.AddCore`](../../src/api/PartsTrackerErp.GoldenPattern.Core/DependencyInjection/CoreRegistration.cs)
+- API's entry point: [`DependencyInjection.AddApi`](../../src/api/PartsTrackerErp.GoldenPattern.Api/DependencyInjection.cs)
+- The call order, in [`Program.cs`](../../src/api/PartsTrackerErp.GoldenPattern.Api/Program.cs): `builder.AddCore();` then `builder.AddApi();`; after `builder.Build()`, `app.UseExceptionHandler();` and `app.UseStatusCodePages();` before anything else.

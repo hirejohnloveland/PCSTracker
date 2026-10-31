@@ -15,3 +15,7 @@ A caller can abandon a request, and a host can stop while work is in flight. Wor
 - A cancelled request stops its RavenDB and HTTP calls instead of running to completion.
 - The compiler does not check that a method passes its token on. A method that drops it still compiles, and cancellation stops there.
 - Because the parameter has a default, a caller that omits the token also compiles.
+
+## Reference implementation
+
+- The token threaded from controller to repository: [`VendorsController.Activate`](../../src/api/PartsTrackerErp.GoldenPattern.Api/Controllers/VendorsController.cs) through [`VendorsApplicationService.ActivateAsync`](../../src/api/PartsTrackerErp.GoldenPattern.Core/ApplicationServices/Implementations/VendorsApplicationService.cs) to [`VendorRepository.GetAsync`](../../src/api/PartsTrackerErp.GoldenPattern.Core/Repositories/Implementations/VendorRepository.cs): `await vendorRepository.GetAsync(id, cancellationToken)`.

@@ -1,5 +1,13 @@
 # Architecture Decision Records
 
+An ADR for an implementation pattern ends with a **Reference implementation** section: links to the file(s)/method(s) that currently demonstrate it, not pasted code, so the pointer can't drift from the source it describes.
+
+- A class with no usage nuance, such as a registration, needs only the link.
+- A class that defines how to use something, such as `ServiceResponse<T>`, adds one real line of exact call syntax next to the link.
+- A pattern with no implementation yet to link to carries its own exemplar code instead.
+
+The goal is not preserving code in two places. It's making sure an agent or a person reading the ADR knows exactly what's wanted.
+
 | ADR | Topic |
 |-----|-------|
 | [0001](0001-host-registration-pattern.md) | Host registration pattern |

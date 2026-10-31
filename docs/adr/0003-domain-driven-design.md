@@ -17,3 +17,9 @@ Earlier services used anemic domain models: entities held data and services held
 - Services stay small because business rules live on entities and domain services.
 - Each use case commits once, so its changes succeed or fail together.
 - Entities take more design work: state changes go through methods, and RavenDB's serialization has to support that.
+
+## Reference implementation
+
+- An entity enforcing its own state change: `vendor.Activate()` in [`VendorsApplicationService.ActivateAsync`](../../src/api/PartsTrackerErp.GoldenPattern.Core/ApplicationServices/Implementations/VendorsApplicationService.cs), defined on [`Vendor`](../../src/api/PartsTrackerErp.GoldenPattern.Core/Domain/Entities/Vendor.cs).
+- A repository that loads but never saves: [`IVendorRepository`](../../src/api/PartsTrackerErp.GoldenPattern.Core/Repositories/Abstractions/IVendorRepository.cs) / [`VendorRepository`](../../src/api/PartsTrackerErp.GoldenPattern.Core/Repositories/Implementations/VendorRepository.cs)
+- The unit of work that commits the use case: [`IUnitOfWork`](../../src/api/PartsTrackerErp.GoldenPattern.Core/ApplicationServices/Abstractions/IUnitOfWork.cs) / [`RavenUnitOfWork`](../../src/api/PartsTrackerErp.GoldenPattern.Core/Infrastructure/Persistence/RavenUnitOfWork.cs)

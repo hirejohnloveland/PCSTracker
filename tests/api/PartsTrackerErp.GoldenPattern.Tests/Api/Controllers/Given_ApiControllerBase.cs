@@ -37,6 +37,7 @@ public class Given_ApiControllerBase : IDisposable
     public void Dispose()
     {
         _services.Dispose();
+        GC.SuppressFinalize(this);
     }
 
     public static TheoryData<ErrorType, int> StatusCodeCases()

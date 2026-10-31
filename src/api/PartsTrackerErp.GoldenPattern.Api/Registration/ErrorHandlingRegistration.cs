@@ -17,7 +17,7 @@ internal static class ErrorHandlingRegistration
         return builder;
     }
 
-    private static IActionResult CreateInvalidModelStateResponse(ActionContext context)
+    private static ObjectResult CreateInvalidModelStateResponse(ActionContext context)
     {
         return ProblemDetailsMapper.ToProblemDetails(context.ModelState).ToObjectResult(context.HttpContext);
     }

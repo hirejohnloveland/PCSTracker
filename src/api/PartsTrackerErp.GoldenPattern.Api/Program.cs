@@ -25,6 +25,3 @@ app.UseAuthorization();
 app.MapControllers();
 
 app.Run();
-
-// Lets the test project's WebApplicationFactory reference the entry point.
-public partial class Program;

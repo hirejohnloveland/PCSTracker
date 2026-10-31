@@ -16,8 +16,10 @@ internal sealed class RavenDbDatabaseInitializer(
 {
     public async Task StartAsync(CancellationToken cancellationToken)
     {
+        string database = store.Database;
+
         var record = await store.Maintenance.Server.SendAsync(
-            new GetDatabaseRecordOperation(store.Database), cancellationToken);
+            new GetDatabaseRecordOperation(database), cancellationToken);
 
         if (record is not null)
         {
@@ -27,9 +29,9 @@ internal sealed class RavenDbDatabaseInitializer(
         try
         {
             await store.Maintenance.Server.SendAsync(
-                new CreateDatabaseOperation(new DatabaseRecord(store.Database)), cancellationToken);
+                new CreateDatabaseOperation(new DatabaseRecord(database)), cancellationToken);
 
-            logger.LogInformation("Created RavenDB database '{Database}'.", store.Database);
+            logger.LogInformation("Created RavenDB database '{Database}'.", database);
         }
         catch (ConcurrencyException)
         {

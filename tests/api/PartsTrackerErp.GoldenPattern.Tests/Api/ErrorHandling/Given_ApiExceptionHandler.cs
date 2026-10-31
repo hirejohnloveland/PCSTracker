@@ -28,6 +28,7 @@ public class Given_ApiExceptionHandler : IDisposable
     public void Dispose()
     {
         _services.Dispose();
+        GC.SuppressFinalize(this);
     }
 
     private static DomainError Error(string code, string message)

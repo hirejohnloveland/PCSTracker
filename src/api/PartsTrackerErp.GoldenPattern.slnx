@@ -1,0 +1,5 @@
+<Solution>
+  <Project Path="../../tests/api/PartsTrackerErp.GoldenPattern.Tests/PartsTrackerErp.GoldenPattern.Tests.csproj" />
+  <Project Path="PartsTrackerErp.GoldenPattern.Api/PartsTrackerErp.GoldenPattern.Api.csproj" />
+  <Project Path="PartsTrackerErp.GoldenPattern.Core/PartsTrackerErp.GoldenPattern.Core.csproj" />
+</Solution>

@@ -7,6 +7,6 @@
 ## Build and run
 
 ```powershell
-dotnet build src/api/Ziosk.GoldenPattern.slnx
-dotnet run --project src/api/Ziosk.GoldenPattern.Api
+dotnet build src/api/PartsTrackerErp.GoldenPattern.slnx
+dotnet run --project src/api/PartsTrackerErp.GoldenPattern.Api
 ```

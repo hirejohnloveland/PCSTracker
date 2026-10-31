@@ -1,6 +1,0 @@
-@GoldenPattern_HostAddress = http://localhost:5031
-
-GET {{GoldenPattern_HostAddress}}/weatherforecast/
-Accept: application/json
-
-###

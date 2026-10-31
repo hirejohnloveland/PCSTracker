@@ -6,7 +6,7 @@ Service registrations in `Program.cs` grow without bound and cannot be reused. A
 
 ## Decision
 
-- Each project exposes one public entry point in `DependencyInjection.cs`: an extension method on `IHostApplicationBuilder` that returns the builder (`AddCore()`, `AddApi()`).
+- Each project exposes one public entry point: an extension method on `IHostApplicationBuilder` that returns the builder. Core: `AddCore()` in `DependencyInjection/CoreRegistration.cs`. API: `AddApi()` in `DependencyInjection.cs`.
 - Host-only concerns are `internal static` classes, one per file, in the host's `Registration/` folder. The entry point calls them.
 - `Program.cs` calls entry points only. The middleware pipeline stays in `Program.cs` so its order is visible.
 - A Functions host calls `AddCore()` and adds its own host-only registrations.

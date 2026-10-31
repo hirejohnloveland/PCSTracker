@@ -3,3 +3,10 @@
 | ADR | Topic |
 |-----|-------|
 | [0001](0001-host-registration-pattern.md) | Host registration pattern |
+| [0002](0002-single-core-library.md) | Single Core library with folder boundaries |
+| [0003](0003-domain-driven-design.md) | Domain-Driven Design with repositories and unit of work |
+| [0004](0004-colocated-interfaces.md) | Interfaces live next to their implementations |
+| [0005](0005-fluent-validation.md) | FluentValidation for boundary input validation |
+| [0006](0006-ravendb-persistence.md) | RavenDB for persistence |
+| [0007](0007-ember-frontend.md) | Ember.js for the front end |
+| [0008](0008-cancellation-tokens.md) | Cancellation tokens through every layer |

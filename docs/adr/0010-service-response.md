@@ -25,6 +25,6 @@ A call into an application service can succeed, fail because a rule was not met,
 ## Reference implementation
 
 - Type: [`ServiceResponse.cs`](../../src/api/PartsTrackerErp.GoldenPattern.Core/ApplicationServices/Abstractions/ServiceResponse.cs)
-- A success and a `NotFound` failure side by side, in [`VendorsApplicationService.ActivateAsync`](../../src/api/PartsTrackerErp.GoldenPattern.Core/ApplicationServices/Implementations/VendorsApplicationService.cs): `ServiceResponse<VendorResponseDto>.Fail(ErrorType.NotFound, VendorErrors.NotFound(id))` and `ServiceResponse<VendorResponseDto>.Succeed(vendor.ToResponse())`.
+- A success and a `NotFound` failure side by side, in [`VendorsApplicationService.ActivateAsync`](../../src/api/PartsTrackerErp.GoldenPattern.Core/ApplicationServices/Implementations/VendorsApplicationService.cs): `ServiceResponse<VendorResponseDto>.Fail(ErrorType.NotFound, VendorErrors.NotFound(id))` and `ServiceResponse<VendorResponseDto>.Succeed(vendor.ToResponseDto())`.
 - An error definition: [`VendorErrors.NotFound`](../../src/api/PartsTrackerErp.GoldenPattern.Core/Domain/Exceptions/VendorErrors.cs)
 - Turning the response into an HTTP result: [`ApiControllerBase.ToResult`](../../src/api/PartsTrackerErp.GoldenPattern.Api/Controllers/ApiControllerBase.cs)

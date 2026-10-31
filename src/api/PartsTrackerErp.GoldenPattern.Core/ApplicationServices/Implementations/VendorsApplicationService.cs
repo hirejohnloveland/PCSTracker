@@ -16,7 +16,7 @@ public sealed class VendorsApplicationService(
         var vendor = Vendor.Create(name);
         await vendorRepository.AddAsync(vendor, cancellationToken);
         await unitOfWork.SaveChangesAsync(cancellationToken);
-        return ServiceResponse<VendorResponseDto>.Succeed(vendor.ToResponse());
+        return ServiceResponse<VendorResponseDto>.Succeed(vendor.ToResponseDto());
     }
 
     public async Task<ServiceResponse<VendorResponseDto>> ActivateAsync(string id, CancellationToken cancellationToken = default)
@@ -29,7 +29,7 @@ public sealed class VendorsApplicationService(
 
         vendor.Activate();
         await unitOfWork.SaveChangesAsync(cancellationToken);
-        return ServiceResponse<VendorResponseDto>.Succeed(vendor.ToResponse());
+        return ServiceResponse<VendorResponseDto>.Succeed(vendor.ToResponseDto());
     }
 
     public async Task<ServiceResponse<VendorResponseDto>> DeactivateAsync(string id, CancellationToken cancellationToken = default)
@@ -42,6 +42,6 @@ public sealed class VendorsApplicationService(
 
         vendor.Deactivate();
         await unitOfWork.SaveChangesAsync(cancellationToken);
-        return ServiceResponse<VendorResponseDto>.Succeed(vendor.ToResponse());
+        return ServiceResponse<VendorResponseDto>.Succeed(vendor.ToResponseDto());
     }
 }

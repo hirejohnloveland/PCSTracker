@@ -5,8 +5,8 @@ namespace PartsTrackerErp.GoldenPattern.Core.Mapping;
 
 public static class VendorInvoiceMappingExtensions
 {
-    public static VendorInvoiceResponseDto ToResponse(this VendorInvoiceDto invoice)
+    public static VendorInvoiceResponseDto ToResponseDto(this VendorInvoiceDto invoice)
     {
-        return new VendorInvoiceResponseDto(invoice.VendorName, invoice.Balance);
+        return new VendorInvoiceResponseDto(VendorName: invoice.VendorName, Balance: invoice.Balance);
     }
 }

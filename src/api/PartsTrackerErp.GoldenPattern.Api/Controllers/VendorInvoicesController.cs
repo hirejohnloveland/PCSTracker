@@ -4,12 +4,11 @@ using Microsoft.AspNetCore.Mvc;
 using PartsTrackerErp.GoldenPattern.Core.ApplicationServices.Abstractions;
 using PartsTrackerErp.GoldenPattern.Core.Contracts.Requests;
 using PartsTrackerErp.GoldenPattern.Core.Contracts.Responses;
-using PartsTrackerErp.GoldenPattern.Core.Mapping;
 
 namespace PartsTrackerErp.GoldenPattern.Api.Controllers;
 
 [Route("[controller]")]
-public class VendorInvoicesController : ApiControllerBase
+public class VendorInvoicesController(IVendorInvoicesApplicationService vendorInvoicesApplicationService) : ApiControllerBase
 {
     [HttpPost]
     public async Task<IActionResult> Create(
@@ -23,6 +22,7 @@ public class VendorInvoicesController : ApiControllerBase
             return InvalidRequest(validation);
         }
 
-        return ToResult(ServiceResponse<VendorInvoiceResponseDto>.Succeed(invoice.ToResponse()));
+        ServiceResponse<VendorInvoiceResponseDto> response = await vendorInvoicesApplicationService.CreateAsync(invoice, cancellationToken);
+        return ToResult(response);
     }
 }

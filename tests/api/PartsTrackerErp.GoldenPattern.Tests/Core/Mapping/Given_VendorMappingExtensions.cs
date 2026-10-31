@@ -8,14 +8,14 @@ namespace PartsTrackerErp.GoldenPattern.Tests.Core.Mapping;
 public class Given_VendorMappingExtensions
 {
     [Fact]
-    public void ToResponse_CopiesTheIdNameAndActiveFlag()
+    public void ToResponseDto_CopiesTheIdNameAndActiveFlag()
     {
         Vendor vendor = Vendor.Create("Acme");
 
         // Id has a private setter and stays null until the vendor is stored.
         typeof(Vendor).GetProperty(nameof(Vendor.Id))!.SetValue(vendor, "vendors/1-A");
 
-        VendorResponseDto response = vendor.ToResponse();
+        VendorResponseDto response = vendor.ToResponseDto();
 
         Assert.Equal(new VendorResponseDto("vendors/1-A", "Acme", true), response);
     }

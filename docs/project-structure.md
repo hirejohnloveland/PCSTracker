@@ -34,7 +34,7 @@ Solution: `src/api/PartsTrackerErp.GoldenPattern.slnx`
 
 | Path under `Core` | What belongs here |
 | --- | --- |
-| `ApplicationServices/Abstractions` | Interfaces describing application use cases exposed to the API or other entry points. |
+| `ApplicationServices/Abstractions` | Interfaces describing application use cases exposed to the API or other entry points, and `ServiceResponse<T>`, the result those use cases return. See [ADR 0010](adr/0010-service-response.md). |
 | `ApplicationServices/Implementations` | Use-case orchestration: coordinate repositories, external integrations, domain behavior, transactions, and result construction. Keep HTTP details and low-level persistence code out. |
 | `Contracts/Requests` | Request DTOs accepted at application/API boundaries. These describe data coming in, not necessarily domain entities. |
 | `Contracts/Responses` | Response DTOs returned to callers. Deliberately shape public or internal API responses without leaking persistence entities. |
@@ -44,7 +44,7 @@ Solution: `src/api/PartsTrackerErp.GoldenPattern.slnx`
 | `Domain/ValueObjects` | Domain concepts defined by their values rather than identity; put their validation and invariants here. |
 | `Domain/Services/Abstractions` | Interfaces for domain services. |
 | `Domain/Services/Implementations` | Business rules and calculations that do not naturally belong on one entity/value object. Prefer domain logic that is deterministic and independent of I/O. |
-| `Domain/Exceptions` | Exceptions representing violations of domain rules or domain-specific failures. |
+| `Domain/Exceptions` | Exceptions representing violations of domain rules or domain-specific failures, the error types they share with `ServiceResponse<T>` (`ErrorType`, `DomainError`, `DomainErrorEnvelope`), and the error definitions for each domain concept, such as `VendorErrors`. |
 | `Infrastructure/Persistence` | Database infrastructure: RavenDB connection/session handling and other persistence plumbing. |
 | `Repositories/Abstractions` | Interfaces for accessing data owned by this service. Define useful persistence operations, not necessarily generic CRUD for every entity. |
 | `Repositories/Implementations` | Database access implementations: queries, commands, and persistence mappings using the infrastructure layer. |

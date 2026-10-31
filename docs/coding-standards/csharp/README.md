@@ -29,4 +29,4 @@ Add a convention here only after it has been agreed.
 ## Related
 
 - [Project structure](../../project-structure.md): where code belongs.
-- [Architecture decision records](../../adr/README.md), including [ADR 0008](../../adr/0008-cancellation-tokens.md) on cancellation tokens.
+- [Architecture decision records](../../adr/README.md), including [ADR 0008](../../adr/0008-cancellation-tokens.md) on cancellation tokens and [ADR 0010](../../adr/0010-service-response.md), [ADR 0011](../../adr/0011-problem-details.md), and [ADR 0012](../../adr/0012-built-in-exception-handling.md) on service responses and error handling.

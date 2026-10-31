@@ -11,3 +11,6 @@
 | [0007](0007-ember-frontend.md) | Ember.js for the front end |
 | [0008](0008-cancellation-tokens.md) | Cancellation tokens through every layer |
 | [0009](0009-coding-standards-enforcement.md) | C# coding standards enforcement |
+| [0010](0010-service-response.md) | Application services return ServiceResponse for expected failures |
+| [0011](0011-problem-details.md) | Failures reach callers as RFC 9457 problem details |
+| [0012](0012-built-in-exception-handling.md) | Unexpected exceptions use .NET's built-in exception handling |

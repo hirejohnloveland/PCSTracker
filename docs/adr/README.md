@@ -10,3 +10,4 @@
 | [0006](0006-ravendb-persistence.md) | RavenDB for persistence |
 | [0007](0007-ember-frontend.md) | Ember.js for the front end |
 | [0008](0008-cancellation-tokens.md) | Cancellation tokens through every layer |
+| [0009](0009-coding-standards-enforcement.md) | C# coding standards enforcement |

@@ -1,12 +1,12 @@
 using PartsTrackerErp.GoldenPattern.Api;
 using PartsTrackerErp.GoldenPattern.Core.DependencyInjection;
 
-var builder = WebApplication.CreateBuilder(args);
+WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
 
 builder.AddCore();
 builder.AddApi();
 
-var app = builder.Build();
+WebApplication app = builder.Build();
 
 // First, so they wrap every stage after them.
 app.UseExceptionHandler();

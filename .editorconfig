@@ -42,7 +42,7 @@ tab_width = 4
 [*.{cs,vb}]
 
 # Organize usings
-dotnet_separate_import_directive_groups = true
+dotnet_separate_import_directive_groups = false
 dotnet_sort_system_directives_first = true
 file_header_template = unset
 
@@ -67,14 +67,14 @@ dotnet_style_require_accessibility_modifiers = for_non_interface_members:silent
 
 # Expression-level preferences
 dotnet_style_coalesce_expression = true:suggestion
-dotnet_style_collection_initializer = true:suggestion
+dotnet_style_collection_initializer = true
 dotnet_style_explicit_tuple_names = true:suggestion
 dotnet_style_namespace_match_folder = true:suggestion
 dotnet_style_null_propagation = true:suggestion
 dotnet_style_object_initializer = true:suggestion
 dotnet_style_operator_placement_when_wrapping = beginning_of_line
 dotnet_style_prefer_auto_properties = true:suggestion
-dotnet_style_prefer_collection_expression = when_types_exactly_match:suggestion
+dotnet_style_prefer_collection_expression = when_types_exactly_match
 dotnet_style_prefer_compound_assignment = true:suggestion
 dotnet_style_prefer_conditional_expression_over_assignment = true:suggestion
 dotnet_style_prefer_conditional_expression_over_return = true:suggestion
@@ -135,7 +135,7 @@ csharp_prefer_braces = true
 csharp_prefer_simple_using_statement = true:suggestion
 csharp_style_namespace_declarations = file_scoped:suggestion
 csharp_style_prefer_method_group_conversion = true:silent
-csharp_style_prefer_primary_constructors = true:suggestion
+csharp_style_prefer_primary_constructors = true
 csharp_style_prefer_top_level_statements = true:silent
 
 # Expression-level preferences
@@ -409,3 +409,21 @@ dotnet_diagnostic.IDE1006.severity = warning
 # Template defaults: readonly fields, static local functions.
 dotnet_diagnostic.IDE0044.severity = warning
 dotnet_diagnostic.IDE0062.severity = warning
+
+# Primary constructors.
+dotnet_diagnostic.IDE0290.severity = warning
+
+# Collection expressions, only where the target type matches exactly, so a fix never changes the runtime type.
+dotnet_diagnostic.IDE0028.severity = warning
+dotnet_diagnostic.IDE0300.severity = warning
+dotnet_diagnostic.IDE0301.severity = warning
+dotnet_diagnostic.IDE0302.severity = warning
+dotnet_diagnostic.IDE0303.severity = warning
+dotnet_diagnostic.IDE0304.severity = warning
+dotnet_diagnostic.IDE0305.severity = warning
+
+# Unused using directives.
+dotnet_diagnostic.IDE0005.severity = warning
+
+# Pass the CancellationToken on to calls that accept one (ADR 0008).
+dotnet_diagnostic.CA2016.severity = warning

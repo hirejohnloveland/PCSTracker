@@ -5,6 +5,7 @@ using FluentValidation.Results;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
+using Microsoft.Extensions.DependencyInjection;
 using PartsTrackerErp.GoldenPattern.Api.ErrorHandling;
 using PartsTrackerErp.GoldenPattern.Core.Contracts.Responses;
 using PartsTrackerErp.GoldenPattern.Core.Domain.Exceptions;
@@ -453,7 +454,7 @@ public class Given_ProblemDetailsMapper
     [Fact]
     public void ToObjectResult_BuildsThroughTheFrameworkFactoryAndKeepsTheAuthoredErrors()
     {
-        using var services = ErrorHandlingTestServices.Build();
+        using ServiceProvider services = ErrorHandlingTestServices.Build();
         DefaultHttpContext httpContext = ErrorHandlingTestServices.NewHttpContext(services, "/vendors/7/activate");
         ProblemDetails authored = ProblemDetailsMapper.ToProblemDetails(
             Envelope(ErrorType.NotFound, Error("VendorNotFound", "Vendor 7 was not found.")));
@@ -462,7 +463,7 @@ public class Given_ProblemDetailsMapper
 
         Assert.Equal(StatusCodes.Status404NotFound, result.StatusCode);
         Assert.Equal(["application/problem+json"], result.ContentTypes);
-        var built = Assert.IsType<ProblemDetails>(result.Value);
+        ProblemDetails built = Assert.IsType<ProblemDetails>(result.Value);
         Assert.Equal("Not Found", built.Title);
         Assert.Equal(TypeBase + "not-found", built.Type);
         Assert.Equal("Vendor 7 was not found.", built.Detail);
@@ -486,7 +487,7 @@ public class Given_ProblemDetailsMapper
     public void GetTraceId_WithAnActivity_IsTheActivityId()
     {
         var httpContext = new DefaultHttpContext { TraceIdentifier = "request-42" };
-        using var activity = new Activity("test").Start();
+        using Activity activity = new Activity("test").Start();
 
         Assert.Equal(activity.Id, ProblemDetailsMapper.GetTraceId(httpContext));
     }

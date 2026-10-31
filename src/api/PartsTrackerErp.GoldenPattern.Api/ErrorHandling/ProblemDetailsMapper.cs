@@ -123,7 +123,7 @@ public static class ProblemDetailsMapper
     /// </summary>
     public static ObjectResult ToObjectResult(this ProblemDetails problem, HttpContext httpContext)
     {
-        var factory = httpContext.RequestServices.GetRequiredService<ProblemDetailsFactory>();
+        ProblemDetailsFactory factory = httpContext.RequestServices.GetRequiredService<ProblemDetailsFactory>();
         ProblemDetails built = factory.CreateProblemDetails(
             httpContext,
             problem.Status,

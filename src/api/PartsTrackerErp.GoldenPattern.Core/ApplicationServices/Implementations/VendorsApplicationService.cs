@@ -19,7 +19,7 @@ public sealed class VendorsApplicationService(
 
     public async Task<ServiceResponse<Vendor>> ActivateAsync(string id, CancellationToken cancellationToken = default)
     {
-        var vendor = await vendorRepository.GetAsync(id, cancellationToken);
+        Vendor? vendor = await vendorRepository.GetAsync(id, cancellationToken);
         if (vendor is null)
         {
             return ServiceResponse<Vendor>.Fail(ErrorType.NotFound, VendorErrors.NotFound(id));
@@ -32,7 +32,7 @@ public sealed class VendorsApplicationService(
 
     public async Task<ServiceResponse<Vendor>> DeactivateAsync(string id, CancellationToken cancellationToken = default)
     {
-        var vendor = await vendorRepository.GetAsync(id, cancellationToken);
+        Vendor? vendor = await vendorRepository.GetAsync(id, cancellationToken);
         if (vendor is null)
         {
             return ServiceResponse<Vendor>.Fail(ErrorType.NotFound, VendorErrors.NotFound(id));

@@ -13,7 +13,7 @@ internal static class RavenDbRegistration
         // One document store per process.
         builder.Services.AddSingleton<IDocumentStore>(sp =>
         {
-            var section = sp.GetRequiredService<IConfiguration>().GetSection("RavenDb");
+            IConfigurationSection section = sp.GetRequiredService<IConfiguration>().GetSection("RavenDb");
 
             return new DocumentStore
             {

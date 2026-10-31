@@ -83,7 +83,7 @@ public class Given_ApiControllerBase : IDisposable
 
         IActionResult result = NewController().RespondInvalid(validation);
 
-        var objectResult = Assert.IsType<ObjectResult>(result);
+        ObjectResult objectResult = Assert.IsType<ObjectResult>(result);
         Assert.Equal(StatusCodes.Status400BadRequest, objectResult.StatusCode);
         Assert.Equal(["application/problem+json"], objectResult.ContentTypes);
         ProblemDetails problem = ProblemOf(result);
@@ -105,9 +105,9 @@ public class Given_ApiControllerBase : IDisposable
         IActionResult result = NewController().Respond(ServiceResponse<string>.Succeed("Acme"));
 
         DateTime after = DateTime.UtcNow;
-        var ok = Assert.IsType<OkObjectResult>(result);
+        OkObjectResult ok = Assert.IsType<OkObjectResult>(result);
         Assert.Equal(StatusCodes.Status200OK, ok.StatusCode);
-        var response = Assert.IsType<ApiResponse<string>>(ok.Value);
+        ApiResponse<string> response = Assert.IsType<ApiResponse<string>>(ok.Value);
         Assert.Equal("Acme", response.Data);
         Assert.Equal("trace-123", response.Metadata.TraceId);
         Assert.Equal(DateTimeKind.Utc, response.Metadata.Timestamp.Kind);
@@ -117,11 +117,11 @@ public class Given_ApiControllerBase : IDisposable
     [Fact]
     public void ToResult_Success_TraceIdIsTheActivityIdWhenThereIsOne()
     {
-        using var activity = new Activity("test").Start();
+        using Activity activity = new Activity("test").Start();
 
         IActionResult result = NewController().Respond(ServiceResponse<string>.Succeed("Acme"));
 
-        var response = Assert.IsType<ApiResponse<string>>(Assert.IsType<OkObjectResult>(result).Value);
+        ApiResponse<string> response = Assert.IsType<ApiResponse<string>>(Assert.IsType<OkObjectResult>(result).Value);
         Assert.Equal(activity.Id, response.Metadata.TraceId);
     }
 
@@ -133,7 +133,7 @@ public class Given_ApiControllerBase : IDisposable
     {
         IActionResult result = NewController().Respond(ServiceResponse<string>.Fail(errorType, Error("Code", "Message.")));
 
-        var objectResult = Assert.IsType<ObjectResult>(result);
+        ObjectResult objectResult = Assert.IsType<ObjectResult>(result);
         Assert.Equal(expectedStatus, objectResult.StatusCode);
         Assert.Equal(expectedStatus, ProblemOf(result).Status);
         Assert.Equal(["application/problem+json"], objectResult.ContentTypes);

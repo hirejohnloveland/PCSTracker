@@ -18,7 +18,7 @@ internal sealed class RavenDbDatabaseInitializer(
     {
         string database = store.Database;
 
-        var record = await store.Maintenance.Server.SendAsync(
+        DatabaseRecordWithEtag? record = await store.Maintenance.Server.SendAsync(
             new GetDatabaseRecordOperation(database), cancellationToken);
 
         if (record is not null)

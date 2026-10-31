@@ -13,6 +13,7 @@ public static class DependencyInjection
         builder.AddApiControllers();
         builder.AddApiErrorHandling();
         builder.AddApiOpenApi();
+        builder.AddApiTelemetry();
 
         return builder;
     }

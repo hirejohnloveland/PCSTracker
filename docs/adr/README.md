@@ -14,3 +14,4 @@
 | [0010](0010-service-response.md) | Application services return ServiceResponse for expected failures |
 | [0011](0011-problem-details.md) | Failures reach callers as RFC 9457 problem details |
 | [0012](0012-built-in-exception-handling.md) | Unexpected exceptions use .NET's built-in exception handling |
+| [0013](0013-observability.md) | Observability with OpenTelemetry and Azure Monitor |

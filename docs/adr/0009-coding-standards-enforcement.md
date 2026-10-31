@@ -10,7 +10,7 @@ A standard that exists only as a document depends on whoever writes the code fol
 - [`Directory.Build.props`](../../Directory.Build.props) runs the style checks in the build and treats warnings as errors, so a violation fails `dotnet build`. NuGet vulnerability warnings stay warnings.
 - `dotnet format` runs at its default severity, never `--severity info`.
 - The [C# standards document](../coding-standards/csharp/README.md) holds the conventions the tools can't fully check. A convention is added only once it is agreed.
-- [`AGENTS.md`](../../AGENTS.md) tells agents to review their C# changes against that document before finishing. When the work is a plan to-do, the [`standards-reviewer`](../../.agents/agents/standards-reviewer.md) agent reviews the files the to-do changed before the to-do is marked complete.
+- [`AGENTS.md`](../../AGENTS.md) tells agents to review their C# changes against that document before finishing. When the work is a plan to-do, the [`standards-reviewer`](../../.agents/agents/standards-reviewer.md) agent reviews every uncommitted change before the to-do is marked complete.
 - Suppressing a diagnostic or changing `.editorconfig` or `Directory.Build.props` needs a discussion first. The reviewer always reports either.
 
 ## Consequences

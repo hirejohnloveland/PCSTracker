@@ -22,4 +22,4 @@ Fix style violations with `dotnet format src/api/PartsTrackerErp.GoldenPattern.s
 
 Never suppress a diagnostic or change `.editorconfig` or `Directory.Build.props` without discussing it with the user first.
 
-Before finishing C# work, review your changes against [docs/coding-standards/csharp/README.md](docs/coding-standards/csharp/README.md). When the work is a plan to-do, have the `standards-reviewer` subagent do that review before you mark the to-do complete, and tell it which files the to-do changed. Fix the findings you agree with, say why you disagree with the rest, and bring anything still disputed to the user.
+Before finishing C# work, review your changes against [docs/coding-standards/csharp/README.md](docs/coding-standards/csharp/README.md). When the work is a plan to-do, have the `standards-reviewer` subagent do that review before you mark the to-do complete. It reviews every uncommitted change; tell it what the plan and the to-do are for. Fix the findings you agree with and say why you disagree with the rest. Bring anything still disputed, and anything it lists outside the change, to the user.

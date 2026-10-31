@@ -3,6 +3,8 @@ using FluentValidation.Results;
 using Microsoft.AspNetCore.Mvc;
 using PartsTrackerErp.GoldenPattern.Core.ApplicationServices.Abstractions;
 using PartsTrackerErp.GoldenPattern.Core.Contracts.Requests;
+using PartsTrackerErp.GoldenPattern.Core.Contracts.Responses;
+using PartsTrackerErp.GoldenPattern.Core.Mapping;
 
 namespace PartsTrackerErp.GoldenPattern.Api.Controllers;
 
@@ -21,6 +23,6 @@ public class VendorInvoicesController : ApiControllerBase
             return InvalidRequest(validation);
         }
 
-        return ToResult(ServiceResponse<VendorInvoiceDto>.Succeed(invoice));
+        return ToResult(ServiceResponse<VendorInvoiceResponseDto>.Succeed(invoice.ToResponse()));
     }
 }

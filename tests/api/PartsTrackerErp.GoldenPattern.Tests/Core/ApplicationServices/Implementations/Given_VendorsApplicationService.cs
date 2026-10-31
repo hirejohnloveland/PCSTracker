@@ -1,5 +1,6 @@
 using PartsTrackerErp.GoldenPattern.Core.ApplicationServices.Abstractions;
 using PartsTrackerErp.GoldenPattern.Core.ApplicationServices.Implementations;
+using PartsTrackerErp.GoldenPattern.Core.Contracts.Responses;
 using PartsTrackerErp.GoldenPattern.Core.Domain.Entities;
 using PartsTrackerErp.GoldenPattern.Core.Domain.Exceptions;
 using PartsTrackerErp.GoldenPattern.Core.Repositories.Abstractions;
@@ -24,12 +25,12 @@ public class Given_VendorsApplicationService
         using var cancellation = new CancellationTokenSource();
         CancellationToken token = cancellation.Token;
 
-        ServiceResponse<Vendor> response = await _service.AddAsync("  Acme  ", token);
+        ServiceResponse<VendorResponseDto> response = await _service.AddAsync("  Acme  ", token);
 
         Assert.True(response.Success);
         Assert.Equal("Acme", response.Data.Name);
         Assert.True(response.Data.IsActive);
-        _repository.Verify(r => r.AddAsync(response.Data, token), Times.Once);
+        _repository.Verify(r => r.AddAsync(It.Is<Vendor>(v => v.Name == "Acme" && v.IsActive), token), Times.Once);
         _unitOfWork.Verify(u => u.SaveChangesAsync(token), Times.Once);
     }
 
@@ -38,7 +39,7 @@ public class Given_VendorsApplicationService
     {
         _repository.Setup(r => r.GetAsync("7", It.IsAny<CancellationToken>())).ReturnsAsync((Vendor?)null);
 
-        ServiceResponse<Vendor> response = await _service.ActivateAsync("7");
+        ServiceResponse<VendorResponseDto> response = await _service.ActivateAsync("7");
 
         AssertNotFound(response, "7");
         _unitOfWork.Verify(u => u.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Never);
@@ -53,10 +54,10 @@ public class Given_VendorsApplicationService
         vendor.Deactivate();
         _repository.Setup(r => r.GetAsync("7", token)).ReturnsAsync(vendor);
 
-        ServiceResponse<Vendor> response = await _service.ActivateAsync("7", token);
+        ServiceResponse<VendorResponseDto> response = await _service.ActivateAsync("7", token);
 
         Assert.True(response.Success);
-        Assert.Same(vendor, response.Data);
+        Assert.Equal(new VendorResponseDto(null, "Acme", true), response.Data);
         Assert.True(vendor.IsActive);
         _unitOfWork.Verify(u => u.SaveChangesAsync(token), Times.Once);
     }
@@ -66,7 +67,7 @@ public class Given_VendorsApplicationService
     {
         _repository.Setup(r => r.GetAsync("7", It.IsAny<CancellationToken>())).ReturnsAsync((Vendor?)null);
 
-        ServiceResponse<Vendor> response = await _service.DeactivateAsync("7");
+        ServiceResponse<VendorResponseDto> response = await _service.DeactivateAsync("7");
 
         AssertNotFound(response, "7");
         _unitOfWork.Verify(u => u.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Never);
@@ -80,15 +81,15 @@ public class Given_VendorsApplicationService
         Vendor vendor = Vendor.Create("Acme");
         _repository.Setup(r => r.GetAsync("7", token)).ReturnsAsync(vendor);
 
-        ServiceResponse<Vendor> response = await _service.DeactivateAsync("7", token);
+        ServiceResponse<VendorResponseDto> response = await _service.DeactivateAsync("7", token);
 
         Assert.True(response.Success);
-        Assert.Same(vendor, response.Data);
+        Assert.Equal(new VendorResponseDto(null, "Acme", false), response.Data);
         Assert.False(vendor.IsActive);
         _unitOfWork.Verify(u => u.SaveChangesAsync(token), Times.Once);
     }
 
-    private static void AssertNotFound(ServiceResponse<Vendor> response, string id)
+    private static void AssertNotFound(ServiceResponse<VendorResponseDto> response, string id)
     {
         Assert.False(response.Success);
         Assert.Equal(ErrorType.NotFound, response.FailureType);

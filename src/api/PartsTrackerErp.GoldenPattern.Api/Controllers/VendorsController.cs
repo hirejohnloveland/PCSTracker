@@ -3,7 +3,7 @@ using FluentValidation.Results;
 using Microsoft.AspNetCore.Mvc;
 using PartsTrackerErp.GoldenPattern.Core.ApplicationServices.Abstractions;
 using PartsTrackerErp.GoldenPattern.Core.Contracts.Requests;
-using PartsTrackerErp.GoldenPattern.Core.Domain.Entities;
+using PartsTrackerErp.GoldenPattern.Core.Contracts.Responses;
 
 namespace PartsTrackerErp.GoldenPattern.Api.Controllers;
 
@@ -22,21 +22,21 @@ public class VendorsController(IVendorsApplicationService vendorsApplicationServ
             return InvalidRequest(validation);
         }
 
-        ServiceResponse<Vendor> response = await vendorsApplicationService.AddAsync(request.Name, cancellationToken);
+        ServiceResponse<VendorResponseDto> response = await vendorsApplicationService.AddAsync(request.Name, cancellationToken);
         return ToResult(response);
     }
 
     [HttpPost("{id}/activate")]
     public async Task<IActionResult> Activate(string id, CancellationToken cancellationToken)
     {
-        ServiceResponse<Vendor> response = await vendorsApplicationService.ActivateAsync(id, cancellationToken);
+        ServiceResponse<VendorResponseDto> response = await vendorsApplicationService.ActivateAsync(id, cancellationToken);
         return ToResult(response);
     }
 
     [HttpPost("{id}/deactivate")]
     public async Task<IActionResult> Deactivate(string id, CancellationToken cancellationToken)
     {
-        ServiceResponse<Vendor> response = await vendorsApplicationService.DeactivateAsync(id, cancellationToken);
+        ServiceResponse<VendorResponseDto> response = await vendorsApplicationService.DeactivateAsync(id, cancellationToken);
         return ToResult(response);
     }
 }

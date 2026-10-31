@@ -442,6 +442,18 @@ public class Given_ApiFailureBehavior : IClassFixture<ApiFactory>
     }
 
     [Fact]
+    public async Task VendorInvoices_ValidInvoice_AnswersWithTheInvoiceAndMetadata()
+    {
+        HttpResponseMessage response = await _client.PostAsync("/vendorinvoices", Json("""{"vendorName":"Acme","balance":10.5}"""));
+
+        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+        JsonElement body = await ReadJsonAsync(response);
+        Assert.Equal("Acme", body.GetProperty("data").GetProperty("vendorName").GetString());
+        Assert.Equal(10.5m, body.GetProperty("data").GetProperty("balance").GetDecimal());
+        Assert.False(string.IsNullOrEmpty(body.GetProperty("metadata").GetProperty("traceId").GetString()));
+    }
+
+    [Fact]
     public async Task VendorInvoices_InvalidInvoice_ListsBothFailuresWithPointers()
     {
         JsonElement problem = await ReadProblemAsync(

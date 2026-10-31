@@ -7,6 +7,7 @@ A call into an application service can succeed, fail because a rule was not met,
 ## Decision
 
 - Application services return `ServiceResponse<T>` ([`ApplicationServices/Abstractions/ServiceResponse.cs`](../../src/api/PartsTrackerErp.GoldenPattern.Core/ApplicationServices/Abstractions/ServiceResponse.cs)). `Succeed(data)` carries the data. `Fail(type, errors)` carries an `ErrorType` and one or more `DomainError`s, each a code and a message. `Fail` also takes a `DomainErrorEnvelope`.
+- `T` is a response DTO from `Contracts/Responses`, never an entity ([ADR 0003](0003-domain-driven-design.md)).
 - `FailureType` is the `ErrorType` passed to `Fail`. Nothing derives it from the errors. The categories are the ones `DomainException` uses: Validation, NotFound, Unauthorized, Forbidden, BusinessRuleViolation, and Unexpected.
 - A missing entity or a broken business rule is a returned failure, not an exception. An unexpected failure stays an exception, including one a service catches, logs, and rethrows. `DomainException` carries the same category and errors for code that cannot return a response, such as an entity method.
 - Errors are defined as static methods on a class named for the domain concept, such as `VendorErrors.NotFound(id)` in [`Domain/Exceptions/VendorErrors.cs`](../../src/api/PartsTrackerErp.GoldenPattern.Core/Domain/Exceptions/VendorErrors.cs).
@@ -24,6 +25,6 @@ A call into an application service can succeed, fail because a rule was not met,
 ## Reference implementation
 
 - Type: [`ServiceResponse.cs`](../../src/api/PartsTrackerErp.GoldenPattern.Core/ApplicationServices/Abstractions/ServiceResponse.cs)
-- A success and a `NotFound` failure side by side, in [`VendorsApplicationService.ActivateAsync`](../../src/api/PartsTrackerErp.GoldenPattern.Core/ApplicationServices/Implementations/VendorsApplicationService.cs): `ServiceResponse<Vendor>.Fail(ErrorType.NotFound, VendorErrors.NotFound(id))` and `ServiceResponse<Vendor>.Succeed(vendor)`.
+- A success and a `NotFound` failure side by side, in [`VendorsApplicationService.ActivateAsync`](../../src/api/PartsTrackerErp.GoldenPattern.Core/ApplicationServices/Implementations/VendorsApplicationService.cs): `ServiceResponse<VendorResponseDto>.Fail(ErrorType.NotFound, VendorErrors.NotFound(id))` and `ServiceResponse<VendorResponseDto>.Succeed(vendor.ToResponse())`.
 - An error definition: [`VendorErrors.NotFound`](../../src/api/PartsTrackerErp.GoldenPattern.Core/Domain/Exceptions/VendorErrors.cs)
 - Turning the response into an HTTP result: [`ApiControllerBase.ToResult`](../../src/api/PartsTrackerErp.GoldenPattern.Api/Controllers/ApiControllerBase.cs)

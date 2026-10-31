@@ -1,12 +1,12 @@
-using PartsTrackerErp.GoldenPattern.Core.Domain.Entities;
+using PartsTrackerErp.GoldenPattern.Core.Contracts.Responses;
 
 namespace PartsTrackerErp.GoldenPattern.Core.ApplicationServices.Abstractions;
 
 public interface IVendorsApplicationService
 {
-    Task<ServiceResponse<Vendor>> AddAsync(string name, CancellationToken cancellationToken = default);
+    Task<ServiceResponse<VendorResponseDto>> AddAsync(string name, CancellationToken cancellationToken = default);
 
-    Task<ServiceResponse<Vendor>> ActivateAsync(string id, CancellationToken cancellationToken = default);
+    Task<ServiceResponse<VendorResponseDto>> ActivateAsync(string id, CancellationToken cancellationToken = default);
 
-    Task<ServiceResponse<Vendor>> DeactivateAsync(string id, CancellationToken cancellationToken = default);
+    Task<ServiceResponse<VendorResponseDto>> DeactivateAsync(string id, CancellationToken cancellationToken = default);
 }

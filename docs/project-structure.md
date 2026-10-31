@@ -39,7 +39,7 @@ Solution: `src/api/PartsTrackerErp.GoldenPattern.slnx`
 | `Contracts/Requests` | Request DTOs accepted at application/API boundaries. These describe data coming in, not necessarily domain entities. |
 | `Contracts/Responses` | Response DTOs returned to callers. Deliberately shape public or internal API responses without leaking persistence entities. |
 | `Contracts/Integrations` | DTOs representing messages and payloads from/to external APIs and services. These model the external system's contract, not our domain. |
-| `DependencyInjection` | Dependency-registration extension methods for Core services, repositories, clients, validators, and mapping. Invoked by the API composition root. |
+| `DependencyInjection` | Dependency-registration extension methods for Core services, repositories, clients, and validators. Invoked by the API composition root. |
 | `Domain/Entities` | Objects with domain identity, meaningful lifecycle/state, and rules or invariants that belong to the business model. |
 | `Domain/ValueObjects` | Domain concepts defined by their values rather than identity; put their validation and invariants here. |
 | `Domain/Services/Abstractions` | Interfaces for domain services. |
@@ -61,8 +61,10 @@ Solution: `src/api/PartsTrackerErp.GoldenPattern.slnx`
 3. **Repositories are for persistence owned by this service.** Repository interfaces and implementations live together in `Repositories`. See [ADR 0004](adr/0004-colocated-interfaces.md).
 4. **Integrations are for external systems.** An HTTP client for the Portal Users API belongs under `Integrations`, not `Repositories`, even when its methods look like `GetUser` or `ListUsers`. Its wire DTOs belong in `Contracts/Integrations`.
 5. **Contracts are transport shapes, not automatically domain models.** A DTO becomes a domain entity or value object only when the business model needs domain identity, meaning, or invariants—not merely because it is a JSON object.
-6. **Depend on abstractions at consumption sites.** Application services should receive repository and integration interfaces through dependency injection, not instantiate their concrete implementations. Concrete types are wired at the composition root.
-7. **Folders are logical boundaries, not separate assemblies.** See [ADR 0002](adr/0002-single-core-library.md). Architecture tests and analyzers may enforce selected conventions, with narrowly scoped exceptions when justified.
+6. **Entities never reach the HTTP surface.** An application service maps an entity to a `Contracts/Responses` DTO before it returns. An entity does not leave the service in a response, in a wrapper such as `ServiceResponse<T>`, in a domain error or exception, or in any other way. See [ADR 0003](adr/0003-domain-driven-design.md).
+7. **Depend on abstractions at consumption sites.** Application services should receive repository and integration interfaces through dependency injection, not instantiate their concrete implementations. Concrete types are wired at the composition root.
+8. **Folders are logical boundaries, not separate assemblies.** See [ADR 0002](adr/0002-single-core-library.md). Architecture tests and analyzers may enforce selected conventions, with narrowly scoped exceptions when justified.
+9. **DTO names end in `Dto`.** A response DTO ends in `ResponseDto`, such as `VendorResponseDto`, so it never takes the name of a request DTO for the same concept, such as `VendorInvoiceDto`. The response envelope and problem types (`ApiResponse<T>`, `ApiResponseMetadata`, `ProblemError`) are not DTOs for a domain concept and keep their names.
 
 ## Example: consuming a Users API
 

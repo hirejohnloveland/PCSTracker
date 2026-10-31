@@ -29,11 +29,18 @@ public sealed class ServiceResponse<T>
 
     public IReadOnlyList<DomainError> Errors { get; }
 
-    public static ServiceResponse<T> Succeed(T data) => new(true, data, null, []);
+    public static ServiceResponse<T> Succeed(T data)
+    {
+        return new(true, data, null, []);
+    }
 
-    public static ServiceResponse<T> Fail(ErrorType type, params DomainError[] errors) =>
-        new(false, default, type, [.. errors]);
+    public static ServiceResponse<T> Fail(ErrorType type, params DomainError[] errors)
+    {
+        return new(false, default, type, [.. errors]);
+    }
 
-    public static ServiceResponse<T> Fail(DomainErrorEnvelope envelope) =>
-        new(false, default, envelope.ErrorType, [.. envelope.Errors]);
+    public static ServiceResponse<T> Fail(DomainErrorEnvelope envelope)
+    {
+        return new(false, default, envelope.ErrorType, [.. envelope.Errors]);
+    }
 }

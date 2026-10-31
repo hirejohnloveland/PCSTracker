@@ -21,7 +21,9 @@ public sealed class VendorsApplicationService(
     {
         var vendor = await vendorRepository.GetAsync(id, cancellationToken);
         if (vendor is null)
+        {
             return ServiceResponse<Vendor>.Fail(ErrorType.NotFound, VendorErrors.NotFound(id));
+        }
 
         vendor.Activate();
         await unitOfWork.SaveChangesAsync(cancellationToken);
@@ -32,7 +34,9 @@ public sealed class VendorsApplicationService(
     {
         var vendor = await vendorRepository.GetAsync(id, cancellationToken);
         if (vendor is null)
+        {
             return ServiceResponse<Vendor>.Fail(ErrorType.NotFound, VendorErrors.NotFound(id));
+        }
 
         vendor.Deactivate();
         await unitOfWork.SaveChangesAsync(cancellationToken);

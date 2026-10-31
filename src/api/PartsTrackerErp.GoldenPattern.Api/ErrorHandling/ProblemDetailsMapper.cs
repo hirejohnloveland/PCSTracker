@@ -25,10 +25,10 @@ public static class ProblemDetailsMapper
     private const string InvalidRequestCode = "InvalidRequest";
     private const string InvalidRequestDetail = "The request is invalid.";
 
-    private static readonly char[] PathSeparators = ['.', '[', ']'];
+    private static readonly char[] s_pathSeparators = ['.', '[', ']'];
 
     // Derived from ErrorTypeExtensions so the ErrorType to status mapping exists once.
-    private static readonly Dictionary<int, string> CategoryTypes = BuildCategoryTypes();
+    private static readonly Dictionary<int, string> s_categoryTypes = BuildCategoryTypes();
 
     /// <summary>A problem for a failure with a category: a service failure or a <see cref="DomainException"/>.</summary>
     public static ProblemDetails ToProblemDetails(DomainErrorEnvelope envelope)
@@ -43,15 +43,15 @@ public static class ProblemDetailsMapper
     }
 
     /// <summary>A 400 problem for a request that failed validation, one entry per failure.</summary>
-    public static ProblemDetails ToProblemDetails(IEnumerable<ValidationFailure> failures) =>
-        Create(
-            StatusCodes.Status400BadRequest,
-            ValidationTitle,
-            ValidationSummary,
-            [.. failures.Select(failure => new ProblemError(
-                failure.ErrorCode ?? InvalidRequestCode,
-                failure.ErrorMessage,
-                ToJsonPointer(failure.PropertyName)))]);
+    public static ProblemDetails ToProblemDetails(IEnumerable<ValidationFailure> failures)
+    {
+        ProblemError[] errors = [.. failures.Select(failure => new ProblemError(
+            failure.ErrorCode ?? InvalidRequestCode,
+            failure.ErrorMessage,
+            ToJsonPointer(failure.PropertyName)))];
+
+        return Create(StatusCodes.Status400BadRequest, ValidationTitle, ValidationSummary, errors);
+    }
 
     /// <summary>A 400 problem for a request MVC could not bind, one entry per model error.</summary>
     public static ProblemDetails ToProblemDetails(ModelStateDictionary modelState)
@@ -71,12 +71,16 @@ public static class ProblemDetailsMapper
     }
 
     /// <summary>A problem for a status that has no <see cref="ErrorType"/>, with the default entry for that status.</summary>
-    public static ProblemDetails ToProblemDetails(int status) =>
-        Create(status, null, GenericSummary, DefaultError(status) is { } error ? [error] : []);
+    public static ProblemDetails ToProblemDetails(int status)
+    {
+        return Create(status, null, GenericSummary, DefaultError(status) is { } error ? [error] : []);
+    }
 
     /// <summary>A problem for a status that has no <see cref="ErrorType"/>, such as a failed upstream call.</summary>
-    public static ProblemDetails ToProblemDetails(int status, ProblemError error) =>
-        Create(status, null, GenericSummary, [error]);
+    public static ProblemDetails ToProblemDetails(int status, ProblemError error)
+    {
+        return Create(status, null, GenericSummary, [error]);
+    }
 
     /// <summary>
     /// Registered as <c>ProblemDetailsOptions.CustomizeProblemDetails</c>. Gives every problem an <c>instance</c>,
@@ -94,7 +98,7 @@ public static class ProblemDetailsMapper
             problem.Instance = httpContext.Request.Path.Value;
         }
 
-        if (CategoryTypes.TryGetValue(status, out string? type))
+        if (s_categoryTypes.TryGetValue(status, out string? type))
         {
             problem.Type = type;
         }
@@ -108,7 +112,10 @@ public static class ProblemDetailsMapper
     /// <summary>
     /// The value the framework puts in a problem's <c>traceId</c>: the W3C trace id when there is one.
     /// </summary>
-    public static string GetTraceId(HttpContext httpContext) => Activity.Current?.Id ?? httpContext.TraceIdentifier;
+    public static string GetTraceId(HttpContext httpContext)
+    {
+        return Activity.Current?.Id ?? httpContext.TraceIdentifier;
+    }
 
     /// <summary>
     /// Builds the response with MVC's <see cref="ProblemDetailsFactory"/>, so framework defaults, <c>traceId</c>,
@@ -147,7 +154,7 @@ public static class ProblemDetailsMapper
             Detail = errors.Length == 1 ? errors[0].Detail : summary
         };
 
-        if (CategoryTypes.TryGetValue(status, out string? type))
+        if (s_categoryTypes.TryGetValue(status, out string? type))
         {
             problem.Type = type;
         }
@@ -160,16 +167,19 @@ public static class ProblemDetailsMapper
         return problem;
     }
 
-    private static ProblemError? DefaultError(int status) => status switch
+    private static ProblemError? DefaultError(int status)
     {
-        StatusCodes.Status401Unauthorized => new("Unauthorized", "Authentication is required to access this resource.", null),
-        StatusCodes.Status403Forbidden => new("Forbidden", "You do not have permission to access this resource.", null),
-        StatusCodes.Status404NotFound => new("NotFound", "The requested resource was not found.", null),
-        StatusCodes.Status400BadRequest => new(InvalidRequestCode, InvalidRequestDetail, null),
-        >= 400 and < 500 => new(InvalidRequestCode, StatusTitle(status), null),
-        >= 500 => new("Unexpected", "An unexpected error occurred.", null),
-        _ => null
-    };
+        return status switch
+        {
+            StatusCodes.Status401Unauthorized => new("Unauthorized", "Authentication is required to access this resource.", null),
+            StatusCodes.Status403Forbidden => new("Forbidden", "You do not have permission to access this resource.", null),
+            StatusCodes.Status404NotFound => new("NotFound", "The requested resource was not found.", null),
+            StatusCodes.Status400BadRequest => new(InvalidRequestCode, InvalidRequestDetail, null),
+            >= 400 and < 500 => new(InvalidRequestCode, StatusTitle(status), null),
+            >= 500 => new("Unexpected", "An unexpected error occurred.", null),
+            _ => null
+        };
+    }
 
     private static string StatusTitle(int status)
     {
@@ -181,7 +191,7 @@ public static class ProblemDetailsMapper
     private static string ToJsonPointer(string? path)
     {
         var pointer = new StringBuilder("#");
-        foreach (string segment in (path ?? string.Empty).TrimStart('$').Split(PathSeparators, StringSplitOptions.RemoveEmptyEntries))
+        foreach (string segment in (path ?? string.Empty).TrimStart('$').Split(s_pathSeparators, StringSplitOptions.RemoveEmptyEntries))
         {
             string name = segment.All(char.IsAsciiDigit) ? segment : JsonNamingPolicy.CamelCase.ConvertName(segment);
             pointer.Append('/').Append(name.Replace("~", "~0").Replace("/", "~1"));

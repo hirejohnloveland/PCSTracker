@@ -1,7 +1,9 @@
 using FluentValidation;
+using FluentValidation.Results;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using PartsTrackerErp.GoldenPattern.Api.Controllers;
+using PartsTrackerErp.GoldenPattern.Core.ApplicationServices.Abstractions;
 
 namespace PartsTrackerErp.GoldenPattern.Tests.Api.FailureBehavior;
 
@@ -13,19 +15,34 @@ namespace PartsTrackerErp.GoldenPattern.Tests.Api.FailureBehavior;
 public sealed class FailureTestingController(FailureTestingService service) : ApiControllerBase
 {
     [HttpGet]
-    public async Task<IActionResult> Run(CancellationToken cancellationToken) =>
-        ToResult(await service.RunAsync(cancellationToken));
+    public async Task<IActionResult> Run(CancellationToken cancellationToken)
+    {
+        ServiceResponse<string> response = await service.RunAsync(cancellationToken);
+        return ToResult(response);
+    }
 
     [HttpPost]
-    public Task<IActionResult> Validate(
+    public async Task<IActionResult> Validate(
         [FromBody] FailureTestingRequest request,
         IValidator<FailureTestingRequest> validator,
-        CancellationToken cancellationToken) =>
-        ExecuteAsync(request, validator, (_, ct) => service.RunAsync(ct), cancellationToken);
+        CancellationToken cancellationToken)
+    {
+        ValidationResult validation = await validator.ValidateAsync(request, cancellationToken);
+        if (!validation.IsValid)
+        {
+            return InvalidRequest(validation);
+        }
+
+        ServiceResponse<string> response = await service.RunAsync(cancellationToken);
+        return ToResult(response);
+    }
 
     [Authorize]
     [HttpGet("secured")]
-    public IActionResult Secured() => Ok();
+    public IActionResult Secured()
+    {
+        return Ok();
+    }
 }
 
 /// <summary>

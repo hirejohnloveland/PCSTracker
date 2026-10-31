@@ -4,6 +4,7 @@
     <TargetFramework>net10.0</TargetFramework>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
+    <EnforceCodeStyleInBuild>true</EnforceCodeStyleInBuild>
     <UserSecretsId>aspnet-GoldenPattern-28775c43-bfe2-42b2-aa73-99cdfc985735</UserSecretsId>
   </PropertyGroup>
 

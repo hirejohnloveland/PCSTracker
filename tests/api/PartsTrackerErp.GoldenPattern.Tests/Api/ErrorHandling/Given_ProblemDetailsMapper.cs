@@ -16,9 +16,9 @@ public class Given_ProblemDetailsMapper
 {
     private const string TypeBase = "https://api.example.com/problems/";
 
-    private static readonly JsonSerializerOptions WebOptions = new(JsonSerializerDefaults.Web);
+    private static readonly JsonSerializerOptions s_webOptions = new(JsonSerializerDefaults.Web);
 
-    private static readonly Dictionary<ErrorType, (int Status, string Category)> Categories = new()
+    private static readonly Dictionary<ErrorType, (int Status, string Category)> s_categories = new()
     {
         [ErrorType.Validation] = (StatusCodes.Status400BadRequest, "validation"),
         [ErrorType.Unauthorized] = (StatusCodes.Status401Unauthorized, "unauthorized"),
@@ -31,7 +31,7 @@ public class Given_ProblemDetailsMapper
     public static TheoryData<ErrorType, int, string> CategoryCases()
     {
         var cases = new TheoryData<ErrorType, int, string>();
-        foreach ((ErrorType errorType, (int status, string category)) in Categories)
+        foreach ((ErrorType errorType, (int status, string category)) in s_categories)
         {
             cases.Add(errorType, status, category);
         }
@@ -39,16 +39,25 @@ public class Given_ProblemDetailsMapper
         return cases;
     }
 
-    private static DomainError Error(string code, string message) => new() { Code = code, Message = message };
+    private static DomainError Error(string code, string message)
+    {
+        return new() { Code = code, Message = message };
+    }
 
-    private static DomainErrorEnvelope Envelope(ErrorType errorType, params DomainError[] errors) =>
-        new() { ErrorType = errorType, Errors = errors };
+    private static DomainErrorEnvelope Envelope(ErrorType errorType, params DomainError[] errors)
+    {
+        return new() { ErrorType = errorType, Errors = errors };
+    }
 
-    private static ProblemError[] ErrorsOf(ProblemDetails problem) =>
-        Assert.IsType<ProblemError[]>(problem.Extensions["errors"]);
+    private static ProblemError[] ErrorsOf(ProblemDetails problem)
+    {
+        return Assert.IsType<ProblemError[]>(problem.Extensions["errors"]);
+    }
 
-    private static string[] PropertyNames(JsonElement element) =>
-        [.. element.EnumerateObject().Select(property => property.Name).OrderBy(name => name, StringComparer.Ordinal)];
+    private static string[] PropertyNames(JsonElement element)
+    {
+        return [.. element.EnumerateObject().Select(property => property.Name).OrderBy(name => name, StringComparer.Ordinal)];
+    }
 
     // ---- Envelope ----
 
@@ -68,7 +77,7 @@ public class Given_ProblemDetailsMapper
         // Fails when an ErrorType is added without a decision about its problem type.
         Assert.Equal(
             Enum.GetValues<ErrorType>().OrderBy(errorType => errorType),
-            Categories.Keys.OrderBy(errorType => errorType));
+            s_categories.Keys.OrderBy(errorType => errorType));
     }
 
     [Fact]
@@ -250,7 +259,7 @@ public class Given_ProblemDetailsMapper
 
         ProblemError error = Assert.Single(ErrorsOf(problem));
         Assert.Equal("The input was not valid.", error.Detail);
-        Assert.DoesNotContain("hunter2", JsonSerializer.Serialize(problem, WebOptions));
+        Assert.DoesNotContain("hunter2", JsonSerializer.Serialize(problem, s_webOptions));
     }
 
     // ---- Status without an ErrorType ----
@@ -419,7 +428,7 @@ public class Given_ProblemDetailsMapper
         ProblemDetails problem = ProblemDetailsMapper.ToProblemDetails(
             Envelope(ErrorType.NotFound, Error("VendorNotFound", "Vendor 7 was not found.")));
 
-        using JsonDocument document = JsonDocument.Parse(JsonSerializer.Serialize(problem, WebOptions));
+        using JsonDocument document = JsonDocument.Parse(JsonSerializer.Serialize(problem, s_webOptions));
 
         JsonElement error = Assert.Single(document.RootElement.GetProperty("errors").EnumerateArray());
         Assert.Equal(["code", "detail"], PropertyNames(error));
@@ -432,7 +441,7 @@ public class Given_ProblemDetailsMapper
     {
         ProblemDetails problem = ProblemDetailsMapper.ToProblemDetails([new ValidationFailure("Name", "Required.")]);
 
-        using JsonDocument document = JsonDocument.Parse(JsonSerializer.Serialize(problem, WebOptions));
+        using JsonDocument document = JsonDocument.Parse(JsonSerializer.Serialize(problem, s_webOptions));
 
         JsonElement error = Assert.Single(document.RootElement.GetProperty("errors").EnumerateArray());
         Assert.Equal(["code", "detail", "pointer"], PropertyNames(error));

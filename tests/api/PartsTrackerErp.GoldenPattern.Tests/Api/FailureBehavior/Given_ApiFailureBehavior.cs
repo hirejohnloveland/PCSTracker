@@ -17,7 +17,7 @@ public class Given_ApiFailureBehavior : IClassFixture<ApiFactory>
     private const string FailuresPath = "/testing/failures";
     private const string TypeBase = "https://api.example.com/problems/";
 
-    private static readonly Dictionary<ErrorType, (HttpStatusCode Status, string Category)> Categories = new()
+    private static readonly Dictionary<ErrorType, (HttpStatusCode Status, string Category)> s_categories = new()
     {
         [ErrorType.Validation] = (HttpStatusCode.BadRequest, "validation"),
         [ErrorType.Unauthorized] = (HttpStatusCode.Unauthorized, "unauthorized"),
@@ -27,22 +27,22 @@ public class Given_ApiFailureBehavior : IClassFixture<ApiFactory>
         [ErrorType.Unexpected] = (HttpStatusCode.InternalServerError, "unexpected")
     };
 
-    private readonly ApiFactory factory;
-    private readonly FailureTestingService service;
-    private readonly HttpClient client;
+    private readonly ApiFactory _factory;
+    private readonly FailureTestingService _service;
+    private readonly HttpClient _client;
 
     public Given_ApiFailureBehavior(ApiFactory factory)
     {
-        this.factory = factory;
-        service = factory.TestingService;
-        service.Reset();
-        client = factory.CreateClient();
+        _factory = factory;
+        _service = factory.TestingService;
+        _service.Reset();
+        _client = factory.CreateClient();
     }
 
     public static TheoryData<ErrorType, HttpStatusCode, string> CategoryCases()
     {
         var cases = new TheoryData<ErrorType, HttpStatusCode, string>();
-        foreach ((ErrorType errorType, (HttpStatusCode status, string category)) in Categories)
+        foreach ((ErrorType errorType, (HttpStatusCode status, string category)) in s_categories)
         {
             cases.Add(errorType, status, category);
         }
@@ -50,9 +50,15 @@ public class Given_ApiFailureBehavior : IClassFixture<ApiFactory>
         return cases;
     }
 
-    private static DomainError Error(string code, string message) => new() { Code = code, Message = message };
+    private static DomainError Error(string code, string message)
+    {
+        return new() { Code = code, Message = message };
+    }
 
-    private static StringContent Json(string json) => new(json, Encoding.UTF8, "application/json");
+    private static StringContent Json(string json)
+    {
+        return new(json, Encoding.UTF8, "application/json");
+    }
 
     private static async Task<JsonElement> ReadJsonAsync(HttpResponseMessage response)
     {
@@ -60,10 +66,15 @@ public class Given_ApiFailureBehavior : IClassFixture<ApiFactory>
         return document.RootElement.Clone();
     }
 
-    private static JsonElement[] ErrorsOf(JsonElement problem) => [.. problem.GetProperty("errors").EnumerateArray()];
+    private static JsonElement[] ErrorsOf(JsonElement problem)
+    {
+        return [.. problem.GetProperty("errors").EnumerateArray()];
+    }
 
-    private static string[] PropertyNames(JsonElement element) =>
-        [.. element.EnumerateObject().Select(property => property.Name).OrderBy(name => name, StringComparer.Ordinal)];
+    private static string[] PropertyNames(JsonElement element)
+    {
+        return [.. element.EnumerateObject().Select(property => property.Name).OrderBy(name => name, StringComparer.Ordinal)];
+    }
 
     /// <summary>What every failure has in common, whatever caused it.</summary>
     private static async Task<JsonElement> ReadProblemAsync(HttpResponseMessage response, HttpStatusCode expectedStatus)
@@ -99,7 +110,7 @@ public class Given_ApiFailureBehavior : IClassFixture<ApiFactory>
     [Fact]
     public async Task Success_WritesTheDataAndMetadata()
     {
-        HttpResponseMessage response = await client.GetAsync(FailuresPath);
+        HttpResponseMessage response = await _client.GetAsync(FailuresPath);
 
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
         Assert.Equal("application/json", response.Content.Headers.ContentType?.MediaType);
@@ -118,9 +129,9 @@ public class Given_ApiFailureBehavior : IClassFixture<ApiFactory>
     [MemberData(nameof(CategoryCases))]
     public async Task ServiceFailure_ReturnsTheProblemForItsCategory(ErrorType errorType, HttpStatusCode status, string category)
     {
-        service.Respond(ServiceResponse<string>.Fail(errorType, Error("SomeCode", "Something went wrong.")));
+        _service.Respond(ServiceResponse<string>.Fail(errorType, Error("SomeCode", "Something went wrong.")));
 
-        JsonElement problem = await ReadProblemAsync(await client.GetAsync(FailuresPath), status);
+        JsonElement problem = await ReadProblemAsync(await _client.GetAsync(FailuresPath), status);
 
         Assert.Equal(TypeBase + category, problem.GetProperty("type").GetString());
         Assert.Equal(FailuresPath, problem.GetProperty("instance").GetString());
@@ -134,12 +145,12 @@ public class Given_ApiFailureBehavior : IClassFixture<ApiFactory>
     [Fact]
     public async Task ServiceFailure_SeveralErrors_ListsEachInOrderUnderAGenericDetail()
     {
-        service.Respond(ServiceResponse<string>.Fail(
+        _service.Respond(ServiceResponse<string>.Fail(
             ErrorType.BusinessRuleViolation,
             Error("First", "First problem."),
             Error("Second", "Second problem.")));
 
-        JsonElement problem = await ReadProblemAsync(await client.GetAsync(FailuresPath), HttpStatusCode.Conflict);
+        JsonElement problem = await ReadProblemAsync(await _client.GetAsync(FailuresPath), HttpStatusCode.Conflict);
 
         Assert.Equal("Conflict", problem.GetProperty("title").GetString());
         Assert.Equal("One or more errors occurred.", problem.GetProperty("detail").GetString());
@@ -151,9 +162,9 @@ public class Given_ApiFailureBehavior : IClassFixture<ApiFactory>
     [Fact]
     public async Task ServiceFailure_UndefinedErrorType_Returns500()
     {
-        service.Respond(ServiceResponse<string>.Fail((ErrorType)999, Error("SomeCode", "Something went wrong.")));
+        _service.Respond(ServiceResponse<string>.Fail((ErrorType)999, Error("SomeCode", "Something went wrong.")));
 
-        JsonElement problem = await ReadProblemAsync(await client.GetAsync(FailuresPath), HttpStatusCode.InternalServerError);
+        JsonElement problem = await ReadProblemAsync(await _client.GetAsync(FailuresPath), HttpStatusCode.InternalServerError);
 
         Assert.Equal(TypeBase + "unexpected", problem.GetProperty("type").GetString());
     }
@@ -169,10 +180,10 @@ public class Given_ApiFailureBehavior : IClassFixture<ApiFactory>
     {
         DomainError[] errors = [Error("First", "First problem."), Error("Second", "Second problem.")];
 
-        service.Respond(ServiceResponse<string>.Fail(errorType, errors));
-        HttpResponseMessage failed = await client.GetAsync(FailuresPath);
-        service.Throw(new DomainException(errorType, errors));
-        HttpResponseMessage thrown = await client.GetAsync(FailuresPath);
+        _service.Respond(ServiceResponse<string>.Fail(errorType, errors));
+        HttpResponseMessage failed = await _client.GetAsync(FailuresPath);
+        _service.Throw(new DomainException(errorType, errors));
+        HttpResponseMessage thrown = await _client.GetAsync(FailuresPath);
 
         JsonElement problem = await ReadProblemAsync(thrown, status);
         Assert.Equal(TypeBase + category, problem.GetProperty("type").GetString());
@@ -186,9 +197,9 @@ public class Given_ApiFailureBehavior : IClassFixture<ApiFactory>
     [Fact]
     public async Task ThrownUnexpectedException_Returns500WithoutLeakingItsMessage()
     {
-        service.Throw(new InvalidOperationException("Connection string is Server=secret;Password=hunter2."));
+        _service.Throw(new InvalidOperationException("Connection string is Server=secret;Password=hunter2."));
 
-        HttpResponseMessage response = await client.GetAsync(FailuresPath);
+        HttpResponseMessage response = await _client.GetAsync(FailuresPath);
 
         JsonElement problem = await ReadProblemAsync(response, HttpStatusCode.InternalServerError);
         Assert.DoesNotContain("hunter2", problem.GetRawText());
@@ -201,9 +212,9 @@ public class Given_ApiFailureBehavior : IClassFixture<ApiFactory>
     [Fact]
     public async Task ThrownHttpRequestException_Returns502WithAFixedMessage()
     {
-        service.Throw(new HttpRequestException("Upstream said no.", null, HttpStatusCode.ServiceUnavailable));
+        _service.Throw(new HttpRequestException("Upstream said no.", null, HttpStatusCode.ServiceUnavailable));
 
-        JsonElement problem = await ReadProblemAsync(await client.GetAsync(FailuresPath), HttpStatusCode.BadGateway);
+        JsonElement problem = await ReadProblemAsync(await _client.GetAsync(FailuresPath), HttpStatusCode.BadGateway);
 
         Assert.DoesNotContain("Upstream said no.", problem.GetRawText());
         Assert.Equal("UpstreamServiceUnavailable", Assert.Single(ErrorsOf(problem)).GetProperty("code").GetString());
@@ -212,9 +223,9 @@ public class Given_ApiFailureBehavior : IClassFixture<ApiFactory>
     [Fact]
     public async Task ThrownHttpClientTimeout_Returns504()
     {
-        service.Throw(new TaskCanceledException("The request timed out.", new TimeoutException()));
+        _service.Throw(new TaskCanceledException("The request timed out.", new TimeoutException()));
 
-        JsonElement problem = await ReadProblemAsync(await client.GetAsync(FailuresPath), HttpStatusCode.GatewayTimeout);
+        JsonElement problem = await ReadProblemAsync(await _client.GetAsync(FailuresPath), HttpStatusCode.GatewayTimeout);
 
         Assert.Equal("UpstreamServiceTimeout", Assert.Single(ErrorsOf(problem)).GetProperty("code").GetString());
     }
@@ -224,9 +235,9 @@ public class Given_ApiFailureBehavior : IClassFixture<ApiFactory>
     [InlineData(HttpStatusCode.RequestEntityTooLarge)]
     public async Task ThrownBadHttpRequest_KeepsItsOwnStatusAndLeaksNoExceptionText(HttpStatusCode status)
     {
-        service.Throw(new BadHttpRequestException("Server=secret;Password=hunter2.", (int)status));
+        _service.Throw(new BadHttpRequestException("Server=secret;Password=hunter2.", (int)status));
 
-        JsonElement problem = await ReadProblemAsync(await client.GetAsync(FailuresPath), status);
+        JsonElement problem = await ReadProblemAsync(await _client.GetAsync(FailuresPath), status);
 
         Assert.DoesNotContain("hunter2", problem.GetRawText());
         Assert.Equal("InvalidRequest", Assert.Single(ErrorsOf(problem)).GetProperty("code").GetString());
@@ -237,10 +248,10 @@ public class Given_ApiFailureBehavior : IClassFixture<ApiFactory>
     {
         using var aborted = new CancellationTokenSource();
         aborted.Cancel();
-        service.Throw(new OperationCanceledException(aborted.Token));
+        _service.Throw(new OperationCanceledException(aborted.Token));
 
         // HttpClient cannot send a request that is already aborted, so drive the server directly.
-        HttpContext context = await factory.Server.SendAsync(httpContext =>
+        HttpContext context = await _factory.Server.SendAsync(httpContext =>
         {
             httpContext.Request.Method = HttpMethods.Get;
             httpContext.Request.Path = FailuresPath;
@@ -254,11 +265,11 @@ public class Given_ApiFailureBehavior : IClassFixture<ApiFactory>
     [Fact]
     public async Task ThrownDomainException_WhenTheProblemWriterDeclines_StillAnswersWithItsStatus()
     {
-        service.Throw(new DomainException(ErrorType.NotFound, Error("VendorNotFound", "Vendor 7 was not found.")));
+        _service.Throw(new DomainException(ErrorType.NotFound, Error("VendorNotFound", "Vendor 7 was not found.")));
         using var request = new HttpRequestMessage(HttpMethod.Get, "/testing/plain");
         request.Headers.Accept.ParseAdd("text/html");
 
-        HttpResponseMessage response = await client.SendAsync(request);
+        HttpResponseMessage response = await _client.SendAsync(request);
 
         // The default writer declines an Accept header that excludes JSON. A handler that then returned false
         // would trip the exception middleware's 404 guard, and the caller would get a 500.
@@ -269,11 +280,11 @@ public class Given_ApiFailureBehavior : IClassFixture<ApiFactory>
     [Fact]
     public async Task ThrownDomainException_FromAnApiControllerWhoseCallerDoesNotAcceptJson_StillAnswersWithTheProblem()
     {
-        service.Throw(new DomainException(ErrorType.NotFound, Error("VendorNotFound", "Vendor 7 was not found.")));
+        _service.Throw(new DomainException(ErrorType.NotFound, Error("VendorNotFound", "Vendor 7 was not found.")));
         using var request = new HttpRequestMessage(HttpMethod.Get, FailuresPath);
         request.Headers.Accept.ParseAdd("text/html");
 
-        HttpResponseMessage response = await client.SendAsync(request);
+        HttpResponseMessage response = await _client.SendAsync(request);
 
         JsonElement problem = await ReadProblemAsync(response, HttpStatusCode.NotFound);
         Assert.Equal("VendorNotFound", Assert.Single(ErrorsOf(problem)).GetProperty("code").GetString());
@@ -284,7 +295,7 @@ public class Given_ApiFailureBehavior : IClassFixture<ApiFactory>
     [Fact]
     public async Task InvalidRequest_ListsEveryValidationFailureWithAPointerAndSkipsTheService()
     {
-        HttpResponseMessage response = await client.PostAsync(
+        HttpResponseMessage response = await _client.PostAsync(
             FailuresPath,
             Json("""{"name":"","email":"not-an-email","items":[{"sku":"A-1"},{"sku":""}]}"""));
 
@@ -302,23 +313,23 @@ public class Given_ApiFailureBehavior : IClassFixture<ApiFactory>
                 error.GetProperty("code").GetString(),
                 error.GetProperty("detail").GetString(),
                 error.GetProperty("pointer").GetString())));
-        Assert.Equal(0, service.Calls);
+        Assert.Equal(0, _service.Calls);
     }
 
     [Fact]
     public async Task ValidRequest_CallsTheServiceAndAnswersWithItsData()
     {
-        HttpResponseMessage response = await client.PostAsync(FailuresPath, Json("""{"name":"Acme","email":"a@b.example"}"""));
+        HttpResponseMessage response = await _client.PostAsync(FailuresPath, Json("""{"name":"Acme","email":"a@b.example"}"""));
 
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
         Assert.Equal("ok", (await ReadJsonAsync(response)).GetProperty("data").GetString());
-        Assert.Equal(1, service.Calls);
+        Assert.Equal(1, _service.Calls);
     }
 
     [Fact]
     public async Task MalformedJson_ReturnsInvalidRequestEntriesInsteadOfTheFrameworksFieldKeyedErrors()
     {
-        HttpResponseMessage response = await client.PostAsync(FailuresPath, Json("{ nope"));
+        HttpResponseMessage response = await _client.PostAsync(FailuresPath, Json("{ nope"));
 
         JsonElement problem = await ReadProblemAsync(response, HttpStatusCode.BadRequest);
         Assert.Equal(TypeBase + "validation", problem.GetProperty("type").GetString());
@@ -329,13 +340,13 @@ public class Given_ApiFailureBehavior : IClassFixture<ApiFactory>
                 Assert.Equal("InvalidRequest", error.GetProperty("code").GetString());
                 Assert.True(error.TryGetProperty("pointer", out _));
             });
-        Assert.Equal(0, service.Calls);
+        Assert.Equal(0, _service.Calls);
     }
 
     [Fact]
     public async Task WrongJsonType_PointsAtTheProperty()
     {
-        HttpResponseMessage response = await client.PostAsync(FailuresPath, Json("""{"name":"Acme","count":"abc"}"""));
+        HttpResponseMessage response = await _client.PostAsync(FailuresPath, Json("""{"name":"Acme","count":"abc"}"""));
 
         JsonElement problem = await ReadProblemAsync(response, HttpStatusCode.BadRequest);
         Assert.Contains(
@@ -349,7 +360,7 @@ public class Given_ApiFailureBehavior : IClassFixture<ApiFactory>
     [Fact]
     public async Task UnknownRoute_Returns404WithTheDefaultNotFoundEntry()
     {
-        JsonElement problem = await ReadProblemAsync(await client.GetAsync("/no-such-route"), HttpStatusCode.NotFound);
+        JsonElement problem = await ReadProblemAsync(await _client.GetAsync("/no-such-route"), HttpStatusCode.NotFound);
 
         Assert.Equal(TypeBase + "not-found", problem.GetProperty("type").GetString());
         Assert.Equal("/no-such-route", problem.GetProperty("instance").GetString());
@@ -359,7 +370,7 @@ public class Given_ApiFailureBehavior : IClassFixture<ApiFactory>
     [Fact]
     public async Task WrongMethod_Returns405KeepingTheFrameworkType()
     {
-        JsonElement problem = await ReadProblemAsync(await client.DeleteAsync(FailuresPath), HttpStatusCode.MethodNotAllowed);
+        JsonElement problem = await ReadProblemAsync(await _client.DeleteAsync(FailuresPath), HttpStatusCode.MethodNotAllowed);
 
         Assert.DoesNotContain(TypeBase, problem.GetProperty("type").GetString());
         Assert.Equal("InvalidRequest", Assert.Single(ErrorsOf(problem)).GetProperty("code").GetString());
@@ -371,7 +382,7 @@ public class Given_ApiFailureBehavior : IClassFixture<ApiFactory>
         using var content = new StringContent("hello", Encoding.UTF8, "text/plain");
 
         JsonElement problem = await ReadProblemAsync(
-            await client.PostAsync(FailuresPath, content),
+            await _client.PostAsync(FailuresPath, content),
             HttpStatusCode.UnsupportedMediaType);
 
         Assert.DoesNotContain(TypeBase, problem.GetProperty("type").GetString());
@@ -382,7 +393,7 @@ public class Given_ApiFailureBehavior : IClassFixture<ApiFactory>
     public async Task Unauthenticated_Returns401WithTheDefaultUnauthorizedEntry()
     {
         JsonElement problem = await ReadProblemAsync(
-            await client.GetAsync($"{FailuresPath}/secured"),
+            await _client.GetAsync($"{FailuresPath}/secured"),
             HttpStatusCode.Unauthorized);
 
         Assert.Equal(TypeBase + "unauthorized", problem.GetProperty("type").GetString());
@@ -395,7 +406,7 @@ public class Given_ApiFailureBehavior : IClassFixture<ApiFactory>
     public async Task Vendors_ActivateMissingVendor_Returns404WithVendorNotFound()
     {
         JsonElement problem = await ReadProblemAsync(
-            await client.PostAsync("/vendors/abc/activate", content: null),
+            await _client.PostAsync("/vendors/abc/activate", content: null),
             HttpStatusCode.NotFound);
 
         Assert.Equal(TypeBase + "not-found", problem.GetProperty("type").GetString());
@@ -409,7 +420,7 @@ public class Given_ApiFailureBehavior : IClassFixture<ApiFactory>
     public async Task Vendors_AddWithNoName_Returns400PointingAtTheName()
     {
         JsonElement problem = await ReadProblemAsync(
-            await client.PostAsync("/vendors", Json("""{"name":""}""")),
+            await _client.PostAsync("/vendors", Json("""{"name":""}""")),
             HttpStatusCode.BadRequest);
 
         JsonElement error = Assert.Single(ErrorsOf(problem));
@@ -421,7 +432,7 @@ public class Given_ApiFailureBehavior : IClassFixture<ApiFactory>
     [Fact]
     public async Task Vendors_AddWithAName_AnswersWithTheVendorAndMetadata()
     {
-        HttpResponseMessage response = await client.PostAsync("/vendors", Json("""{"name":"Acme"}"""));
+        HttpResponseMessage response = await _client.PostAsync("/vendors", Json("""{"name":"Acme"}"""));
 
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
         JsonElement body = await ReadJsonAsync(response);
@@ -434,7 +445,7 @@ public class Given_ApiFailureBehavior : IClassFixture<ApiFactory>
     public async Task VendorInvoices_InvalidInvoice_ListsBothFailuresWithPointers()
     {
         JsonElement problem = await ReadProblemAsync(
-            await client.PostAsync("/vendorinvoices", Json("""{"vendorName":"","balance":0}""")),
+            await _client.PostAsync("/vendorinvoices", Json("""{"vendorName":"","balance":0}""")),
             HttpStatusCode.BadRequest);
 
         Assert.Equal(

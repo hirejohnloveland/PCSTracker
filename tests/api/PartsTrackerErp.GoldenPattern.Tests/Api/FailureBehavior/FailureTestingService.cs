@@ -7,19 +7,25 @@ namespace PartsTrackerErp.GoldenPattern.Tests.Api.FailureBehavior;
 /// </summary>
 public sealed class FailureTestingService
 {
-    private Func<ServiceResponse<string>> behavior = Success;
+    private Func<ServiceResponse<string>> _behavior = Success;
 
     public int Calls { get; private set; }
 
     public void Reset()
     {
-        behavior = Success;
+        _behavior = Success;
         Calls = 0;
     }
 
-    public void Respond(ServiceResponse<string> response) => behavior = () => response;
+    public void Respond(ServiceResponse<string> response)
+    {
+        _behavior = () => response;
+    }
 
-    public void Throw(Exception exception) => behavior = () => throw exception;
+    public void Throw(Exception exception)
+    {
+        _behavior = () => throw exception;
+    }
 
     public async Task<ServiceResponse<string>> RunAsync(CancellationToken cancellationToken)
     {
@@ -27,8 +33,11 @@ public sealed class FailureTestingService
 
         // Fail after an await, as a real service does when its I/O fails.
         await Task.Yield();
-        return behavior();
+        return _behavior();
     }
 
-    private static ServiceResponse<string> Success() => ServiceResponse<string>.Succeed("ok");
+    private static ServiceResponse<string> Success()
+    {
+        return ServiceResponse<string>.Succeed("ok");
+    }
 }

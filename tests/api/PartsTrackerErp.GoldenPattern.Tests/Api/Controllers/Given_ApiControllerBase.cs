@@ -1,5 +1,6 @@
 using System.Diagnostics;
 using FluentValidation;
+using FluentValidation.Results;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.DependencyInjection;
@@ -15,7 +16,7 @@ namespace PartsTrackerErp.GoldenPattern.Tests.Api.Controllers;
 [Trait(Constants.TestCategory, Constants.UnitTestCategory)]
 public class Given_ApiControllerBase : IDisposable
 {
-    private static readonly Dictionary<ErrorType, int> ExpectedStatusCodes = new()
+    private static readonly Dictionary<ErrorType, int> s_expectedStatusCodes = new()
     {
         [ErrorType.Validation] = StatusCodes.Status400BadRequest,
         [ErrorType.Unauthorized] = StatusCodes.Status401Unauthorized,
@@ -25,20 +26,23 @@ public class Given_ApiControllerBase : IDisposable
         [ErrorType.Unexpected] = StatusCodes.Status500InternalServerError
     };
 
-    private readonly CapturingLoggerProvider logs = new();
-    private readonly ServiceProvider services;
+    private readonly CapturingLoggerProvider _logs = new();
+    private readonly ServiceProvider _services;
 
     public Given_ApiControllerBase()
     {
-        services = ErrorHandlingTestServices.Build(logs);
+        _services = ErrorHandlingTestServices.Build(_logs);
     }
 
-    public void Dispose() => services.Dispose();
+    public void Dispose()
+    {
+        _services.Dispose();
+    }
 
     public static TheoryData<ErrorType, int> StatusCodeCases()
     {
         var cases = new TheoryData<ErrorType, int>();
-        foreach ((ErrorType errorType, int statusCode) in ExpectedStatusCodes)
+        foreach ((ErrorType errorType, int statusCode) in s_expectedStatusCodes)
         {
             cases.Add(errorType, statusCode);
         }
@@ -46,38 +50,37 @@ public class Given_ApiControllerBase : IDisposable
         return cases;
     }
 
-    private static DomainError Error(string code, string message) => new() { Code = code, Message = message };
+    private static DomainError Error(string code, string message)
+    {
+        return new() { Code = code, Message = message };
+    }
 
     private TestController NewController(string path = "/vendors")
     {
-        DefaultHttpContext httpContext = ErrorHandlingTestServices.NewHttpContext(services, path);
+        DefaultHttpContext httpContext = ErrorHandlingTestServices.NewHttpContext(_services, path);
         httpContext.TraceIdentifier = "trace-123";
 
         return new TestController { ControllerContext = new ControllerContext { HttpContext = httpContext } };
     }
 
-    private static ProblemDetails ProblemOf(IActionResult result) =>
-        Assert.IsType<ProblemDetails>(Assert.IsType<ObjectResult>(result).Value);
+    private static ProblemDetails ProblemOf(IActionResult result)
+    {
+        return Assert.IsType<ProblemDetails>(Assert.IsType<ObjectResult>(result).Value);
+    }
 
-    private static ProblemError[] ErrorsOf(ProblemDetails problem) =>
-        Assert.IsType<ProblemError[]>(problem.Extensions["errors"]);
+    private static ProblemError[] ErrorsOf(ProblemDetails problem)
+    {
+        return Assert.IsType<ProblemError[]>(problem.Extensions["errors"]);
+    }
 
-    // ---- ExecuteAsync ----
+    // ---- InvalidRequest ----
 
     [Fact]
-    public async Task ExecuteAsync_InvalidRequest_Returns400WithEntriesAndSkipsTheUseCase()
+    public async Task InvalidRequest_Returns400WithAnEntryPerFailure()
     {
-        bool called = false;
+        ValidationResult validation = await new NameRequestValidator().ValidateAsync(new NameRequest { Name = string.Empty });
 
-        IActionResult result = await NewController().Run(
-            new NameRequest { Name = string.Empty },
-            new NameRequestValidator(),
-            (_, _) =>
-            {
-                called = true;
-                return Task.FromResult(ServiceResponse<string>.Succeed("done"));
-            },
-            CancellationToken.None);
+        IActionResult result = NewController().RespondInvalid(validation);
 
         var objectResult = Assert.IsType<ObjectResult>(result);
         Assert.Equal(StatusCodes.Status400BadRequest, objectResult.StatusCode);
@@ -88,45 +91,6 @@ public class Given_ApiControllerBase : IDisposable
         Assert.Equal("NotEmptyValidator", error.Code);
         Assert.Equal("Name is required.", error.Detail);
         Assert.Equal("#/name", error.Pointer);
-        Assert.False(called);
-    }
-
-    [Fact]
-    public async Task ExecuteAsync_ValidRequest_CallsTheUseCaseWithTheRequestAndTokenAndAnswersWithItsData()
-    {
-        using var cancellation = new CancellationTokenSource();
-        var request = new NameRequest { Name = "Acme" };
-        NameRequest? seenRequest = null;
-        CancellationToken seenToken = default;
-
-        IActionResult result = await NewController().Run(
-            request,
-            new NameRequestValidator(),
-            (r, token) =>
-            {
-                seenRequest = r;
-                seenToken = token;
-                return Task.FromResult(ServiceResponse<string>.Succeed("done"));
-            },
-            cancellation.Token);
-
-        var ok = Assert.IsType<OkObjectResult>(result);
-        Assert.Equal("done", Assert.IsType<ApiResponse<string>>(ok.Value).Data);
-        Assert.Same(request, seenRequest);
-        Assert.Equal(cancellation.Token, seenToken);
-    }
-
-    [Fact]
-    public async Task ExecuteAsync_ValidRequest_AFailedUseCaseBecomesAProblem()
-    {
-        IActionResult result = await NewController().Run(
-            new NameRequest { Name = "Acme" },
-            new NameRequestValidator(),
-            (_, _) => Task.FromResult(ServiceResponse<string>.Fail(ErrorType.NotFound, Error("VendorNotFound", "Vendor 7 was not found."))),
-            CancellationToken.None);
-
-        Assert.Equal(StatusCodes.Status404NotFound, Assert.IsType<ObjectResult>(result).StatusCode);
-        Assert.Equal("VendorNotFound", Assert.Single(ErrorsOf(ProblemOf(result))).Code);
     }
 
     // ---- ToResult: success ----
@@ -180,7 +144,7 @@ public class Given_ApiControllerBase : IDisposable
         // Fails when an ErrorType is added without a decision about its status code.
         Assert.Equal(
             Enum.GetValues<ErrorType>().OrderBy(errorType => errorType),
-            ExpectedStatusCodes.Keys.OrderBy(errorType => errorType));
+            s_expectedStatusCodes.Keys.OrderBy(errorType => errorType));
     }
 
     [Fact]
@@ -215,7 +179,7 @@ public class Given_ApiControllerBase : IDisposable
     {
         NewController().Respond(ServiceResponse<string>.Fail(ErrorType.Unexpected, Error("Boom", "It broke.")));
 
-        LogEntry entry = Assert.Single(logs.Entries);
+        LogEntry entry = Assert.Single(_logs.Entries);
         Assert.Equal(LogLevel.Error, entry.Level);
         Assert.Contains("[Boom] It broke.", entry.Message);
         Assert.Null(entry.Exception);
@@ -227,7 +191,7 @@ public class Given_ApiControllerBase : IDisposable
         NewController("/vendors/1\r\nFAKE LOG LINE").Respond(
             ServiceResponse<string>.Fail(ErrorType.Unexpected, Error("Boom", "It broke.\r\nFAKE MESSAGE LINE")));
 
-        LogEntry entry = Assert.Single(logs.Entries);
+        LogEntry entry = Assert.Single(_logs.Entries);
         Assert.DoesNotContain('\n', entry.Message);
         Assert.DoesNotContain('\r', entry.Message);
         Assert.Contains("/vendors/1 FAKE LOG LINE", entry.Message);
@@ -243,19 +207,20 @@ public class Given_ApiControllerBase : IDisposable
     {
         NewController().Respond(ServiceResponse<string>.Fail(errorType, Error("Code", "Message.")));
 
-        Assert.Empty(logs.Entries);
+        Assert.Empty(_logs.Entries);
     }
 
     private sealed class TestController : ApiControllerBase
     {
-        public Task<IActionResult> Run<TRequest, TData>(
-            TRequest request,
-            IValidator<TRequest> validator,
-            Func<TRequest, CancellationToken, Task<ServiceResponse<TData>>> useCase,
-            CancellationToken cancellationToken) =>
-            ExecuteAsync(request, validator, useCase, cancellationToken);
+        public IActionResult RespondInvalid(ValidationResult validation)
+        {
+            return InvalidRequest(validation);
+        }
 
-        public IActionResult Respond<T>(ServiceResponse<T> response) => ToResult(response);
+        public IActionResult Respond<T>(ServiceResponse<T> response)
+        {
+            return ToResult(response);
+        }
     }
 
     private sealed class NameRequest

@@ -11,10 +11,14 @@ internal static class ErrorHandlingRegistration
         builder.Services.AddExceptionHandler<ApiExceptionHandler>();
 
         // [ApiController] answers an unbindable request with a field-keyed errors object that would clash with ours.
-        builder.Services.Configure<ApiBehaviorOptions>(options =>
-            options.InvalidModelStateResponseFactory = context =>
-                ProblemDetailsMapper.ToProblemDetails(context.ModelState).ToObjectResult(context.HttpContext));
+        builder.Services.Configure<ApiBehaviorOptions>(
+            options => options.InvalidModelStateResponseFactory = CreateInvalidModelStateResponse);
 
         return builder;
+    }
+
+    private static IActionResult CreateInvalidModelStateResponse(ActionContext context)
+    {
+        return ProblemDetailsMapper.ToProblemDetails(context.ModelState).ToObjectResult(context.HttpContext);
     }
 }

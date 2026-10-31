@@ -7,3 +7,46 @@ charset = utf-8
 
 [*.{bat,cmd,ps1}]
 end_of_line = crlf
+
+[*.cs]
+# Block bodies for methods, constructors and local functions.
+csharp_style_expression_bodied_methods = false:warning
+csharp_style_expression_bodied_constructors = false:warning
+csharp_style_expression_bodied_local_functions = false:warning
+
+# Braces on every statement block.
+csharp_prefer_braces = true:warning
+
+# Private and internal fields: constants PascalCase, statics s_camelCase, instance fields _camelCase.
+dotnet_diagnostic.IDE1006.severity = warning
+
+dotnet_naming_rule.private_constants_should_be_pascal_case.symbols = private_constants
+dotnet_naming_rule.private_constants_should_be_pascal_case.style = pascal_case
+dotnet_naming_rule.private_constants_should_be_pascal_case.severity = warning
+
+dotnet_naming_rule.private_static_fields_should_be_s_camel_case.symbols = private_static_fields
+dotnet_naming_rule.private_static_fields_should_be_s_camel_case.style = s_camel_case
+dotnet_naming_rule.private_static_fields_should_be_s_camel_case.severity = warning
+
+dotnet_naming_rule.private_instance_fields_should_be_underscore_camel_case.symbols = private_instance_fields
+dotnet_naming_rule.private_instance_fields_should_be_underscore_camel_case.style = underscore_camel_case
+dotnet_naming_rule.private_instance_fields_should_be_underscore_camel_case.severity = warning
+
+dotnet_naming_symbols.private_constants.applicable_kinds = field
+dotnet_naming_symbols.private_constants.applicable_accessibilities = private, internal
+dotnet_naming_symbols.private_constants.required_modifiers = const
+
+dotnet_naming_symbols.private_static_fields.applicable_kinds = field
+dotnet_naming_symbols.private_static_fields.applicable_accessibilities = private, internal
+dotnet_naming_symbols.private_static_fields.required_modifiers = static
+
+dotnet_naming_symbols.private_instance_fields.applicable_kinds = field
+dotnet_naming_symbols.private_instance_fields.applicable_accessibilities = private, internal
+
+dotnet_naming_style.pascal_case.capitalization = pascal_case
+
+dotnet_naming_style.s_camel_case.required_prefix = s_
+dotnet_naming_style.s_camel_case.capitalization = camel_case
+
+dotnet_naming_style.underscore_camel_case.required_prefix = _
+dotnet_naming_style.underscore_camel_case.capitalization = camel_case

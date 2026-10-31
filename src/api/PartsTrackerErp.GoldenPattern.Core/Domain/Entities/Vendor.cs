@@ -16,7 +16,9 @@ public sealed class Vendor
     public static Vendor Create(string name)
     {
         if (string.IsNullOrWhiteSpace(name))
+        {
             throw new ArgumentException("Vendor name is required.");
+        }
 
         return new Vendor
         {
@@ -25,7 +27,13 @@ public sealed class Vendor
         };
     }
 
-    public void Activate() => IsActive = true;
+    public void Activate()
+    {
+        IsActive = true;
+    }
 
-    public void Deactivate() => IsActive = false;
+    public void Deactivate()
+    {
+        IsActive = false;
+    }
 }

@@ -26,12 +26,15 @@ internal static class ErrorHandlingTestServices
         return services.BuildServiceProvider();
     }
 
-    public static DefaultHttpContext NewHttpContext(IServiceProvider services, string path = "/vendors") => new()
+    public static DefaultHttpContext NewHttpContext(IServiceProvider services, string path = "/vendors")
     {
-        RequestServices = services,
-        Request = { Method = "POST", Path = path },
-        Response = { Body = new MemoryStream() }
-    };
+        return new()
+        {
+            RequestServices = services,
+            Request = { Method = "POST", Path = path },
+            Response = { Body = new MemoryStream() }
+        };
+    }
 
     public static string ReadBody(HttpContext httpContext)
     {

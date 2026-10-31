@@ -13,39 +13,49 @@ namespace PartsTrackerErp.GoldenPattern.Tests.Api.ErrorHandling;
 [Trait(Constants.TestCategory, Constants.UnitTestCategory)]
 public class Given_ApiExceptionHandler : IDisposable
 {
-    private readonly CapturingLoggerProvider logs = new();
-    private readonly ServiceProvider services;
-    private readonly ApiExceptionHandler handler;
+    private readonly CapturingLoggerProvider _logs = new();
+    private readonly ServiceProvider _services;
+    private readonly ApiExceptionHandler _handler;
 
     public Given_ApiExceptionHandler()
     {
-        services = ErrorHandlingTestServices.Build(logs);
-        handler = new ApiExceptionHandler(
-            services.GetRequiredService<IProblemDetailsService>(),
-            services.GetRequiredService<ILogger<ApiExceptionHandler>>());
+        _services = ErrorHandlingTestServices.Build(_logs);
+        _handler = new ApiExceptionHandler(
+            _services.GetRequiredService<IProblemDetailsService>(),
+            _services.GetRequiredService<ILogger<ApiExceptionHandler>>());
     }
 
-    public void Dispose() => services.Dispose();
+    public void Dispose()
+    {
+        _services.Dispose();
+    }
 
-    private static DomainError Error(string code, string message) => new() { Code = code, Message = message };
+    private static DomainError Error(string code, string message)
+    {
+        return new() { Code = code, Message = message };
+    }
 
     private async Task<(bool Handled, DefaultHttpContext Context)> HandleAsync(
         Exception exception,
         Action<DefaultHttpContext>? configure = null)
     {
-        DefaultHttpContext context = ErrorHandlingTestServices.NewHttpContext(services);
+        DefaultHttpContext context = ErrorHandlingTestServices.NewHttpContext(_services);
         configure?.Invoke(context);
 
-        bool handled = await handler.TryHandleAsync(context, exception, CancellationToken.None);
+        bool handled = await _handler.TryHandleAsync(context, exception, CancellationToken.None);
 
         return (handled, context);
     }
 
-    private static JsonDocument ReadProblem(HttpContext context) =>
-        JsonDocument.Parse(ErrorHandlingTestServices.ReadBody(context));
+    private static JsonDocument ReadProblem(HttpContext context)
+    {
+        return JsonDocument.Parse(ErrorHandlingTestServices.ReadBody(context));
+    }
 
-    private static string[] Codes(JsonElement problem) =>
-        [.. problem.GetProperty("errors").EnumerateArray().Select(error => error.GetProperty("code").GetString()!)];
+    private static string[] Codes(JsonElement problem)
+    {
+        return [.. problem.GetProperty("errors").EnumerateArray().Select(error => error.GetProperty("code").GetString()!)];
+    }
 
     [Fact]
     public async Task TryHandleAsync_DomainException_WritesTheProblemForItsCategory()
@@ -145,7 +155,7 @@ public class Given_ApiExceptionHandler : IDisposable
         Assert.False(handled);
         Assert.Equal(StatusCodes.Status200OK, context.Response.StatusCode);
         Assert.Equal(0, context.Response.Body.Length);
-        Assert.Empty(logs.Entries);
+        Assert.Empty(_logs.Entries);
     }
 
     [Fact]
@@ -163,7 +173,7 @@ public class Given_ApiExceptionHandler : IDisposable
 
         await HandleAsync(exception);
 
-        LogEntry entry = Assert.Single(logs.Entries);
+        LogEntry entry = Assert.Single(_logs.Entries);
         Assert.Equal(LogLevel.Warning, entry.Level);
         Assert.Same(exception, entry.Exception);
     }
@@ -175,7 +185,7 @@ public class Given_ApiExceptionHandler : IDisposable
 
         await HandleAsync(exception);
 
-        LogEntry entry = Assert.Single(logs.Entries);
+        LogEntry entry = Assert.Single(_logs.Entries);
         Assert.Equal(LogLevel.Error, entry.Level);
         Assert.Same(exception, entry.Exception);
     }
@@ -186,7 +196,7 @@ public class Given_ApiExceptionHandler : IDisposable
         await HandleAsync(new HttpRequestException("Could not connect."));
         await HandleAsync(new TaskCanceledException("Timed out.", new TimeoutException()));
 
-        Assert.Equal([LogLevel.Warning, LogLevel.Warning], logs.Entries.Select(entry => entry.Level));
+        Assert.Equal([LogLevel.Warning, LogLevel.Warning], _logs.Entries.Select(entry => entry.Level));
     }
 
     [Fact]
@@ -194,7 +204,7 @@ public class Given_ApiExceptionHandler : IDisposable
     {
         await HandleAsync(new BadHttpRequestException("Too large.", StatusCodes.Status413PayloadTooLarge));
 
-        Assert.Equal(LogLevel.Warning, Assert.Single(logs.Entries).Level);
+        Assert.Equal(LogLevel.Warning, Assert.Single(_logs.Entries).Level);
     }
 
     [Fact]
@@ -204,7 +214,7 @@ public class Given_ApiExceptionHandler : IDisposable
             new HttpRequestException("Could not connect."),
             c => c.Request.Path = "/vendors/1\r\nFAKE LOG LINE");
 
-        LogEntry entry = Assert.Single(logs.Entries);
+        LogEntry entry = Assert.Single(_logs.Entries);
         Assert.DoesNotContain('\n', entry.Message);
         Assert.DoesNotContain('\r', entry.Message);
         Assert.Contains("/vendors/1 FAKE LOG LINE", entry.Message);

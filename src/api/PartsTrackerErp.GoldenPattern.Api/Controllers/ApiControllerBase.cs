@@ -1,4 +1,4 @@
-using FluentValidation;
+using FluentValidation.Results;
 using Microsoft.AspNetCore.Mvc;
 using PartsTrackerErp.GoldenPattern.Api.ErrorHandling;
 using PartsTrackerErp.GoldenPattern.Core.ApplicationServices.Abstractions;
@@ -16,22 +16,11 @@ namespace PartsTrackerErp.GoldenPattern.Api.Controllers;
 public abstract class ApiControllerBase : ControllerBase
 {
     /// <summary>
-    /// Validates the request, returning a 400 problem if it is invalid, then calls the use case and answers
-    /// with its result.
+    /// Answers a request that failed validation with a 400 problem that lists each failure.
     /// </summary>
-    protected async Task<IActionResult> ExecuteAsync<TRequest, TData>(
-        TRequest request,
-        IValidator<TRequest> validator,
-        Func<TRequest, CancellationToken, Task<ServiceResponse<TData>>> useCase,
-        CancellationToken cancellationToken)
+    protected IActionResult InvalidRequest(ValidationResult validation)
     {
-        var validation = await validator.ValidateAsync(request, cancellationToken);
-        if (!validation.IsValid)
-        {
-            return ProblemDetailsMapper.ToProblemDetails(validation.Errors).ToObjectResult(HttpContext);
-        }
-
-        return ToResult(await useCase(request, cancellationToken));
+        return ProblemDetailsMapper.ToProblemDetails(validation.Errors).ToObjectResult(HttpContext);
     }
 
     protected IActionResult ToResult<T>(ServiceResponse<T> response)

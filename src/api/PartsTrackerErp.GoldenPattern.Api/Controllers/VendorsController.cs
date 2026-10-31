@@ -1,7 +1,9 @@
 using FluentValidation;
+using FluentValidation.Results;
 using Microsoft.AspNetCore.Mvc;
 using PartsTrackerErp.GoldenPattern.Core.ApplicationServices.Abstractions;
 using PartsTrackerErp.GoldenPattern.Core.Contracts.Requests;
+using PartsTrackerErp.GoldenPattern.Core.Domain.Entities;
 
 namespace PartsTrackerErp.GoldenPattern.Api.Controllers;
 
@@ -9,17 +11,32 @@ namespace PartsTrackerErp.GoldenPattern.Api.Controllers;
 public class VendorsController(IVendorsApplicationService vendorsApplicationService) : ApiControllerBase
 {
     [HttpPost]
-    public Task<IActionResult> Add(
+    public async Task<IActionResult> Add(
         [FromBody] CreateVendorDto request,
         IValidator<CreateVendorDto> validator,
-        CancellationToken cancellationToken) =>
-        ExecuteAsync(request, validator, (r, ct) => vendorsApplicationService.AddAsync(r.Name, ct), cancellationToken);
+        CancellationToken cancellationToken)
+    {
+        ValidationResult validation = await validator.ValidateAsync(request, cancellationToken);
+        if (!validation.IsValid)
+        {
+            return InvalidRequest(validation);
+        }
+
+        ServiceResponse<Vendor> response = await vendorsApplicationService.AddAsync(request.Name, cancellationToken);
+        return ToResult(response);
+    }
 
     [HttpPost("{id}/activate")]
-    public async Task<IActionResult> Activate(string id, CancellationToken cancellationToken) =>
-        ToResult(await vendorsApplicationService.ActivateAsync(id, cancellationToken));
+    public async Task<IActionResult> Activate(string id, CancellationToken cancellationToken)
+    {
+        ServiceResponse<Vendor> response = await vendorsApplicationService.ActivateAsync(id, cancellationToken);
+        return ToResult(response);
+    }
 
     [HttpPost("{id}/deactivate")]
-    public async Task<IActionResult> Deactivate(string id, CancellationToken cancellationToken) =>
-        ToResult(await vendorsApplicationService.DeactivateAsync(id, cancellationToken));
+    public async Task<IActionResult> Deactivate(string id, CancellationToken cancellationToken)
+    {
+        ServiceResponse<Vendor> response = await vendorsApplicationService.DeactivateAsync(id, cancellationToken);
+        return ToResult(response);
+    }
 }

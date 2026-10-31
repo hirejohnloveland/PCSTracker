@@ -29,8 +29,10 @@ public class DomainException : Exception
     public IReadOnlyList<DomainError> Errors => ErrorEnvelope.Errors;
 
     // Exception.Message is for logs only. Callers receive the errors themselves.
-    private static string BuildMessage(DomainErrorEnvelope errorEnvelope) =>
-        errorEnvelope.Errors.Count == 0
+    private static string BuildMessage(DomainErrorEnvelope errorEnvelope)
+    {
+        return errorEnvelope.Errors.Count == 0
             ? "DomainException with no errors."
             : string.Join(" | ", errorEnvelope.Errors.Select(error => $"[{error.Code}] {error.Message}"));
+    }
 }

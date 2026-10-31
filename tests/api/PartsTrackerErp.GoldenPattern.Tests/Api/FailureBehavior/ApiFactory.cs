@@ -43,14 +43,22 @@ public sealed class ApiFactory : WebApplicationFactory<Program>
 
     private sealed class EmptyVendorRepository : IVendorRepository
     {
-        public Task<Vendor?> GetAsync(string id, CancellationToken cancellationToken = default) =>
-            Task.FromResult<Vendor?>(null);
+        public Task<Vendor?> GetAsync(string id, CancellationToken cancellationToken = default)
+        {
+            return Task.FromResult<Vendor?>(null);
+        }
 
-        public Task AddAsync(Vendor vendor, CancellationToken cancellationToken = default) => Task.CompletedTask;
+        public Task AddAsync(Vendor vendor, CancellationToken cancellationToken = default)
+        {
+            return Task.CompletedTask;
+        }
     }
 
     private sealed class NoOpUnitOfWork : IUnitOfWork
     {
-        public Task SaveChangesAsync(CancellationToken cancellationToken = default) => Task.CompletedTask;
+        public Task SaveChangesAsync(CancellationToken cancellationToken = default)
+        {
+            return Task.CompletedTask;
+        }
     }
 }

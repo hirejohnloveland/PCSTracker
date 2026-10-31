@@ -7,7 +7,7 @@ namespace PartsTrackerErp.GoldenPattern.Tests.Api.ErrorHandling;
 [Trait(Constants.TestCategory, Constants.UnitTestCategory)]
 public class Given_ErrorTypeExtensions
 {
-    private static readonly Dictionary<ErrorType, int> ExpectedStatusCodes = new()
+    private static readonly Dictionary<ErrorType, int> s_expectedStatusCodes = new()
     {
         [ErrorType.Validation] = StatusCodes.Status400BadRequest,
         [ErrorType.Unauthorized] = StatusCodes.Status401Unauthorized,
@@ -20,7 +20,7 @@ public class Given_ErrorTypeExtensions
     public static TheoryData<ErrorType, int> StatusCodeCases()
     {
         var cases = new TheoryData<ErrorType, int>();
-        foreach ((ErrorType errorType, int statusCode) in ExpectedStatusCodes)
+        foreach ((ErrorType errorType, int statusCode) in s_expectedStatusCodes)
         {
             cases.Add(errorType, statusCode);
         }
@@ -41,7 +41,7 @@ public class Given_ErrorTypeExtensions
         // Fails when an ErrorType is added without a decision about its status code.
         Assert.Equal(
             Enum.GetValues<ErrorType>().OrderBy(errorType => errorType),
-            ExpectedStatusCodes.Keys.OrderBy(errorType => errorType));
+            s_expectedStatusCodes.Keys.OrderBy(errorType => errorType));
     }
 
     [Fact]

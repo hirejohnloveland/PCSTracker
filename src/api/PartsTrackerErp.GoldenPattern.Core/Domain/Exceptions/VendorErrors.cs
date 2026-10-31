@@ -2,9 +2,12 @@ namespace PartsTrackerErp.GoldenPattern.Core.Domain.Exceptions;
 
 public static class VendorErrors
 {
-    public static DomainError NotFound(string id) => new()
+    public static DomainError NotFound(string id)
     {
-        Code = "VendorNotFound",
-        Message = $"Vendor '{id}' was not found."
-    };
+        return new()
+        {
+            Code = "VendorNotFound",
+            Message = $"Vendor '{id}' was not found."
+        };
+    }
 }

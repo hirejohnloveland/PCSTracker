@@ -23,3 +23,4 @@ The goal is not preserving code in two places. It's making sure an agent or a pe
 | [0011](0011-problem-details.md) | Failures reach callers as RFC 9457 problem details |
 | [0012](0012-built-in-exception-handling.md) | Unexpected exceptions use .NET's built-in exception handling |
 | [0013](0013-observability.md) | Observability with OpenTelemetry and Azure Monitor |
+| [0014](0014-pagination.md) | Pagination for list endpoints |

@@ -9,6 +9,7 @@ RavenDB is a document database with no fixed schema. Its .NET client provides a 
 - Services store their data in RavenDB and access it through the RavenDB .NET client (`RavenDB.Client`). EF Core is not used.
 - `AddCore()` registers `IDocumentStore` as a singleton and `IAsyncDocumentSession` as scoped, in [`DependencyInjection/RavenDbRegistration.cs`](../../src/api/PartsTrackerErp.GoldenPattern.Core/DependencyInjection/RavenDbRegistration.cs) ([ADR 0001](0001-host-registration-pattern.md)). Every host that calls `AddCore()` gets the same registration.
 - The document store reads `Urls` and `Database` from the `RavenDb` configuration section.
+- The document store sets `IdentityPartsSeparator` to `-`, so generated ids look like `vendors-1-A` and fit a single route segment.
 - At startup, a hosted service registered by `AddCore()` creates the database if it does not exist ([`Infrastructure/Persistence/RavenDbDatabaseInitializer.cs`](../../src/api/PartsTrackerErp.GoldenPattern.Core/Infrastructure/Persistence/RavenDbDatabaseInitializer.cs)).
 - The solution has no database migrations project.
 
@@ -20,5 +21,5 @@ RavenDB is a document database with no fixed schema. Its .NET client provides a 
 
 ## Reference implementation
 
-- Registration: [`RavenDbRegistration.AddCoreRavenDb`](../../src/api/PartsTrackerErp.GoldenPattern.Core/DependencyInjection/RavenDbRegistration.cs)
+- Registration, including the id separator: [`RavenDbRegistration.AddCoreRavenDb`](../../src/api/PartsTrackerErp.GoldenPattern.Core/DependencyInjection/RavenDbRegistration.cs)
 - Startup database creation: [`RavenDbDatabaseInitializer`](../../src/api/PartsTrackerErp.GoldenPattern.Core/Infrastructure/Persistence/RavenDbDatabaseInitializer.cs)

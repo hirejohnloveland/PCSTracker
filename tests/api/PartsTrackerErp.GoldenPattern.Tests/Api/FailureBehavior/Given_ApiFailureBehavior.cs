@@ -12,7 +12,8 @@ namespace PartsTrackerErp.GoldenPattern.Tests.Api.FailureBehavior;
 /// Sends real requests through the whole pipeline, in memory, and checks what a caller receives when a request fails.
 /// </summary>
 [Trait(Constants.TestCategory, Constants.IntegrationTestCategory)]
-public class Given_ApiFailureBehavior : IClassFixture<ApiFactory>
+[Collection(Constants.ApiPipelineCollection)]
+public class Given_ApiFailureBehavior
 {
     private const string FailuresPath = "/testing/failures";
     private const string TypeBase = "https://api.example.com/problems/";

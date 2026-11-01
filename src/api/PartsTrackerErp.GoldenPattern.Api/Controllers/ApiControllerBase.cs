@@ -1,3 +1,4 @@
+using System.Net.Mime;
 using FluentValidation.Results;
 using Microsoft.AspNetCore.Mvc;
 using PartsTrackerErp.GoldenPattern.Api.ErrorHandling;
@@ -11,15 +12,21 @@ namespace PartsTrackerErp.GoldenPattern.Api.Controllers;
 /// <summary>
 /// The standard block every controller inherits. A success becomes an <see cref="ApiResponse{T}"/>, or a
 /// <see cref="PagedApiResponse{T}"/> for one page of a list. A failure becomes an
-/// <c>application/problem+json</c> response.
+/// <c>application/problem+json</c> response. The class declares the failure responses every action can return.
 /// </summary>
 [ApiController]
+[ProducesResponseType<ProblemDetails>(StatusCodes.Status400BadRequest, MediaTypeNames.Application.ProblemJson)]
+[ProducesResponseType<ProblemDetails>(StatusCodes.Status401Unauthorized, MediaTypeNames.Application.ProblemJson)]
+[ProducesResponseType<ProblemDetails>(StatusCodes.Status403Forbidden, MediaTypeNames.Application.ProblemJson)]
+[ProducesResponseType<ProblemDetails>(StatusCodes.Status404NotFound, MediaTypeNames.Application.ProblemJson)]
+[ProducesResponseType<ProblemDetails>(StatusCodes.Status409Conflict, MediaTypeNames.Application.ProblemJson)]
+[ProducesResponseType<ProblemDetails>(StatusCodes.Status500InternalServerError, MediaTypeNames.Application.ProblemJson)]
 public abstract class ApiControllerBase : ControllerBase
 {
     /// <summary>
     /// Answers a request that failed validation with a 400 problem that lists each failure.
     /// </summary>
-    protected IActionResult InvalidRequest(ValidationResult validation)
+    protected ActionResult InvalidRequest(ValidationResult validation)
     {
         return ProblemDetailsMapper.ToProblemDetails(validation.Errors).ToObjectResult(HttpContext);
     }
@@ -28,7 +35,7 @@ public abstract class ApiControllerBase : ControllerBase
     /// Answers a use case that returns one result. A page of a list is answered with <see cref="ToPagedResult{T}"/>.
     /// Handing one to this method throws, because the pagination would end up inside <c>data</c>.
     /// </summary>
-    protected IActionResult ToResult<T>(ServiceResponse<T> response)
+    protected ActionResult<ApiResponse<T>> ToResult<T>(ServiceResponse<T> response)
     {
         RejectPagedResponse<T>();
 
@@ -44,7 +51,7 @@ public abstract class ApiControllerBase : ControllerBase
     /// Answers a use case that created a resource: a 201 with the body that <see cref="ToResult{T}"/> writes.
     /// A failure, and a page of a list, are handled as they are there.
     /// </summary>
-    protected IActionResult ToCreatedResult<T>(ServiceResponse<T> response)
+    protected ActionResult<ApiResponse<T>> ToCreatedResult<T>(ServiceResponse<T> response)
     {
         RejectPagedResponse<T>();
 
@@ -60,7 +67,7 @@ public abstract class ApiControllerBase : ControllerBase
     /// Answers a use case that returns one page of a list: a 200 with the items, the pagination and the metadata.
     /// A failure is answered as in <see cref="ToResult{T}"/>.
     /// </summary>
-    protected IActionResult ToPagedResult<T>(ServiceResponse<PagedResponseDto<T>> response)
+    protected ActionResult<PagedApiResponse<T>> ToPagedResult<T>(ServiceResponse<PagedResponseDto<T>> response)
     {
         if (response.Success)
         {
@@ -85,7 +92,7 @@ public abstract class ApiControllerBase : ControllerBase
         return new ApiResponseMetadata(ProblemDetailsMapper.GetTraceId(HttpContext), DateTime.UtcNow);
     }
 
-    private IActionResult ToFailureResult(ErrorType? failureType, IReadOnlyList<DomainError> errors)
+    private ObjectResult ToFailureResult(ErrorType? failureType, IReadOnlyList<DomainError> errors)
     {
         // Null or unknown failure types fall through to 500 in ErrorTypeExtensions.
         var envelope = new DomainErrorEnvelope

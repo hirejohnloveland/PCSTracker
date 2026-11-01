@@ -13,6 +13,7 @@ namespace PartsTrackerErp.GoldenPattern.Tests.Api.FailureBehavior;
 
 /// <summary>
 /// Boots the real API pipeline in memory, without a RavenDB server. Adds <see cref="FailureTestingController"/>.
+/// Share one per test run, through <see cref="ApiPipelineCollection"/>.
 /// </summary>
 public sealed class ApiFactory : WebApplicationFactory<Program>
 {

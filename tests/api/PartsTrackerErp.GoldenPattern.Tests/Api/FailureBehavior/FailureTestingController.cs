@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using PartsTrackerErp.GoldenPattern.Api.Controllers;
 using PartsTrackerErp.GoldenPattern.Core.ApplicationServices.Abstractions;
+using PartsTrackerErp.GoldenPattern.Core.Contracts.Responses;
 
 namespace PartsTrackerErp.GoldenPattern.Tests.Api.FailureBehavior;
 
@@ -15,14 +16,14 @@ namespace PartsTrackerErp.GoldenPattern.Tests.Api.FailureBehavior;
 public sealed class FailureTestingController(FailureTestingService service) : ApiControllerBase
 {
     [HttpGet]
-    public async Task<IActionResult> Run(CancellationToken cancellationToken)
+    public async Task<ActionResult<ApiResponse<string>>> Run(CancellationToken cancellationToken)
     {
         ServiceResponse<string> response = await service.RunAsync(cancellationToken);
         return ToResult(response);
     }
 
     [HttpPost]
-    public async Task<IActionResult> Validate(
+    public async Task<ActionResult<ApiResponse<string>>> Validate(
         [FromBody] FailureTestingRequest request,
         IValidator<FailureTestingRequest> validator,
         CancellationToken cancellationToken)

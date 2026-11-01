@@ -11,7 +11,8 @@ namespace PartsTrackerErp.GoldenPattern.Api.Controllers;
 public class VendorsController(IVendorsApplicationService vendorsApplicationService) : ApiControllerBase
 {
     [HttpPost]
-    public async Task<IActionResult> Add(
+    [ProducesResponseType(StatusCodes.Status201Created)]
+    public async Task<ActionResult<ApiResponse<VendorResponseDto>>> Add(
         [FromBody] CreateVendorDto request,
         IValidator<CreateVendorDto> validator,
         CancellationToken cancellationToken)
@@ -27,7 +28,8 @@ public class VendorsController(IVendorsApplicationService vendorsApplicationServ
     }
 
     [HttpGet]
-    public async Task<IActionResult> List(
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    public async Task<ActionResult<PagedApiResponse<VendorResponseDto>>> List(
         [FromQuery] ListVendorsDto request,
         IValidator<ListVendorsDto> validator,
         CancellationToken cancellationToken)
@@ -44,21 +46,24 @@ public class VendorsController(IVendorsApplicationService vendorsApplicationServ
     }
 
     [HttpGet("{id}")]
-    public async Task<IActionResult> Get(string id, CancellationToken cancellationToken)
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    public async Task<ActionResult<ApiResponse<VendorResponseDto>>> Get(string id, CancellationToken cancellationToken)
     {
         ServiceResponse<VendorResponseDto> response = await vendorsApplicationService.GetAsync(id, cancellationToken);
         return ToResult(response);
     }
 
     [HttpPost("{id}/activate")]
-    public async Task<IActionResult> Activate(string id, CancellationToken cancellationToken)
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    public async Task<ActionResult<ApiResponse<VendorResponseDto>>> Activate(string id, CancellationToken cancellationToken)
     {
         ServiceResponse<VendorResponseDto> response = await vendorsApplicationService.ActivateAsync(id, cancellationToken);
         return ToResult(response);
     }
 
     [HttpPost("{id}/deactivate")]
-    public async Task<IActionResult> Deactivate(string id, CancellationToken cancellationToken)
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    public async Task<ActionResult<ApiResponse<VendorResponseDto>>> Deactivate(string id, CancellationToken cancellationToken)
     {
         ServiceResponse<VendorResponseDto> response = await vendorsApplicationService.DeactivateAsync(id, cancellationToken);
         return ToResult(response);

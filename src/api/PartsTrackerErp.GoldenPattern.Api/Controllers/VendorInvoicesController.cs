@@ -11,7 +11,8 @@ namespace PartsTrackerErp.GoldenPattern.Api.Controllers;
 public class VendorInvoicesController(IVendorInvoicesApplicationService vendorInvoicesApplicationService) : ApiControllerBase
 {
     [HttpPost]
-    public async Task<IActionResult> Create(
+    [ProducesResponseType(StatusCodes.Status201Created)]
+    public async Task<ActionResult<ApiResponse<VendorInvoiceResponseDto>>> Create(
         [FromBody] VendorInvoiceDto invoice,
         IValidator<VendorInvoiceDto> validator,
         CancellationToken cancellationToken)

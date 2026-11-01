@@ -1,11 +1,15 @@
 using System.Diagnostics;
+using System.Reflection;
 using FluentValidation;
 using FluentValidation.Results;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.ApiExplorer;
+using Microsoft.AspNetCore.Mvc.Formatters;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using PartsTrackerErp.GoldenPattern.Api.Controllers;
+using PartsTrackerErp.GoldenPattern.Api.ErrorHandling;
 using PartsTrackerErp.GoldenPattern.Core.ApplicationServices.Abstractions;
 using PartsTrackerErp.GoldenPattern.Core.Contracts.Responses;
 using PartsTrackerErp.GoldenPattern.Core.Domain.Exceptions;
@@ -64,7 +68,7 @@ public class Given_ApiControllerBase : IDisposable
         return new TestController { ControllerContext = new ControllerContext { HttpContext = httpContext } };
     }
 
-    private static ProblemDetails ProblemOf(IActionResult result)
+    private static ProblemDetails ProblemOf(IActionResult? result)
     {
         return Assert.IsType<ProblemDetails>(Assert.IsType<ObjectResult>(result).Value);
     }
@@ -102,10 +106,10 @@ public class Given_ApiControllerBase : IDisposable
         Assert.Null(Activity.Current);
         DateTime before = DateTime.UtcNow;
 
-        IActionResult result = NewController().Respond(ServiceResponse<string>.Succeed("Acme"));
+        ActionResult<ApiResponse<string>> result = NewController().Respond(ServiceResponse<string>.Succeed("Acme"));
 
         DateTime after = DateTime.UtcNow;
-        OkObjectResult ok = Assert.IsType<OkObjectResult>(result);
+        OkObjectResult ok = Assert.IsType<OkObjectResult>(result.Result);
         Assert.Equal(StatusCodes.Status200OK, ok.StatusCode);
         ApiResponse<string> response = Assert.IsType<ApiResponse<string>>(ok.Value);
         Assert.Equal("Acme", response.Data);
@@ -119,9 +123,9 @@ public class Given_ApiControllerBase : IDisposable
     {
         using Activity activity = new Activity("test").Start();
 
-        IActionResult result = NewController().Respond(ServiceResponse<string>.Succeed("Acme"));
+        ActionResult<ApiResponse<string>> result = NewController().Respond(ServiceResponse<string>.Succeed("Acme"));
 
-        ApiResponse<string> response = Assert.IsType<ApiResponse<string>>(Assert.IsType<OkObjectResult>(result).Value);
+        ApiResponse<string> response = Assert.IsType<ApiResponse<string>>(Assert.IsType<OkObjectResult>(result.Result).Value);
         Assert.Equal(activity.Id, response.Metadata.TraceId);
     }
 
@@ -131,11 +135,11 @@ public class Given_ApiControllerBase : IDisposable
     [MemberData(nameof(StatusCodeCases))]
     public void ToResult_Failure_MapsEachErrorTypeToItsStatus(ErrorType errorType, int expectedStatus)
     {
-        IActionResult result = NewController().Respond(ServiceResponse<string>.Fail(errorType, Error("Code", "Message.")));
+        ActionResult<ApiResponse<string>> result = NewController().Respond(ServiceResponse<string>.Fail(errorType, Error("Code", "Message.")));
 
-        ObjectResult objectResult = Assert.IsType<ObjectResult>(result);
+        ObjectResult objectResult = Assert.IsType<ObjectResult>(result.Result);
         Assert.Equal(expectedStatus, objectResult.StatusCode);
-        Assert.Equal(expectedStatus, ProblemOf(result).Status);
+        Assert.Equal(expectedStatus, ProblemOf(result.Result).Status);
         Assert.Equal(["application/problem+json"], objectResult.ContentTypes);
     }
 
@@ -151,18 +155,18 @@ public class Given_ApiControllerBase : IDisposable
     [Fact]
     public void ToResult_Failure_UndefinedErrorType_Gives500()
     {
-        IActionResult result = NewController().Respond(ServiceResponse<string>.Fail((ErrorType)999, Error("Code", "Message.")));
+        ActionResult<ApiResponse<string>> result = NewController().Respond(ServiceResponse<string>.Fail((ErrorType)999, Error("Code", "Message.")));
 
-        Assert.Equal(StatusCodes.Status500InternalServerError, Assert.IsType<ObjectResult>(result).StatusCode);
+        Assert.Equal(StatusCodes.Status500InternalServerError, Assert.IsType<ObjectResult>(result.Result).StatusCode);
     }
 
     [Fact]
     public void ToResult_Failure_BuildsTheProblemThroughTheFrameworkFactory()
     {
-        IActionResult result = NewController("/vendors/7/activate").Respond(
+        ActionResult<ApiResponse<string>> result = NewController("/vendors/7/activate").Respond(
             ServiceResponse<string>.Fail(ErrorType.NotFound, Error("VendorNotFound", "Vendor 7 was not found.")));
 
-        ProblemDetails problem = ProblemOf(result);
+        ProblemDetails problem = ProblemOf(result.Result);
         Assert.Equal("Not Found", problem.Title);
         Assert.Equal("https://api.example.com/problems/not-found", problem.Type);
         Assert.Equal("Vendor 7 was not found.", problem.Detail);
@@ -244,10 +248,10 @@ public class Given_ApiControllerBase : IDisposable
         Assert.Null(Activity.Current);
         DateTime before = DateTime.UtcNow;
 
-        IActionResult result = NewController().RespondCreated(ServiceResponse<string>.Succeed("Acme"));
+        ActionResult<ApiResponse<string>> result = NewController().RespondCreated(ServiceResponse<string>.Succeed("Acme"));
 
         DateTime after = DateTime.UtcNow;
-        ObjectResult created = Assert.IsType<ObjectResult>(result);
+        ObjectResult created = Assert.IsType<ObjectResult>(result.Result);
         Assert.Equal(StatusCodes.Status201Created, created.StatusCode);
         ApiResponse<string> response = Assert.IsType<ApiResponse<string>>(created.Value);
         Assert.Equal("Acme", response.Data);
@@ -260,11 +264,11 @@ public class Given_ApiControllerBase : IDisposable
     [MemberData(nameof(StatusCodeCases))]
     public void ToCreatedResult_Failure_MapsEachErrorTypeToItsStatus(ErrorType errorType, int expectedStatus)
     {
-        IActionResult result = NewController().RespondCreated(ServiceResponse<string>.Fail(errorType, Error("Code", "Message.")));
+        ActionResult<ApiResponse<string>> result = NewController().RespondCreated(ServiceResponse<string>.Fail(errorType, Error("Code", "Message.")));
 
-        ObjectResult objectResult = Assert.IsType<ObjectResult>(result);
+        ObjectResult objectResult = Assert.IsType<ObjectResult>(result.Result);
         Assert.Equal(expectedStatus, objectResult.StatusCode);
-        Assert.Equal(expectedStatus, ProblemOf(result).Status);
+        Assert.Equal(expectedStatus, ProblemOf(result.Result).Status);
         Assert.Equal(["application/problem+json"], objectResult.ContentTypes);
     }
 
@@ -290,11 +294,11 @@ public class Given_ApiControllerBase : IDisposable
         var pagination = new PaginationMetadata(Page: 2, PageSize: 10, TotalCount: 12, TotalPages: 2);
         DateTime before = DateTime.UtcNow;
 
-        IActionResult result = NewController().RespondPaged(
+        ActionResult<PagedApiResponse<string>> result = NewController().RespondPaged(
             ServiceResponse<PagedResponseDto<string>>.Succeed(new PagedResponseDto<string>(["Acme", "Beta"], pagination)));
 
         DateTime after = DateTime.UtcNow;
-        OkObjectResult ok = Assert.IsType<OkObjectResult>(result);
+        OkObjectResult ok = Assert.IsType<OkObjectResult>(result.Result);
         Assert.Equal(StatusCodes.Status200OK, ok.StatusCode);
         PagedApiResponse<string> response = Assert.IsType<PagedApiResponse<string>>(ok.Value);
         Assert.Equal(["Acme", "Beta"], response.Data);
@@ -308,12 +312,12 @@ public class Given_ApiControllerBase : IDisposable
     [MemberData(nameof(StatusCodeCases))]
     public void ToPagedResult_Failure_MapsEachErrorTypeToItsStatus(ErrorType errorType, int expectedStatus)
     {
-        IActionResult result = NewController().RespondPaged(
+        ActionResult<PagedApiResponse<string>> result = NewController().RespondPaged(
             ServiceResponse<PagedResponseDto<string>>.Fail(errorType, Error("Code", "Message.")));
 
-        ObjectResult objectResult = Assert.IsType<ObjectResult>(result);
+        ObjectResult objectResult = Assert.IsType<ObjectResult>(result.Result);
         Assert.Equal(expectedStatus, objectResult.StatusCode);
-        Assert.Equal(expectedStatus, ProblemOf(result).Status);
+        Assert.Equal(expectedStatus, ProblemOf(result.Result).Status);
         Assert.Equal(["application/problem+json"], objectResult.ContentTypes);
     }
 
@@ -337,6 +341,30 @@ public class Given_ApiControllerBase : IDisposable
         Assert.Empty(_logs.Entries);
     }
 
+    // ---- The failures ApiControllerBase declares ----
+
+    [Fact]
+    public void ApiControllerBase_DeclaredFailures_CoverTheStatusOfEveryErrorType()
+    {
+        // Fails when an ErrorType is added, or mapped to another status, without a matching declaration.
+        ProducesResponseTypeAttribute[] declared =
+            [.. typeof(ApiControllerBase).GetCustomAttributes<ProducesResponseTypeAttribute>(inherit: false)];
+
+        Assert.Equal(
+            Enum.GetValues<ErrorType>().Select(errorType => errorType.ToHttpStatusCode()).Distinct().Order(),
+            declared.Select(attribute => attribute.StatusCode).Order());
+        Assert.All(
+            declared,
+            attribute =>
+            {
+                var contentTypes = new MediaTypeCollection();
+                ((IApiResponseMetadataProvider)attribute).SetContentTypes(contentTypes);
+
+                Assert.Equal(typeof(ProblemDetails), attribute.Type);
+                Assert.Equal(["application/problem+json"], contentTypes);
+            });
+    }
+
     private sealed class TestController : ApiControllerBase
     {
         public IActionResult RespondInvalid(ValidationResult validation)
@@ -344,17 +372,17 @@ public class Given_ApiControllerBase : IDisposable
             return InvalidRequest(validation);
         }
 
-        public IActionResult Respond<T>(ServiceResponse<T> response)
+        public ActionResult<ApiResponse<T>> Respond<T>(ServiceResponse<T> response)
         {
             return ToResult(response);
         }
 
-        public IActionResult RespondCreated<T>(ServiceResponse<T> response)
+        public ActionResult<ApiResponse<T>> RespondCreated<T>(ServiceResponse<T> response)
         {
             return ToCreatedResult(response);
         }
 
-        public IActionResult RespondPaged<T>(ServiceResponse<PagedResponseDto<T>> response)
+        public ActionResult<PagedApiResponse<T>> RespondPaged<T>(ServiceResponse<PagedResponseDto<T>> response)
         {
             return ToPagedResult(response);
         }

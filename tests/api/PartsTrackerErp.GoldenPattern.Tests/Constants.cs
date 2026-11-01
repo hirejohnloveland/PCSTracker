@@ -12,4 +12,7 @@ internal static class Constants
     // Cross-layer tests that are designed to validate that the architecture is being followed. 
     // Use this category to test layer segregation, middleware or decorator use, inter module interaction, etc.
     public const string ArchitectureCategory = "Architecture";
+
+    // Classes that send requests through the API in memory. They share one host (ApiPipelineCollection).
+    public const string ApiPipelineCollection = "ApiPipeline";
 }

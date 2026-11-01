@@ -211,6 +211,31 @@ public class Given_ApiControllerBase : IDisposable
         Assert.Empty(_logs.Entries);
     }
 
+    // ---- ToResult: a page of a list ----
+
+    [Fact]
+    public void ToResult_PagedResponse_Throws()
+    {
+        var pagination = new PaginationMetadata(Page: 1, PageSize: 25, TotalCount: 0, TotalPages: 0);
+        ServiceResponse<PagedResponseDto<string>> response =
+            ServiceResponse<PagedResponseDto<string>>.Succeed(new PagedResponseDto<string>([], pagination));
+
+        InvalidOperationException exception = Assert.Throws<InvalidOperationException>(
+            () => NewController().Respond(response));
+
+        Assert.Contains("ToPagedResult", exception.Message);
+    }
+
+    [Fact]
+    public void ToResult_PagedResponseThatFailed_Throws()
+    {
+        // The mistake is in the code and not in the data, so it throws whatever the use case returned.
+        ServiceResponse<PagedResponseDto<string>> response =
+            ServiceResponse<PagedResponseDto<string>>.Fail(ErrorType.NotFound, Error("Code", "Message."));
+
+        Assert.Throws<InvalidOperationException>(() => NewController().Respond(response));
+    }
+
     // ---- ToPagedResult ----
 
     [Fact]

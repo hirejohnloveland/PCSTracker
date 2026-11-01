@@ -465,7 +465,7 @@ public class Given_ApiFailureBehavior : IClassFixture<ApiFactory>
     [Fact]
     public async Task Vendors_ListWithAPageAndPageSize_ReportsThemInThePagination()
     {
-        HttpResponseMessage response = await _client.GetAsync("/vendors?page=2&pageSize=10&name=ac");
+        HttpResponseMessage response = await _client.GetAsync("/vendors?page=2&pageSize=10");
 
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
         JsonElement pagination = (await ReadJsonAsync(response)).GetProperty("pagination");

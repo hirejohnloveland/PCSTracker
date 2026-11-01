@@ -24,8 +24,19 @@ public abstract class ApiControllerBase : ControllerBase
         return ProblemDetailsMapper.ToProblemDetails(validation.Errors).ToObjectResult(HttpContext);
     }
 
+    /// <summary>
+    /// Answers a use case that returns one result. A page of a list is answered with <see cref="ToPagedResult{T}"/>.
+    /// Handing one to this method throws, because the pagination would end up inside <c>data</c>.
+    /// </summary>
     protected IActionResult ToResult<T>(ServiceResponse<T> response)
     {
+        // Checked whatever the outcome, because the mistake is in the code and not in the data.
+        if (typeof(T).IsGenericType && typeof(T).GetGenericTypeDefinition() == typeof(PagedResponseDto<>))
+        {
+            throw new InvalidOperationException(
+                "A PagedResponseDto<T> is answered with ToPagedResult, which puts the pagination beside data.");
+        }
+
         if (response.Success)
         {
             return Ok(new ApiResponse<T>(response.Data, CreateMetadata()));

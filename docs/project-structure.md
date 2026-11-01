@@ -34,7 +34,7 @@ Solution: `src/api/PartsTrackerErp.GoldenPattern.slnx`
 
 | Path under `Core` | What belongs here |
 | --- | --- |
-| `ApplicationServices/Abstractions` | Interfaces describing application use cases exposed to the API or other entry points, and `ServiceResponse<T>`, the result those use cases return. See [ADR 0010](adr/0010-service-response.md). |
+| `ApplicationServices/Abstractions` | Interfaces describing application use cases exposed to the API or other entry points, `ServiceResponse<T>`, the result those use cases return ([ADR 0010](adr/0010-service-response.md)), and `IUnitOfWork`, which `RavenUnitOfWork` in `Infrastructure/Persistence` implements. |
 | `ApplicationServices/Implementations` | Use-case orchestration: coordinate repositories, external integrations, domain behavior, transactions, and result construction. Keep HTTP details and low-level persistence code out. |
 | `Contracts/Requests` | Request DTOs accepted at application/API boundaries. These describe data coming in, not necessarily domain entities. |
 | `Contracts/Responses` | Response DTOs returned to callers. Deliberately shape public or internal API responses without leaking persistence entities. |
@@ -62,9 +62,29 @@ Solution: `src/api/PartsTrackerErp.GoldenPattern.slnx`
 4. **Integrations are for external systems.** An HTTP client for the Portal Users API belongs under `Integrations`, not `Repositories`, even when its methods look like `GetUser` or `ListUsers`. Its wire DTOs belong in `Contracts/Integrations`.
 5. **Contracts are transport shapes, not automatically domain models.** A DTO becomes a domain entity or value object only when the business model needs domain identity, meaning, or invariants—not merely because it is a JSON object.
 6. **Entities never reach the HTTP surface.** An application service maps an entity to a `Contracts/Responses` DTO before it returns. An entity does not leave the service in a response, in a wrapper such as `ServiceResponse<T>`, in a domain error or exception, or in any other way. See [ADR 0003](adr/0003-domain-driven-design.md).
-7. **Depend on abstractions at consumption sites.** Application services should receive repository and integration interfaces through dependency injection, not instantiate their concrete implementations. Concrete types are wired at the composition root.
-8. **Folders are logical boundaries, not separate assemblies.** See [ADR 0002](adr/0002-single-core-library.md). Architecture tests and analyzers may enforce selected conventions, with narrowly scoped exceptions when justified.
+7. **Depend on abstractions at consumption sites.** Application services should receive repository and integration interfaces through dependency injection, not instantiate their concrete implementations. Concrete types are wired at the composition root: `Program.cs` calls registration modules such as Core's `AddCore`, which may reference concrete implementations to register them.
+8. **Folders are logical boundaries, not separate assemblies.** See [ADR 0002](adr/0002-single-core-library.md). Architecture tests in `tests/api/PartsTrackerErp.GoldenPattern.Tests/Architecture` enforce the [permitted dependencies](#permitted-dependencies). Run them in Debug, which ArchUnitNET recommends because it reads the compiled binaries: `dotnet test src/api/PartsTrackerErp.GoldenPattern.slnx -c Debug --filter Category=Architecture`. Add an exception only after discussing it, as with a suppression ([ADR 0009](adr/0009-coding-standards-enforcement.md)), and write it into the rule with its reason.
 9. **DTO names end in `Dto`.** A response DTO ends in `ResponseDto`, such as `VendorResponseDto`, so it never takes the name of a request DTO for the same concept, such as `VendorInvoiceDto`. The response envelope and problem types (`ApiResponse<T>`, `ApiResponseMetadata`, `ProblemError`) are not DTOs for a domain concept and keep their names.
+
+## Permitted dependencies
+
+Architecture tests enforce each "must not" below. A "may" grants permission and is not tested. A namespace includes its child namespaces, and a row for a child narrows the row for its parent. Paths are under `Core`, except the API assembly.
+
+| Namespace | Rule |
+| --- | --- |
+| `Domain` | Must not use `ApplicationServices`, `Contracts`, `Repositories`, `Integrations`, `Infrastructure/Persistence`, ASP.NET Core, or RavenDB. |
+| `ApplicationServices` | May use domain types, contracts, and repository and integration abstractions. Must not use `Repositories/Implementations`, `Integrations/Implementations`, `Infrastructure/Persistence`, or RavenDB. |
+| `ApplicationServices/Abstractions` | Must not use `Domain/Entities`. |
+| `Repositories/Abstractions` | Must not use `Repositories/Implementations`, `Infrastructure/Persistence`, or RavenDB. |
+| `Repositories/Implementations` | May use domain entities, repository abstractions, `Infrastructure/Persistence`, and RavenDB. |
+| `Integrations/Abstractions` | Must not use `Integrations/Implementations`. |
+| `Validation` | May use request contracts and domain types. Must not use `Repositories/Implementations`, `Integrations/Implementations`, `Infrastructure/Persistence`, or RavenDB. |
+| `Infrastructure/Persistence` | May use `IUnitOfWork` and RavenDB. |
+| `Contracts` | Must not use `Domain/Entities`. |
+| `DependencyInjection` | May reference concrete implementations to register them. |
+| API assembly | Must not use `ApplicationServices/Implementations`, `Repositories`, `Integrations`, `Infrastructure/Persistence`, RavenDB, or `Domain/Entities`. May use application service interfaces, `Contracts`, and `Domain/Exceptions` ([ADR 0010](adr/0010-service-response.md)). |
+
+ArchUnitNET does not see top-level statements or `const` reads, so these rules do not check `Program.cs` and miss a `const` read across a boundary. Keep `Program.cs` to entry-point calls and the middleware pipeline ([ADR 0001](adr/0001-host-registration-pattern.md)).
 
 ## Example: consuming a Users API
 

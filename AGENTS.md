@@ -20,6 +20,8 @@ Architecture decisions are recorded in [docs/adr/README.md](docs/adr/README.md).
 
 Fix style violations with `dotnet format src/api/PartsTrackerErp.GoldenPattern.slnx`. Never run it with `--severity info`.
 
+Before finishing C# work, run the [architecture tests](docs/project-structure.md#permitted-dependencies): `dotnet test src/api/PartsTrackerErp.GoldenPattern.slnx -c Debug --filter Category=Architecture`.
+
 Never suppress a diagnostic or change `.editorconfig` or `Directory.Build.props` without discussing it with the user first.
 
 Before finishing C# work, review your changes against [docs/coding-standards/csharp/README.md](docs/coding-standards/csharp/README.md). When the work is a plan to-do, have the `standards-reviewer` subagent do that review before you mark the to-do complete. It reviews every uncommitted change; tell it what the plan and the to-do are for. Fix the findings you agree with and say why you disagree with the rest. Bring anything still disputed, and anything it lists outside the change, to the user.

@@ -19,4 +19,15 @@ public class Given_VendorMappingExtensions
 
         Assert.Equal(new VendorResponseDto("vendors/1-A", "Acme", true), response);
     }
+
+    [Fact]
+    public void ToResponseDto_DeactivatedVendor_CopiesTheInactiveFlag()
+    {
+        Vendor vendor = Vendor.Create("Acme");
+        vendor.Deactivate();
+
+        VendorResponseDto response = vendor.ToResponseDto();
+
+        Assert.Equal(new VendorResponseDto(null, "Acme", false), response);
+    }
 }

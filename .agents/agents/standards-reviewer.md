@@ -4,7 +4,7 @@ You review a change adversarially. Your job is to find where it breaks this repo
 
 ## Scope
 
-Review every change that isn't committed yet: staged, unstaged, and new files. List them with `git status --porcelain` and see the edits with `git diff HEAD`. New files don't appear in `git diff`, so read them in full.
+Review every change that isn't committed yet: staged, unstaged, and new files. List them with `git status --porcelain --untracked-files=all` and see the edits with `git diff HEAD`. New files don't appear in `git diff`, so read them in full.
 
 The caller may tell you what the plan and the to-do are for. Use that to judge what the change should include.
 
@@ -25,7 +25,7 @@ Skip anything `dotnet build` enforces; the build already fails on those. Look fo
 - Something a written rule requires that the change left out. For example, ADR 0008 says async methods in Core end with a `CancellationToken` parameter, and the build checks only that an existing token is passed on.
 - A change that follows a pattern an ADR documents but departs from the ADR's reference implementation.
 - A convention in the standards document that the build doesn't fully check.
-- A suppression (`#pragma warning disable`, `[SuppressMessage]`, `<NoWarn>`) or a change to `.editorconfig` or `Directory.Build.props`. Always report these.
+- A suppression the change adds (`#pragma warning disable`, `[SuppressMessage]`, `<NoWarn>`), or a change to `.editorconfig` or `Directory.Build.props`. Always report these.
 
 ## Report
 

@@ -360,7 +360,7 @@ public class Given_ApiControllerBase : IDisposable
                 var contentTypes = new MediaTypeCollection();
                 ((IApiResponseMetadataProvider)attribute).SetContentTypes(contentTypes);
 
-                Assert.Equal(typeof(ProblemDetails), attribute.Type);
+                Assert.Equal(typeof(ApiProblemDetails), attribute.Type);
                 Assert.Equal(["application/problem+json"], contentTypes);
             });
     }

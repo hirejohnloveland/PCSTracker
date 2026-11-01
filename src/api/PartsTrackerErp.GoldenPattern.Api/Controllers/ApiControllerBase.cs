@@ -12,15 +12,17 @@ namespace PartsTrackerErp.GoldenPattern.Api.Controllers;
 /// <summary>
 /// The standard block every controller inherits. A success becomes an <see cref="ApiResponse{T}"/>, or a
 /// <see cref="PagedApiResponse{T}"/> for one page of a list. A failure becomes an
-/// <c>application/problem+json</c> response. The class declares the failure responses every action can return.
+/// <c>application/problem+json</c> response. The class declares the failure responses every action can return, as
+/// <see cref="ApiProblemDetails"/>, which describes them to OpenAPI. The helpers build them as a
+/// <see cref="ProblemDetails"/>.
 /// </summary>
 [ApiController]
-[ProducesResponseType<ProblemDetails>(StatusCodes.Status400BadRequest, MediaTypeNames.Application.ProblemJson)]
-[ProducesResponseType<ProblemDetails>(StatusCodes.Status401Unauthorized, MediaTypeNames.Application.ProblemJson)]
-[ProducesResponseType<ProblemDetails>(StatusCodes.Status403Forbidden, MediaTypeNames.Application.ProblemJson)]
-[ProducesResponseType<ProblemDetails>(StatusCodes.Status404NotFound, MediaTypeNames.Application.ProblemJson)]
-[ProducesResponseType<ProblemDetails>(StatusCodes.Status409Conflict, MediaTypeNames.Application.ProblemJson)]
-[ProducesResponseType<ProblemDetails>(StatusCodes.Status500InternalServerError, MediaTypeNames.Application.ProblemJson)]
+[ProducesResponseType<ApiProblemDetails>(StatusCodes.Status400BadRequest, MediaTypeNames.Application.ProblemJson)]
+[ProducesResponseType<ApiProblemDetails>(StatusCodes.Status401Unauthorized, MediaTypeNames.Application.ProblemJson)]
+[ProducesResponseType<ApiProblemDetails>(StatusCodes.Status403Forbidden, MediaTypeNames.Application.ProblemJson)]
+[ProducesResponseType<ApiProblemDetails>(StatusCodes.Status404NotFound, MediaTypeNames.Application.ProblemJson)]
+[ProducesResponseType<ApiProblemDetails>(StatusCodes.Status409Conflict, MediaTypeNames.Application.ProblemJson)]
+[ProducesResponseType<ApiProblemDetails>(StatusCodes.Status500InternalServerError, MediaTypeNames.Application.ProblemJson)]
 public abstract class ApiControllerBase : ControllerBase
 {
     /// <summary>

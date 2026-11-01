@@ -48,6 +48,15 @@ public sealed class ApiFactory : WebApplicationFactory<Program>
             return Task.FromResult<Vendor?>(null);
         }
 
+        public Task<PagedResult<Vendor>> ListAsync(
+            string? namePrefix,
+            int page,
+            int pageSize,
+            CancellationToken cancellationToken = default)
+        {
+            return Task.FromResult(new PagedResult<Vendor>([], 0));
+        }
+
         public Task AddAsync(Vendor vendor, CancellationToken cancellationToken = default)
         {
             return Task.CompletedTask;

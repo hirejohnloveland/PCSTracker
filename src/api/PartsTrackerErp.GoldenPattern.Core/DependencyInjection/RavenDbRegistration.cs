@@ -18,7 +18,9 @@ internal static class RavenDbRegistration
             return new DocumentStore
             {
                 Urls = [.. section.GetSection("Urls").GetChildren().Select(url => url.Value!)],
-                Database = section["Database"]
+                Database = section["Database"],
+                // Ids look like vendors-1-A. The default separator puts a slash in the id, which a route parameter cannot hold.
+                Conventions = { IdentityPartsSeparator = '-' }
             }.Initialize();
         });
 

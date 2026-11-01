@@ -1,5 +1,6 @@
 using PartsTrackerErp.GoldenPattern.Core.ApplicationServices.Abstractions;
 using PartsTrackerErp.GoldenPattern.Core.ApplicationServices.Implementations;
+using PartsTrackerErp.GoldenPattern.Core.Contracts.Requests;
 using PartsTrackerErp.GoldenPattern.Core.Contracts.Responses;
 using PartsTrackerErp.GoldenPattern.Core.Domain.Entities;
 using PartsTrackerErp.GoldenPattern.Core.Domain.Exceptions;
@@ -32,6 +33,78 @@ public class Given_VendorsApplicationService
         Assert.True(response.Data.IsActive);
         _repository.Verify(r => r.AddAsync(It.Is<Vendor>(v => v.Name == "Acme" && v.IsActive), token), Times.Once);
         _unitOfWork.Verify(u => u.SaveChangesAsync(token), Times.Once);
+    }
+
+    [Fact]
+    public async Task GetAsync_MissingVendor_FailsWithNotFoundAndDoesNotSave()
+    {
+        _repository.Setup(r => r.GetAsync("7", It.IsAny<CancellationToken>())).ReturnsAsync((Vendor?)null);
+
+        ServiceResponse<VendorResponseDto> response = await _service.GetAsync("7");
+
+        AssertNotFound(response, "7");
+        _unitOfWork.Verify(u => u.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Never);
+    }
+
+    [Fact]
+    public async Task GetAsync_ExistingVendor_SucceedsWithItsDtoAndDoesNotSave()
+    {
+        using var cancellation = new CancellationTokenSource();
+        CancellationToken token = cancellation.Token;
+        Vendor vendor = Vendor.Create("Acme");
+        _repository.Setup(r => r.GetAsync("7", token)).ReturnsAsync(vendor);
+
+        ServiceResponse<VendorResponseDto> response = await _service.GetAsync("7", token);
+
+        Assert.True(response.Success);
+        Assert.Equal(new VendorResponseDto(null, "Acme", true), response.Data);
+        _unitOfWork.Verify(u => u.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Never);
+    }
+
+    [Fact]
+    public async Task ListAsync_PassesTheTrimmedNamePageAndPageSizeAndTheTokenToTheRepository()
+    {
+        using var cancellation = new CancellationTokenSource();
+        CancellationToken token = cancellation.Token;
+        SetupList(new PagedResult<Vendor>([], 0));
+
+        ServiceResponse<PagedResponseDto<VendorResponseDto>> response = await _service.ListAsync(
+            new ListVendorsDto { Name = "  Acme  ", Page = 3, PageSize = 10 },
+            token);
+
+        Assert.True(response.Success);
+        _repository.Verify(r => r.ListAsync("Acme", 3, 10, token), Times.Once);
+        _unitOfWork.Verify(u => u.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Never);
+    }
+
+    [Fact]
+    public async Task ListAsync_NoName_AsksTheRepositoryForNoNameFilter()
+    {
+        SetupList(new PagedResult<Vendor>([], 0));
+
+        await _service.ListAsync(new ListVendorsDto());
+
+        _repository.Verify(r => r.ListAsync(null, 1, 25, It.IsAny<CancellationToken>()), Times.Once);
+    }
+
+    [Fact]
+    public async Task ListAsync_MapsTheVendorsToDtosAndBuildsThePagination()
+    {
+        Vendor acme = Vendor.Create("Acme");
+        Vendor beta = Vendor.Create("Beta");
+        beta.Deactivate();
+        SetupList(new PagedResult<Vendor>([acme, beta], 21));
+
+        ServiceResponse<PagedResponseDto<VendorResponseDto>> response = await _service.ListAsync(
+            new ListVendorsDto { Page = 3, PageSize = 10 });
+
+        Assert.True(response.Success);
+        Assert.Equal(
+            [new VendorResponseDto(null, "Acme", true), new VendorResponseDto(null, "Beta", false)],
+            response.Data.Items);
+        Assert.Equal(
+            new PaginationMetadata(Page: 3, PageSize: 10, TotalCount: 21, TotalPages: 3),
+            response.Data.Pagination);
     }
 
     [Fact]
@@ -87,6 +160,13 @@ public class Given_VendorsApplicationService
         Assert.Equal(new VendorResponseDto(null, "Acme", false), response.Data);
         Assert.False(vendor.IsActive);
         _unitOfWork.Verify(u => u.SaveChangesAsync(token), Times.Once);
+    }
+
+    private void SetupList(PagedResult<Vendor> result)
+    {
+        _repository
+            .Setup(r => r.ListAsync(It.IsAny<string?>(), It.IsAny<int>(), It.IsAny<int>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(result);
     }
 
     private static void AssertNotFound(ServiceResponse<VendorResponseDto> response, string id)

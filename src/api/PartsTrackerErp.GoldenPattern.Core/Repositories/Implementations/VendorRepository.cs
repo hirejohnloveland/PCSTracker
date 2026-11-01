@@ -1,14 +1,40 @@
 using PartsTrackerErp.GoldenPattern.Core.Domain.Entities;
 using PartsTrackerErp.GoldenPattern.Core.Repositories.Abstractions;
+using Raven.Client.Documents;
 using Raven.Client.Documents.Session;
 
 namespace PartsTrackerErp.GoldenPattern.Core.Repositories.Implementations;
 
 public sealed class VendorRepository(IAsyncDocumentSession session) : IVendorRepository
 {
-    public Task<Vendor?> GetAsync(string id, CancellationToken cancellationToken = default)
+    public async Task<Vendor?> GetAsync(string id, CancellationToken cancellationToken = default)
     {
-        return session.LoadAsync<Vendor?>(id, cancellationToken);
+        // Not Load: Load fetches any document with this id, whatever its collection. A query by id is limited to
+        // Vendors and, with nothing else in the filter, reads the document directly with no index.
+        return await session.Query<Vendor>().Where(vendor => vendor.Id == id).FirstOrDefaultAsync(cancellationToken);
+    }
+
+    public async Task<PagedResult<Vendor>> ListAsync(
+        string? namePrefix,
+        int page,
+        int pageSize,
+        CancellationToken cancellationToken = default)
+    {
+        IQueryable<Vendor> query = session.Query<Vendor>().Statistics(out QueryStatistics statistics);
+
+        if (!string.IsNullOrWhiteSpace(namePrefix))
+        {
+            query = query.Where(vendor => vendor.Name.StartsWith(namePrefix));
+        }
+
+        List<Vendor> vendors = await query
+            .OrderBy(vendor => vendor.Name)
+            .ThenBy(vendor => vendor.Id)
+            .Skip((page - 1) * pageSize)
+            .Take(pageSize)
+            .ToListAsync(cancellationToken);
+
+        return new PagedResult<Vendor>(vendors, (int)statistics.TotalResults);
     }
 
     public Task AddAsync(Vendor vendor, CancellationToken cancellationToken = default)

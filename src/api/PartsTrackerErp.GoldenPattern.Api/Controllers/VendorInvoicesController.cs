@@ -23,6 +23,6 @@ public class VendorInvoicesController(IVendorInvoicesApplicationService vendorIn
         }
 
         ServiceResponse<VendorInvoiceResponseDto> response = await vendorInvoicesApplicationService.CreateAsync(invoice, cancellationToken);
-        return ToResult(response);
+        return ToCreatedResult(response);
     }
 }

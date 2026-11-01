@@ -236,6 +236,51 @@ public class Given_ApiControllerBase : IDisposable
         Assert.Throws<InvalidOperationException>(() => NewController().Respond(response));
     }
 
+    // ---- ToCreatedResult ----
+
+    [Fact]
+    public void ToCreatedResult_Success_ReturnsCreatedWithTheDataAndMetadata()
+    {
+        Assert.Null(Activity.Current);
+        DateTime before = DateTime.UtcNow;
+
+        IActionResult result = NewController().RespondCreated(ServiceResponse<string>.Succeed("Acme"));
+
+        DateTime after = DateTime.UtcNow;
+        ObjectResult created = Assert.IsType<ObjectResult>(result);
+        Assert.Equal(StatusCodes.Status201Created, created.StatusCode);
+        ApiResponse<string> response = Assert.IsType<ApiResponse<string>>(created.Value);
+        Assert.Equal("Acme", response.Data);
+        Assert.Equal("trace-123", response.Metadata.TraceId);
+        Assert.Equal(DateTimeKind.Utc, response.Metadata.Timestamp.Kind);
+        Assert.InRange(response.Metadata.Timestamp, before, after);
+    }
+
+    [Theory]
+    [MemberData(nameof(StatusCodeCases))]
+    public void ToCreatedResult_Failure_MapsEachErrorTypeToItsStatus(ErrorType errorType, int expectedStatus)
+    {
+        IActionResult result = NewController().RespondCreated(ServiceResponse<string>.Fail(errorType, Error("Code", "Message.")));
+
+        ObjectResult objectResult = Assert.IsType<ObjectResult>(result);
+        Assert.Equal(expectedStatus, objectResult.StatusCode);
+        Assert.Equal(expectedStatus, ProblemOf(result).Status);
+        Assert.Equal(["application/problem+json"], objectResult.ContentTypes);
+    }
+
+    [Fact]
+    public void ToCreatedResult_PagedResponse_Throws()
+    {
+        var pagination = new PaginationMetadata(Page: 1, PageSize: 25, TotalCount: 0, TotalPages: 0);
+        ServiceResponse<PagedResponseDto<string>> response =
+            ServiceResponse<PagedResponseDto<string>>.Succeed(new PagedResponseDto<string>([], pagination));
+
+        InvalidOperationException exception = Assert.Throws<InvalidOperationException>(
+            () => NewController().RespondCreated(response));
+
+        Assert.Contains("ToPagedResult", exception.Message);
+    }
+
     // ---- ToPagedResult ----
 
     [Fact]
@@ -302,6 +347,11 @@ public class Given_ApiControllerBase : IDisposable
         public IActionResult Respond<T>(ServiceResponse<T> response)
         {
             return ToResult(response);
+        }
+
+        public IActionResult RespondCreated<T>(ServiceResponse<T> response)
+        {
+            return ToCreatedResult(response);
         }
 
         public IActionResult RespondPaged<T>(ServiceResponse<PagedResponseDto<T>> response)

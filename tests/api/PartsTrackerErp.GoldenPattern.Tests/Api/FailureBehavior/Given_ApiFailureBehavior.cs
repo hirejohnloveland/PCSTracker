@@ -434,7 +434,7 @@ public class Given_ApiFailureBehavior : IClassFixture<ApiFactory>
     {
         HttpResponseMessage response = await _client.PostAsync("/vendors", Json("""{"name":"Acme"}"""));
 
-        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+        Assert.Equal(HttpStatusCode.Created, response.StatusCode);
         JsonElement body = await ReadJsonAsync(response);
         Assert.Equal("Acme", body.GetProperty("data").GetProperty("name").GetString());
         Assert.True(body.GetProperty("data").GetProperty("isActive").GetBoolean());
@@ -520,7 +520,7 @@ public class Given_ApiFailureBehavior : IClassFixture<ApiFactory>
     {
         HttpResponseMessage response = await _client.PostAsync("/vendorinvoices", Json("""{"vendorName":"Acme","balance":10.5}"""));
 
-        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+        Assert.Equal(HttpStatusCode.Created, response.StatusCode);
         JsonElement body = await ReadJsonAsync(response);
         Assert.Equal("Acme", body.GetProperty("data").GetProperty("vendorName").GetString());
         Assert.Equal(10.5m, body.GetProperty("data").GetProperty("balance").GetDecimal());

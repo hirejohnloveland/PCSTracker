@@ -30,16 +30,27 @@ public abstract class ApiControllerBase : ControllerBase
     /// </summary>
     protected IActionResult ToResult<T>(ServiceResponse<T> response)
     {
-        // Checked whatever the outcome, because the mistake is in the code and not in the data.
-        if (typeof(T).IsGenericType && typeof(T).GetGenericTypeDefinition() == typeof(PagedResponseDto<>))
-        {
-            throw new InvalidOperationException(
-                "A PagedResponseDto<T> is answered with ToPagedResult, which puts the pagination beside data.");
-        }
+        RejectPagedResponse<T>();
 
         if (response.Success)
         {
             return Ok(new ApiResponse<T>(response.Data, CreateMetadata()));
+        }
+
+        return ToFailureResult(response.FailureType, response.Errors);
+    }
+
+    /// <summary>
+    /// Answers a use case that created a resource: a 201 with the body that <see cref="ToResult{T}"/> writes.
+    /// A failure, and a page of a list, are handled as they are there.
+    /// </summary>
+    protected IActionResult ToCreatedResult<T>(ServiceResponse<T> response)
+    {
+        RejectPagedResponse<T>();
+
+        if (response.Success)
+        {
+            return StatusCode(StatusCodes.Status201Created, new ApiResponse<T>(response.Data, CreateMetadata()));
         }
 
         return ToFailureResult(response.FailureType, response.Errors);
@@ -57,6 +68,16 @@ public abstract class ApiControllerBase : ControllerBase
         }
 
         return ToFailureResult(response.FailureType, response.Errors);
+    }
+
+    private static void RejectPagedResponse<T>()
+    {
+        // Checked whatever the outcome, because the mistake is in the code and not in the data.
+        if (typeof(T).IsGenericType && typeof(T).GetGenericTypeDefinition() == typeof(PagedResponseDto<>))
+        {
+            throw new InvalidOperationException(
+                "A PagedResponseDto<T> is answered with ToPagedResult, which puts the pagination beside data.");
+        }
     }
 
     private ApiResponseMetadata CreateMetadata()

@@ -23,7 +23,7 @@ public class VendorsController(IVendorsApplicationService vendorsApplicationServ
         }
 
         ServiceResponse<VendorResponseDto> response = await vendorsApplicationService.AddAsync(request.Name, cancellationToken);
-        return ToResult(response);
+        return ToCreatedResult(response);
     }
 
     [HttpGet]

@@ -26,6 +26,30 @@ public class VendorsController(IVendorsApplicationService vendorsApplicationServ
         return ToResult(response);
     }
 
+    [HttpGet]
+    public async Task<IActionResult> List(
+        [FromQuery] ListVendorsDto request,
+        IValidator<ListVendorsDto> validator,
+        CancellationToken cancellationToken)
+    {
+        ValidationResult validation = await validator.ValidateAsync(request, cancellationToken);
+        if (!validation.IsValid)
+        {
+            return InvalidRequest(validation);
+        }
+
+        ServiceResponse<PagedResponseDto<VendorResponseDto>> response =
+            await vendorsApplicationService.ListAsync(request, cancellationToken);
+        return ToPagedResult(response);
+    }
+
+    [HttpGet("{id}")]
+    public async Task<IActionResult> Get(string id, CancellationToken cancellationToken)
+    {
+        ServiceResponse<VendorResponseDto> response = await vendorsApplicationService.GetAsync(id, cancellationToken);
+        return ToResult(response);
+    }
+
     [HttpPost("{id}/activate")]
     public async Task<IActionResult> Activate(string id, CancellationToken cancellationToken)
     {

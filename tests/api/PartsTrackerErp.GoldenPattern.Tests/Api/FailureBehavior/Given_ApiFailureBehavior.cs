@@ -442,6 +442,80 @@ public class Given_ApiFailureBehavior : IClassFixture<ApiFactory>
     }
 
     [Fact]
+    public async Task Vendors_List_AnswersWithTheDataPaginationAndMetadata()
+    {
+        HttpResponseMessage response = await _client.GetAsync("/vendors");
+
+        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+        JsonElement body = await ReadJsonAsync(response);
+        Assert.Equal(["data", "metadata", "pagination"], PropertyNames(body));
+        Assert.Equal(JsonValueKind.Array, body.GetProperty("data").ValueKind);
+        Assert.Empty(body.GetProperty("data").EnumerateArray());
+        JsonElement pagination = body.GetProperty("pagination");
+        Assert.Equal(["page", "pageSize", "totalCount", "totalPages"], PropertyNames(pagination));
+        Assert.Equal(1, pagination.GetProperty("page").GetInt32());
+        Assert.Equal(25, pagination.GetProperty("pageSize").GetInt32());
+        Assert.Equal(0, pagination.GetProperty("totalCount").GetInt32());
+        Assert.Equal(0, pagination.GetProperty("totalPages").GetInt32());
+        JsonElement metadata = body.GetProperty("metadata");
+        Assert.Equal(["timestamp", "traceId"], PropertyNames(metadata));
+        Assert.False(string.IsNullOrEmpty(metadata.GetProperty("traceId").GetString()));
+    }
+
+    [Fact]
+    public async Task Vendors_ListWithAPageAndPageSize_ReportsThemInThePagination()
+    {
+        HttpResponseMessage response = await _client.GetAsync("/vendors?page=2&pageSize=10&name=ac");
+
+        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+        JsonElement pagination = (await ReadJsonAsync(response)).GetProperty("pagination");
+        Assert.Equal(2, pagination.GetProperty("page").GetInt32());
+        Assert.Equal(10, pagination.GetProperty("pageSize").GetInt32());
+    }
+
+    [Fact]
+    public async Task Vendors_ListWithPagingOutOfRange_Returns400WithAPointerForEachParameter()
+    {
+        JsonElement problem = await ReadProblemAsync(
+            await _client.GetAsync("/vendors?page=0&pageSize=101"),
+            HttpStatusCode.BadRequest);
+
+        Assert.Equal(TypeBase + "validation", problem.GetProperty("type").GetString());
+        Assert.Equal(
+            [("GreaterThanOrEqualValidator", "#/page"), ("InclusiveBetweenValidator", "#/pageSize")],
+            ErrorsOf(problem).Select(error => (
+                error.GetProperty("code").GetString(),
+                error.GetProperty("pointer").GetString())));
+    }
+
+    [Fact]
+    public async Task Vendors_ListWithAPageThatIsNotANumber_Returns400PointingAtPage()
+    {
+        JsonElement problem = await ReadProblemAsync(
+            await _client.GetAsync("/vendors?page=abc"),
+            HttpStatusCode.BadRequest);
+
+        JsonElement error = Assert.Single(ErrorsOf(problem));
+        Assert.Equal("InvalidRequest", error.GetProperty("code").GetString());
+        Assert.Equal("#/page", error.GetProperty("pointer").GetString());
+    }
+
+    [Fact]
+    public async Task Vendors_GetMissingVendor_Returns404WithVendorNotFound()
+    {
+        // The id has the shape RavenDB generates for vendors, and it must fit a single route segment.
+        JsonElement problem = await ReadProblemAsync(
+            await _client.GetAsync("/vendors/vendors-1-A"),
+            HttpStatusCode.NotFound);
+
+        Assert.Equal(TypeBase + "not-found", problem.GetProperty("type").GetString());
+        Assert.Equal("/vendors/vendors-1-A", problem.GetProperty("instance").GetString());
+        JsonElement error = Assert.Single(ErrorsOf(problem));
+        Assert.Equal("VendorNotFound", error.GetProperty("code").GetString());
+        Assert.Equal("Vendor 'vendors-1-A' was not found.", error.GetProperty("detail").GetString());
+    }
+
+    [Fact]
     public async Task VendorInvoices_ValidInvoice_AnswersWithTheInvoiceAndMetadata()
     {
         HttpResponseMessage response = await _client.PostAsync("/vendorinvoices", Json("""{"vendorName":"Acme","balance":10.5}"""));

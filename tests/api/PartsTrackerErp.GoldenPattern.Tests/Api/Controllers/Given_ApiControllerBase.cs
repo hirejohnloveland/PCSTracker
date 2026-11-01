@@ -211,6 +211,62 @@ public class Given_ApiControllerBase : IDisposable
         Assert.Empty(_logs.Entries);
     }
 
+    // ---- ToPagedResult ----
+
+    [Fact]
+    public void ToPagedResult_Success_ReturnsOkWithTheItemsPaginationAndMetadata()
+    {
+        Assert.Null(Activity.Current);
+        var pagination = new PaginationMetadata(Page: 2, PageSize: 10, TotalCount: 12, TotalPages: 2);
+        DateTime before = DateTime.UtcNow;
+
+        IActionResult result = NewController().RespondPaged(
+            ServiceResponse<PagedResponseDto<string>>.Succeed(new PagedResponseDto<string>(["Acme", "Beta"], pagination)));
+
+        DateTime after = DateTime.UtcNow;
+        OkObjectResult ok = Assert.IsType<OkObjectResult>(result);
+        Assert.Equal(StatusCodes.Status200OK, ok.StatusCode);
+        PagedApiResponse<string> response = Assert.IsType<PagedApiResponse<string>>(ok.Value);
+        Assert.Equal(["Acme", "Beta"], response.Data);
+        Assert.Equal(pagination, response.Pagination);
+        Assert.Equal("trace-123", response.Metadata.TraceId);
+        Assert.Equal(DateTimeKind.Utc, response.Metadata.Timestamp.Kind);
+        Assert.InRange(response.Metadata.Timestamp, before, after);
+    }
+
+    [Theory]
+    [MemberData(nameof(StatusCodeCases))]
+    public void ToPagedResult_Failure_MapsEachErrorTypeToItsStatus(ErrorType errorType, int expectedStatus)
+    {
+        IActionResult result = NewController().RespondPaged(
+            ServiceResponse<PagedResponseDto<string>>.Fail(errorType, Error("Code", "Message.")));
+
+        ObjectResult objectResult = Assert.IsType<ObjectResult>(result);
+        Assert.Equal(expectedStatus, objectResult.StatusCode);
+        Assert.Equal(expectedStatus, ProblemOf(result).Status);
+        Assert.Equal(["application/problem+json"], objectResult.ContentTypes);
+    }
+
+    [Fact]
+    public void ToPagedResult_ServerFailure_LogsErrorWithTheCodeAndMessage()
+    {
+        NewController().RespondPaged(
+            ServiceResponse<PagedResponseDto<string>>.Fail(ErrorType.Unexpected, Error("Boom", "It broke.")));
+
+        LogEntry entry = Assert.Single(_logs.Entries);
+        Assert.Equal(LogLevel.Error, entry.Level);
+        Assert.Contains("[Boom] It broke.", entry.Message);
+    }
+
+    [Fact]
+    public void ToPagedResult_ClientFailure_LogsNothing()
+    {
+        NewController().RespondPaged(
+            ServiceResponse<PagedResponseDto<string>>.Fail(ErrorType.NotFound, Error("Code", "Message.")));
+
+        Assert.Empty(_logs.Entries);
+    }
+
     private sealed class TestController : ApiControllerBase
     {
         public IActionResult RespondInvalid(ValidationResult validation)
@@ -221,6 +277,11 @@ public class Given_ApiControllerBase : IDisposable
         public IActionResult Respond<T>(ServiceResponse<T> response)
         {
             return ToResult(response);
+        }
+
+        public IActionResult RespondPaged<T>(ServiceResponse<PagedResponseDto<T>> response)
+        {
+            return ToPagedResult(response);
         }
     }
 

@@ -46,7 +46,7 @@ Solution: `src/api/PartsTrackerErp.GoldenPattern.slnx`
 | `Domain/Services/Implementations` | Business rules and calculations that do not naturally belong on one entity/value object. Prefer domain logic that is deterministic and independent of I/O. |
 | `Domain/Exceptions` | Exceptions representing violations of domain rules or domain-specific failures, the error types they share with `ServiceResponse<T>` (`ErrorType`, `DomainError`, `DomainErrorEnvelope`), and the error definitions for each domain concept, such as `VendorErrors`. |
 | `Infrastructure/Persistence` | Database infrastructure: RavenDB connection/session handling and other persistence plumbing. |
-| `Repositories/Abstractions` | Interfaces for accessing data owned by this service. Define useful persistence operations, not necessarily generic CRUD for every entity. |
+| `Repositories/Abstractions` | Interfaces for accessing data owned by this service, and `PagedResult<T>`, the page of entities a repository list method returns. Define useful persistence operations, not necessarily generic CRUD for every entity. |
 | `Repositories/Implementations` | Database access implementations: queries, commands, and persistence mappings using the infrastructure layer. |
 | `Integrations/Abstractions` | Interfaces for clients/adapters that communicate with systems outside this service, such as another API or an external provider. |
 | `Integrations/Implementations` | Concrete HTTP/SDK/message clients, external service calls, and serialization/transport handling. |

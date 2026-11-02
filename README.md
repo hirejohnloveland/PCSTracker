@@ -15,7 +15,7 @@ The Golden Pattern for PartsTrackerErp microservice APIs: .NET services built wi
 
 ## Build and run
 
-Requires the .NET 10 SDK.
+Requires .NET SDK 10.0.303 (pinned in `global.json`).
 
 ```powershell
 dotnet build src/api/PartsTrackerErp.GoldenPattern.slnx

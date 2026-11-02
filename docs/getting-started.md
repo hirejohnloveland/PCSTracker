@@ -2,7 +2,7 @@
 
 ## Prerequisites
 
-- .NET 10 SDK
+- .NET SDK 10.0.303 (see `global.json`; other versions are rejected)
 
 ## Build and run
 

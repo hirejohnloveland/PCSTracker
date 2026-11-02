@@ -82,7 +82,7 @@ Architecture tests enforce each "must not" below. A "may" grants permission and 
 | `Infrastructure/Persistence` | May use `IUnitOfWork` and RavenDB. |
 | `Contracts` | Must not use `Domain/Entities`. |
 | `DependencyInjection` | May reference concrete implementations to register them. |
-| API assembly | Must not use `ApplicationServices/Implementations`, `Repositories`, `Integrations`, `Infrastructure/Persistence`, RavenDB, or `Domain/Entities`. May use application service interfaces, `Contracts`, and `Domain/Exceptions` ([ADR 0010](adr/0010-service-response.md)). |
+| API assembly | Must not use `ApplicationServices/Implementations`, `Repositories`, `Integrations`, `Infrastructure/Persistence`, RavenDB, `Domain/Entities`, or `IUnitOfWork`. May use application service interfaces, `Contracts`, and `Domain/Exceptions` ([ADR 0010](adr/0010-service-response.md)). |
 
 ArchUnitNET does not see top-level statements or `const` reads, so these rules do not check `Program.cs` and miss a `const` read across a boundary. Keep `Program.cs` to entry-point calls and the middleware pipeline ([ADR 0001](adr/0001-host-registration-pattern.md)).
 

@@ -3,6 +3,7 @@ using ArchUnitNET.Fluent;
 using ArchUnitNET.Loader;
 using ArchUnitNET.xUnit;
 using PartsTrackerErp.GoldenPattern.Api.Controllers;
+using PartsTrackerErp.GoldenPattern.Core.ApplicationServices.Abstractions;
 using PartsTrackerErp.GoldenPattern.Core.ApplicationServices.Implementations;
 using static ArchUnitNET.Fluent.ArchRuleDefinition;
 
@@ -134,6 +135,16 @@ public class Given_NamespaceDependencies
     {
         IArchRule rule = Types().That().Are(s_apiAssembly)
             .Should().NotDependOnAny(s_entities)
+            .Because("project-structure.md, Permitted dependencies: API assembly");
+
+        rule.Check(s_architecture);
+    }
+
+    [Fact]
+    public void ApiAssembly_DoesNotUseUnitOfWork()
+    {
+        IArchRule rule = Types().That().Are(s_apiAssembly)
+            .Should().NotDependOnAny(typeof(IUnitOfWork))
             .Because("project-structure.md, Permitted dependencies: API assembly");
 
         rule.Check(s_architecture);

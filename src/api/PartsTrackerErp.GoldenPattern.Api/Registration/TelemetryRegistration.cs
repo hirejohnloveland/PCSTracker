@@ -12,7 +12,18 @@ internal static class TelemetryRegistration
     {
         builder.Services.AddOpenTelemetry().UseAzureMonitor(options =>
         {
-            options.ConnectionString = builder.Configuration["ApplicationInsights:ConnectionString"];
+            // Setting ConnectionString always overrides the distro's lookup of
+            // APPLICATIONINSIGHTS_CONNECTION_STRING. Prefer that key (Azure's usual
+            // App Service / Container Apps setup) so the appsettings.json placeholder
+            // cannot win and send telemetry nowhere.
+            string? connectionString =
+                builder.Configuration["APPLICATIONINSIGHTS_CONNECTION_STRING"]
+                ?? builder.Configuration["ApplicationInsights:ConnectionString"];
+            if (!string.IsNullOrWhiteSpace(connectionString))
+            {
+                options.ConnectionString = connectionString;
+            }
+
             // Distro default is true: only export logs whose request trace was sampled.
             // At the default 5 traces/sec, most failure logs from ApiExceptionHandler would
             // never reach Application Insights. Keep logs regardless of trace sampling.

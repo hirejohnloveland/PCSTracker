@@ -14,12 +14,16 @@ This ADR is more detailed than the others in this set on purpose: observability 
 
 ```csharp
 builder.Services.AddOpenTelemetry().UseAzureMonitor(options =>
-    options.ConnectionString = builder.Configuration["ApplicationInsights:ConnectionString"]);
+{
+    options.ConnectionString = builder.Configuration["ApplicationInsights:ConnectionString"];
+    options.EnableTraceBasedLogsSampler = false;
+});
 ```
 
 - This lives in the API host's `Registration/`, not in Core. The distro's automatic instrumentation hooks the ASP.NET Core request pipeline, which makes it a host concern the same way authentication and the exception handler are ([ADR 0001](0001-host-registration-pattern.md)) — not something every future host would wire up identically.
 - The connection string is read from the `ApplicationInsights:ConnectionString` configuration key, the same way `RavenDb` and `AzureAd` each have their own section ([ADR 0006](0006-ravendb-persistence.md)). `appsettings.json` holds a placeholder value; each environment supplies its own real one.
 - No separate logging provider is registered. `UseAzureMonitor()` adds an `ILoggerProvider` to DI, and `LoggerFactory` resolves every registered provider automatically. Every `ILogger<T>` already in the codebase — `ApiExceptionHandler`, `RavenDbDatabaseInitializer`, `ApiControllerBase` — is captured without changes to any of them.
+- `EnableTraceBasedLogsSampler` is set to `false`. The distro default is `true`: a log with a request `SpanId` is exported only when that request's trace was sampled. Combined with the default 5 traces/sec rate limit, most `ApiExceptionHandler` Warning/Error logs would never reach Application Insights under load. Disabling keeps logs regardless of whether the request's trace was kept; a busy endpoint can still have gaps in its *trace* data.
 
 ### Structured logging
 
@@ -67,7 +71,7 @@ builder.Services.ConfigureOpenTelemetryMeterProvider(
 
 ## Consequences
 
-- The distro rate-limits trace sampling to 5 per second by default. A busy endpoint will have gaps in trace data unless `AzureMonitorOptions.TracesPerSecond` or `SamplingRatio` is set explicitly.
+- The distro rate-limits trace sampling to 5 per second by default. A busy endpoint will have gaps in trace data unless `AzureMonitorOptions.TracesPerSecond` or `SamplingRatio` is set explicitly. Trace sampling alone no longer drops the matching logs — see `EnableTraceBasedLogsSampler = false` above — but a log from an unsampled request will not have a matching request transaction to open in Application Insights; search by the log's `traceId` / `operation_Id` instead.
 - Live Metrics (real-time monitoring) is on by default and holds a low-overhead background connection open; `options.EnableLiveMetrics = false` turns it off if that's ever unwanted.
 - Until a real connection string replaces the placeholder, the exporters run and retry against a destination that doesn't exist. This does not fail startup or any request — it is silent background noise until an environment supplies its real value.
 - `ILogger.BeginScope` data is dropped, not exported, unless `OpenTelemetryLoggerOptions.IncludeScopes` is set to `true`. This template does not enable it, so a future `BeginScope` call would silently produce no extra data in Application Insights.

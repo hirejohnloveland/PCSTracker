@@ -4,7 +4,6 @@ using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.AspNetCore.TestHost;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
-using Microsoft.Extensions.Hosting;
 using PartsTrackerErp.GoldenPattern.Core.ApplicationServices.Abstractions;
 using PartsTrackerErp.GoldenPattern.Core.Domain.Entities;
 using PartsTrackerErp.GoldenPattern.Core.Repositories.Abstractions;
@@ -23,14 +22,6 @@ public sealed class ApiFactory : WebApplicationFactory<Program>
     {
         builder.ConfigureTestServices(services =>
         {
-            // The initializer connects to RavenDB at startup.
-            foreach (ServiceDescriptor initializer in services
-                .Where(d => d.ServiceType == typeof(IHostedService) && d.ImplementationType?.Name == "RavenDbDatabaseInitializer")
-                .ToList())
-            {
-                services.Remove(initializer);
-            }
-
             services.RemoveAll<IVendorRepository>();
             services.RemoveAll<IUnitOfWork>();
             services.AddScoped<IVendorRepository, EmptyVendorRepository>();

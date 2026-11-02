@@ -7,7 +7,7 @@ namespace PartsTrackerErp.GoldenPattern.Tests.Api.OpenApi;
 
 /// <summary>
 /// Reads the OpenAPI document and the Swagger page the running API serves, in memory, and checks what they tell a
-/// caller about the responses. Operations under <c>/testing</c> belong to the test fixtures and are skipped.
+/// caller about the responses.
 /// </summary>
 [Trait(Constants.TestCategory, Constants.IntegrationTestCategory)]
 [Collection(Constants.ApiPipelineCollection)]
@@ -31,11 +31,6 @@ public class Given_OpenApiDocument(ApiFactory factory)
         List<(string Method, string Path, JsonElement Operation)> operations = [];
         foreach (JsonProperty path in document.GetProperty("paths").EnumerateObject())
         {
-            if (path.Name.StartsWith("/testing", StringComparison.OrdinalIgnoreCase))
-            {
-                continue;
-            }
-
             foreach (JsonProperty operation in path.Value.EnumerateObject().Where(member => s_httpMethods.Contains(member.Name)))
             {
                 operations.Add((operation.Name, path.Name, operation.Value));
@@ -81,6 +76,51 @@ public class Given_OpenApiDocument(ApiFactory factory)
     private static string[] MemberNamesOf(JsonElement element)
     {
         return [.. element.EnumerateObject().Select(member => member.Name)];
+    }
+
+    private static void CollectNumbersOfferedAsStrings(JsonElement element, string location, List<string> offers)
+    {
+        switch (element.ValueKind)
+        {
+            case JsonValueKind.Object:
+                foreach (JsonProperty member in element.EnumerateObject())
+                {
+                    string memberLocation = $"{location}/{member.Name}";
+                    if (member.Name == "type" && member.Value.ValueKind == JsonValueKind.Array)
+                    {
+                        string?[] types = [.. member.Value.EnumerateArray().Select(type => type.GetString())];
+                        if (types.Contains("string") && (types.Contains("integer") || types.Contains("number")))
+                        {
+                            offers.Add(memberLocation);
+                        }
+                    }
+                    else
+                    {
+                        CollectNumbersOfferedAsStrings(member.Value, memberLocation, offers);
+                    }
+                }
+
+                break;
+            case JsonValueKind.Array:
+                for (int index = 0; index < element.GetArrayLength(); index++)
+                {
+                    CollectNumbersOfferedAsStrings(element[index], $"{location}[{index}]", offers);
+                }
+
+                break;
+        }
+    }
+
+    private static IEnumerable<string> QueryParameterNamesOf(JsonElement operation)
+    {
+        if (!operation.TryGetProperty("parameters", out JsonElement parameters))
+        {
+            return [];
+        }
+
+        return parameters.EnumerateArray()
+            .Where(parameter => parameter.GetProperty("in").GetString() == "query")
+            .Select(parameter => parameter.GetProperty("name").GetString()!);
     }
 
     private async Task<JsonElement> GetDocumentAsync()
@@ -178,6 +218,25 @@ public class Given_OpenApiDocument(ApiFactory factory)
         Assert.Equal(
             ["code", "detail", "pointer"],
             PropertyNamesOf(SchemaReferredBy(document, $"{SchemaPrefix}ProblemError")).Order());
+    }
+
+    [Fact]
+    public async Task Document_NeverOffersANumberAsAString()
+    {
+        List<string> offers = [];
+
+        CollectNumbersOfferedAsStrings(await GetDocumentAsync(), "#", offers);
+
+        Assert.Empty(offers);
+    }
+
+    [Fact]
+    public async Task EveryQueryParameter_IsNamedInCamelCase()
+    {
+        List<string> names = [.. OperationsOf(await GetDocumentAsync()).SelectMany(item => QueryParameterNamesOf(item.Operation))];
+
+        Assert.NotEmpty(names);
+        Assert.DoesNotContain(names, name => name != JsonNamingPolicy.CamelCase.ConvertName(name));
     }
 
     public static TheoryData<string, string, string, string, string?> RealFailures()

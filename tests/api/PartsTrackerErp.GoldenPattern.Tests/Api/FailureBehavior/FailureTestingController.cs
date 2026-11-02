@@ -12,6 +12,7 @@ namespace PartsTrackerErp.GoldenPattern.Tests.Api.FailureBehavior;
 /// A controller built the way production controllers are, whose outcome the test sets through
 /// <see cref="FailureTestingService"/>.
 /// </summary>
+[ApiExplorerSettings(IgnoreApi = true)]
 [Route("testing/failures")]
 public sealed class FailureTestingController(FailureTestingService service) : ApiControllerBase
 {
@@ -49,6 +50,7 @@ public sealed class FailureTestingController(FailureTestingService service) : Ap
 /// <summary>
 /// An endpoint that is not an <c>[ApiController]</c>, so MVC's problem writer does not take it over.
 /// </summary>
+[ApiExplorerSettings(IgnoreApi = true)]
 [Route("testing/plain")]
 public sealed class PlainFailureTestingController(FailureTestingService service) : ControllerBase
 {

@@ -306,9 +306,9 @@ public class Given_ApiFailureBehavior
         Assert.Equal("One or more validation errors occurred.", problem.GetProperty("detail").GetString());
         Assert.Equal(
             [
-                ("NotEmptyValidator", "Name is required.", "#/name"),
-                ("EmailValidator", "Email address is invalid.", "#/email"),
-                ("NotEmptyValidator", "Sku is required.", "#/items/1/sku")
+                ("InvalidRequest", "Name is required.", "#/name"),
+                ("InvalidRequest", "Email address is invalid.", "#/email"),
+                ("InvalidRequest", "Sku is required.", "#/items/1/sku")
             ],
             ErrorsOf(problem).Select(error => (
                 error.GetProperty("code").GetString(),
@@ -354,6 +354,18 @@ public class Given_ApiFailureBehavior
             ErrorsOf(problem),
             error => error.GetProperty("pointer").GetString() == "#/count"
                 && error.GetProperty("code").GetString() == "InvalidRequest");
+    }
+
+    [Theory]
+    [InlineData("{ nope")]
+    [InlineData("""{"name":"Acme","count":"abc"}""")]
+    public async Task UnreadableJson_GivesAGenericDetailAndNoSerializerText(string body)
+    {
+        HttpResponseMessage response = await _client.PostAsync(FailuresPath, Json(body));
+
+        JsonElement problem = await ReadProblemAsync(response, HttpStatusCode.BadRequest);
+        Assert.Contains(ErrorsOf(problem), error => error.GetProperty("detail").GetString() == "The input was not valid.");
+        Assert.DoesNotContain("BytePositionInLine", problem.GetRawText());
     }
 
     // ---- The framework fails the request ----
@@ -425,7 +437,7 @@ public class Given_ApiFailureBehavior
             HttpStatusCode.BadRequest);
 
         JsonElement error = Assert.Single(ErrorsOf(problem));
-        Assert.Equal("NotEmptyValidator", error.GetProperty("code").GetString());
+        Assert.Equal("InvalidRequest", error.GetProperty("code").GetString());
         Assert.Equal("Vendor name is required.", error.GetProperty("detail").GetString());
         Assert.Equal("#/name", error.GetProperty("pointer").GetString());
     }
@@ -483,7 +495,7 @@ public class Given_ApiFailureBehavior
 
         Assert.Equal(TypeBase + "validation", problem.GetProperty("type").GetString());
         Assert.Equal(
-            [("GreaterThanOrEqualValidator", "#/page"), ("InclusiveBetweenValidator", "#/pageSize")],
+            [("InvalidRequest", "#/page"), ("InvalidRequest", "#/pageSize")],
             ErrorsOf(problem).Select(error => (
                 error.GetProperty("code").GetString(),
                 error.GetProperty("pointer").GetString())));
@@ -536,7 +548,7 @@ public class Given_ApiFailureBehavior
             HttpStatusCode.BadRequest);
 
         Assert.Equal(
-            [("NotEmptyValidator", "#/vendorName"), ("GreaterThanValidator", "#/balance")],
+            [("InvalidRequest", "#/vendorName"), ("InvalidRequest", "#/balance")],
             ErrorsOf(problem).Select(error => (
                 error.GetProperty("code").GetString(),
                 error.GetProperty("pointer").GetString())));

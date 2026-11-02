@@ -44,7 +44,7 @@ logger.Log(
 - Pass an `Exception` as the dedicated `exception` parameter, never formatted into the message text. Application Insights then records `ExceptionTelemetry` with a stack trace instead of a plain `TraceTelemetry`.
 - Sanitize any string that came from the caller — request path, header, query value, user input — with `SanitizeForLogging()` (`Core/Utilities/LogSanitizationExtensions.cs`) before it reaches a log call, so it can't forge extra log lines.
 - Choose the level deliberately, not by habit: `Error` for a failure that is a bug or reaches the caller as a 5xx, `Warning` for an expected failure logged for visibility (validation-shaped, upstream unavailable), `Information` for a normal lifecycle event such as `RavenDbDatabaseInitializer` creating the database once.
-- A log's `traceId` is `Activity.Current?.Id` when OpenTelemetry has started a trace for the request, falling back to `HttpContext.TraceIdentifier` otherwise:
+- A log's `traceId` is `Activity.Current?.Id` when there is a current activity — the W3C traceparent form `00-{trace-id}-{span-id}-{flags}`, not the bare 32-hex W3C trace id — falling back to `HttpContext.TraceIdentifier` otherwise:
 
 ```csharp
 public static string GetTraceId(HttpContext httpContext)
@@ -53,7 +53,7 @@ public static string GetTraceId(HttpContext httpContext)
 }
 ```
 
-(`ProblemDetailsMapper.GetTraceId`, also used for the `traceId` returned to callers — [ADR 0011](0011-problem-details.md)). With the distro wired up, that id now names a trace Azure Monitor actually exported, so pasting it into Application Insights' search lands on that request's end-to-end transaction, correlated with its logs.
+(`ProblemDetailsMapper.GetTraceId`, also used for the `traceId` returned to callers — [ADR 0011](0011-problem-details.md)). ASP.NET Core starts that activity for the request when a listener is present; the distro is such a listener. Application Insights keys a transaction by `operation_Id`, which is only the `{trace-id}` segment, so paste that middle part — not the whole `traceId` — into transaction search.
 
 ### Custom metrics
 

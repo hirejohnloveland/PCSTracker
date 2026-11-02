@@ -93,7 +93,7 @@ public class Given_ApiControllerBase : IDisposable
         ProblemDetails problem = ProblemOf(result);
         Assert.Equal("Validation Failed", problem.Title);
         ProblemError error = Assert.Single(ErrorsOf(problem));
-        Assert.Equal("NotEmptyValidator", error.Code);
+        Assert.Equal("InvalidRequest", error.Code);
         Assert.Equal("Name is required.", error.Detail);
         Assert.Equal("#/name", error.Pointer);
     }

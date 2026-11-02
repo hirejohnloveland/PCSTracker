@@ -14,6 +14,10 @@ internal static class ErrorHandlingRegistration
         builder.Services.Configure<ApiBehaviorOptions>(
             options => options.InvalidModelStateResponseFactory = CreateInvalidModelStateResponse);
 
+        // MVC puts System.Text.Json's error text in the model state unless this is off. Off, the error has no message
+        // and CreateInvalidModelStateResponse gives it a generic one.
+        builder.Services.Configure<JsonOptions>(options => options.AllowInputFormatterExceptionMessages = false);
+
         return builder;
     }
 

@@ -46,7 +46,7 @@ public static class ProblemDetailsMapper
     public static ProblemDetails ToProblemDetails(IEnumerable<ValidationFailure> failures)
     {
         ProblemError[] errors = [.. failures.Select(failure => new ProblemError(
-            failure.ErrorCode ?? InvalidRequestCode,
+            InvalidRequestCode,
             failure.ErrorMessage,
             ToJsonPointer(failure.PropertyName)))];
 
@@ -110,7 +110,9 @@ public static class ProblemDetailsMapper
     }
 
     /// <summary>
-    /// The value the framework puts in a problem's <c>traceId</c>: the W3C trace id when there is one.
+    /// The value the framework puts in a problem's <c>traceId</c>:
+    /// <see cref="Activity.Id"/> in W3C traceparent form when there is a current activity, otherwise
+    /// <see cref="HttpContext.TraceIdentifier"/>.
     /// </summary>
     public static string GetTraceId(HttpContext httpContext)
     {

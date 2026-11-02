@@ -175,8 +175,8 @@ public class Given_ProblemDetailsMapper
         Assert.Equal("One or more validation errors occurred.", problem.Detail);
         Assert.Equal(
             [
-                new ProblemError("NotEmptyValidator", "Vendor name is required.", "#/name"),
-                new ProblemError("EmailValidator", "Email address is invalid.", "#/email")
+                new ProblemError("InvalidRequest", "Vendor name is required.", "#/name"),
+                new ProblemError("InvalidRequest", "Email address is invalid.", "#/email")
             ],
             ErrorsOf(problem));
     }
@@ -191,9 +191,10 @@ public class Given_ProblemDetailsMapper
     }
 
     [Fact]
-    public void ToProblemDetails_ValidationFailures_WithoutAnErrorCode_UseInvalidRequest()
+    public void ToProblemDetails_ValidationFailures_IgnoresFluentValidationErrorCodes()
     {
-        ProblemDetails problem = ProblemDetailsMapper.ToProblemDetails([new ValidationFailure("Name", "Not good.")]);
+        ProblemDetails problem = ProblemDetailsMapper.ToProblemDetails(
+            [new ValidationFailure("Name", "Not good.") { ErrorCode = "NotEmptyValidator" }]);
 
         Assert.Equal("InvalidRequest", Assert.Single(ErrorsOf(problem)).Code);
     }
@@ -223,7 +224,7 @@ public class Given_ProblemDetailsMapper
         ProblemDetails problem = ProblemDetailsMapper.ToProblemDetails(result.Errors);
 
         ProblemError error = Assert.Single(ErrorsOf(problem));
-        Assert.Equal("NotEmptyValidator", error.Code);
+        Assert.Equal("InvalidRequest", error.Code);
         Assert.Equal("#/items/1/name", error.Pointer);
     }
 

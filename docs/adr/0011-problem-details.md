@@ -11,16 +11,17 @@ An API client has to handle failures from domain rules, request validation, unex
 - A response has one category, the `ErrorType` ([ADR 0010](0010-service-response.md)), and it sets `status` and `type`. RFC 9457 recommends reporting only the most relevant problem when problems differ in type. `ErrorTypeExtensions.ToHttpStatusCode` is the only mapping: Validation 400, Unauthorized 401, Forbidden 403, NotFound 404, BusinessRuleViolation 409, Unexpected 500, and anything else 500.
 - `type` is `https://api.example.com/problems/{category}` with the category in kebab-case, such as `business-rule-violation`. The base is one constant in `ProblemDetailsMapper`. A status with no category keeps the framework's `type`.
 - `title` is "Validation Failed" for validation and the framework's title for the status otherwise. `detail` is the message of a single error, or a generic summary when there are several.
-- Exception text never reaches the caller.
-- A request that fails FluentValidation is a 400 with one entry per failure. `code` is the failure's error code and `pointer` is the camelCased property path. A request MVC cannot bind has the same shape with code `InvalidRequest`, through `ApiBehaviorOptions.InvalidModelStateResponseFactory`.
+- A `DomainException` reaches the caller as its `errors`. The message of any other exception never reaches a response body.
+- A request that fails FluentValidation is a 400 with one entry per failure. `code` is always `InvalidRequest` and `pointer` is the camelCased property path. A request MVC cannot bind has the same shape with code `InvalidRequest`, through `ApiBehaviorOptions.InvalidModelStateResponseFactory`. MVC adds System.Text.Json's error text to the model state, and so to that response, unless `JsonOptions.AllowInputFormatterExceptionMessages` is false. `AddApiErrorHandling()` sets it false, so the entry for a body that cannot be read has the detail "The input was not valid."
 - `ProblemDetailsMapper.Customize` is registered with `AddProblemDetails`. It sets `instance`, sets `type` for a status that has a category, and adds one default `errors` entry when a problem has none. Problems the framework builds, such as a routing 404 or an authentication 401, then have the same shape. `UseStatusCodePages` gives those responses a body.
-- `traceId` is the W3C trace id when there is one, otherwise `HttpContext.TraceIdentifier`. A success carries the same value in `metadata.traceId`.
+- `traceId` is `Activity.Current?.Id` when there is a current activity — the W3C traceparent form `00-{trace-id}-{span-id}-{flags}` — otherwise `HttpContext.TraceIdentifier`. A success carries the same value in `metadata.traceId`.
 
 ## Consequences
 
 - A client reads `status` and `type` for the category and `errors[].code` for the failure.
 - `errors` is an array, not ASP.NET's default field-keyed object, so each error carries its own code.
 - Nothing serves documents at the `type` URIs, and the base host is `api.example.com` for now.
+- A body that cannot be read gets that generic detail. The client learns where it failed from `pointer`, not what was expected.
 
 ## Reference implementation
 
@@ -28,3 +29,4 @@ An API client has to handle failures from domain rules, request validation, unex
 - Building the problem for a domain failure: [`ProblemDetailsMapper.ToProblemDetails(DomainErrorEnvelope)`](../../src/api/PartsTrackerErp.GoldenPattern.Api/ErrorHandling/ProblemDetailsMapper.cs)
 - Giving a framework-built problem the same shape: [`ProblemDetailsMapper.Customize`](../../src/api/PartsTrackerErp.GoldenPattern.Api/ErrorHandling/ProblemDetailsMapper.cs)
 - The status mapping: [`ErrorTypeExtensions.ToHttpStatusCode`](../../src/api/PartsTrackerErp.GoldenPattern.Api/ErrorHandling/ErrorTypeExtensions.cs)
+- Answering a request MVC cannot bind, without the serializer's text: [`ErrorHandlingRegistration.AddApiErrorHandling`](../../src/api/PartsTrackerErp.GoldenPattern.Api/Registration/ErrorHandlingRegistration.cs)

@@ -11,7 +11,7 @@ Earlier services used anemic domain models: entities held data and services held
 - Application services coordinate use cases and contain no business rules.
 - Entities do not leave the application service. The service maps the entity to a response DTO in `Contracts/Responses` before it returns, so an entity never reaches the HTTP surface, whether in a response, in a wrapper such as `ServiceResponse<T>`, in a domain error or exception, or in any other way.
 - Repositories load entities through RavenDB sessions and don't call `SaveChangesAsync`.
-- A unit of work commits each use case's changes in one transaction. It is maintained through persistence handlers and RavenDB sessions.
+- A unit of work commits each use case's changes in one transaction. It is maintained through RavenDB sessions.
 
 ## Consequences
 

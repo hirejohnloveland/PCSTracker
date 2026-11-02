@@ -24,8 +24,6 @@ Don't suppress a diagnostic (`#pragma warning disable`, `[SuppressMessage]`, `<N
 
 Add a convention here only after it has been agreed.
 
-- **`var`:** Use explicit types unless the type is obvious from context or from the right side of the assignment. The build enforces a stricter version: it accepts `var` only where the type is apparent from the right side, such as a `new` expression or a cast. For example, `var result = Assert.IsType<OkObjectResult>(response);` must be written `OkObjectResult result = Assert.IsType<OkObjectResult>(response);`. An explicit type is always accepted.
-
 ## Related
 
 - [Project structure](../../project-structure.md): where code belongs.

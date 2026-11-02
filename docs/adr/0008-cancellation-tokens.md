@@ -13,7 +13,6 @@ A caller can abandon a request, and a host can stop while work is in flight. Wor
 ## Consequences
 
 - A cancelled request stops its RavenDB and HTTP calls instead of running to completion.
-- The compiler does not check that a method passes its token on. A method that drops it still compiles, and cancellation stops there.
 - Because the parameter has a default, a caller that omits the token also compiles.
 
 ## Reference implementation

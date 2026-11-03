@@ -1,8 +1,11 @@
 import { pageTitle } from 'ember-page-title';
+import NavBar from 'web/components/nav-bar';
 
 <template>
-  {{pageTitle "Web"}}
-  <h2 id="title">Welcome to Ember</h2>
+  {{pageTitle "Tracker"}}
+  <NavBar />
 
-  {{outlet}}
+  <main class="page">
+    {{outlet}}
+  </main>
 </template>

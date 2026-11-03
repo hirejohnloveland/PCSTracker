@@ -2,5 +2,5 @@ namespace PartsTrackerErp.GoldenPattern.Core.Contracts.Requests;
 
 public sealed class CreateVendorDto
 {
-    public string Name { get; set; } = string.Empty;
+    public required string Name { get; set; }
 }

@@ -443,12 +443,24 @@ public class Given_ApiFailureBehavior
     }
 
     [Fact]
+    public async Task Vendors_AddWithoutTheNameProperty_Returns400BeforeTheValidatorRuns()
+    {
+        JsonElement problem = await ReadProblemAsync(
+            await _client.PostAsync("/vendors", Json("{}")),
+            HttpStatusCode.BadRequest);
+
+        Assert.Contains(ErrorsOf(problem), error => error.GetProperty("detail").GetString() == "The input was not valid.");
+        Assert.DoesNotContain(ErrorsOf(problem), error => error.GetProperty("detail").GetString() == "Vendor name is required.");
+    }
+
+    [Fact]
     public async Task Vendors_AddWithAName_AnswersWithTheVendorAndMetadata()
     {
         HttpResponseMessage response = await _client.PostAsync("/vendors", Json("""{"name":"Acme"}"""));
 
         Assert.Equal(HttpStatusCode.Created, response.StatusCode);
         JsonElement body = await ReadJsonAsync(response);
+        Assert.Equal("vendors-1-A", body.GetProperty("data").GetProperty("id").GetString());
         Assert.Equal("Acme", body.GetProperty("data").GetProperty("name").GetString());
         Assert.True(body.GetProperty("data").GetProperty("isActive").GetBoolean());
         Assert.False(string.IsNullOrEmpty(body.GetProperty("metadata").GetProperty("traceId").GetString()));

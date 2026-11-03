@@ -11,6 +11,7 @@
           "options": [
             "--no-welcome",
             "--ci-provider=none",
+            "--typescript",
             "--no-warp-drive"
           ]
         }

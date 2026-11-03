@@ -25,10 +25,14 @@ public class Given_VendorsApplicationService
     {
         using var cancellation = new CancellationTokenSource();
         CancellationToken token = cancellation.Token;
+        _repository
+            .Setup(r => r.AddAsync(It.IsAny<Vendor>(), It.IsAny<CancellationToken>()))
+            .Callback<Vendor, CancellationToken>((vendor, _) => vendor.WithId("vendors-1-A"));
 
         ServiceResponse<VendorResponseDto> response = await _service.AddAsync("  Acme  ", token);
 
         Assert.True(response.Success);
+        Assert.Equal("vendors-1-A", response.Data.Id);
         Assert.Equal("Acme", response.Data.Name);
         Assert.True(response.Data.IsActive);
         _repository.Verify(r => r.AddAsync(It.Is<Vendor>(v => v.Name == "Acme" && v.IsActive), token), Times.Once);
@@ -51,13 +55,13 @@ public class Given_VendorsApplicationService
     {
         using var cancellation = new CancellationTokenSource();
         CancellationToken token = cancellation.Token;
-        Vendor vendor = Vendor.Create("Acme");
+        Vendor vendor = Vendor.Create("Acme").WithId("vendors-1-A");
         _repository.Setup(r => r.GetAsync("7", token)).ReturnsAsync(vendor);
 
         ServiceResponse<VendorResponseDto> response = await _service.GetAsync("7", token);
 
         Assert.True(response.Success);
-        Assert.Equal(new VendorResponseDto(null, "Acme", true), response.Data);
+        Assert.Equal(new VendorResponseDto("vendors-1-A", "Acme", true), response.Data);
         _unitOfWork.Verify(u => u.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Never);
     }
 
@@ -90,8 +94,8 @@ public class Given_VendorsApplicationService
     [Fact]
     public async Task ListAsync_MapsTheVendorsToDtosAndBuildsThePagination()
     {
-        Vendor acme = Vendor.Create("Acme");
-        Vendor beta = Vendor.Create("Beta");
+        Vendor acme = Vendor.Create("Acme").WithId("vendors-1-A");
+        Vendor beta = Vendor.Create("Beta").WithId("vendors-2-A");
         beta.Deactivate();
         SetupList(new PagedResult<Vendor>([acme, beta], 21));
 
@@ -100,7 +104,7 @@ public class Given_VendorsApplicationService
 
         Assert.True(response.Success);
         Assert.Equal(
-            [new VendorResponseDto(null, "Acme", true), new VendorResponseDto(null, "Beta", false)],
+            [new VendorResponseDto("vendors-1-A", "Acme", true), new VendorResponseDto("vendors-2-A", "Beta", false)],
             response.Data.Items);
         Assert.Equal(
             new PaginationMetadata(Page: 3, PageSize: 10, TotalCount: 21, TotalPages: 3),
@@ -123,14 +127,14 @@ public class Given_VendorsApplicationService
     {
         using var cancellation = new CancellationTokenSource();
         CancellationToken token = cancellation.Token;
-        Vendor vendor = Vendor.Create("Acme");
+        Vendor vendor = Vendor.Create("Acme").WithId("vendors-1-A");
         vendor.Deactivate();
         _repository.Setup(r => r.GetAsync("7", token)).ReturnsAsync(vendor);
 
         ServiceResponse<VendorResponseDto> response = await _service.ActivateAsync("7", token);
 
         Assert.True(response.Success);
-        Assert.Equal(new VendorResponseDto(null, "Acme", true), response.Data);
+        Assert.Equal(new VendorResponseDto("vendors-1-A", "Acme", true), response.Data);
         Assert.True(vendor.IsActive);
         _unitOfWork.Verify(u => u.SaveChangesAsync(token), Times.Once);
     }
@@ -151,13 +155,13 @@ public class Given_VendorsApplicationService
     {
         using var cancellation = new CancellationTokenSource();
         CancellationToken token = cancellation.Token;
-        Vendor vendor = Vendor.Create("Acme");
+        Vendor vendor = Vendor.Create("Acme").WithId("vendors-1-A");
         _repository.Setup(r => r.GetAsync("7", token)).ReturnsAsync(vendor);
 
         ServiceResponse<VendorResponseDto> response = await _service.DeactivateAsync("7", token);
 
         Assert.True(response.Success);
-        Assert.Equal(new VendorResponseDto(null, "Acme", false), response.Data);
+        Assert.Equal(new VendorResponseDto("vendors-1-A", "Acme", false), response.Data);
         Assert.False(vendor.IsActive);
         _unitOfWork.Verify(u => u.SaveChangesAsync(token), Times.Once);
     }

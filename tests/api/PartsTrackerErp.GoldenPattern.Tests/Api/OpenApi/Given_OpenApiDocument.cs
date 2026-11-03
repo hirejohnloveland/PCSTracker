@@ -7,7 +7,7 @@ namespace PartsTrackerErp.GoldenPattern.Tests.Api.OpenApi;
 
 /// <summary>
 /// Reads the OpenAPI document and the Swagger page the running API serves, in memory, and checks what they tell a
-/// caller about the responses.
+/// caller about the requests and the responses.
 /// </summary>
 [Trait(Constants.TestCategory, Constants.IntegrationTestCategory)]
 [Collection(Constants.ApiPipelineCollection)]
@@ -76,6 +76,30 @@ public class Given_OpenApiDocument(ApiFactory factory)
     private static string[] MemberNamesOf(JsonElement element)
     {
         return [.. element.EnumerateObject().Select(member => member.Name)];
+    }
+
+    private static string[] RequiredNamesOf(JsonElement schema)
+    {
+        return schema.TryGetProperty("required", out JsonElement required)
+            ? [.. required.EnumerateArray().Select(name => name.GetString()!)]
+            : [];
+    }
+
+    // The generator writes a nullable schema as a type that includes "null", or as a oneOf with a null alternative.
+    private static bool OffersNull(JsonElement schema)
+    {
+        if (schema.TryGetProperty("type", out JsonElement type))
+        {
+            string?[] types = type.ValueKind == JsonValueKind.Array
+                ? [.. type.EnumerateArray().Select(item => item.GetString())]
+                : [type.GetString()];
+            if (types.Contains("null"))
+            {
+                return true;
+            }
+        }
+
+        return schema.TryGetProperty("oneOf", out JsonElement alternatives) && alternatives.EnumerateArray().Any(OffersNull);
     }
 
     private static void CollectNumbersOfferedAsStrings(JsonElement element, string location, List<string> offers)
@@ -220,6 +244,48 @@ public class Given_OpenApiDocument(ApiFactory factory)
             PropertyNamesOf(SchemaReferredBy(document, $"{SchemaPrefix}ProblemError")).Order());
     }
 
+    public static TheoryData<string, string[]> RequestSchemas()
+    {
+        return new()
+        {
+            { "CreateVendorDto", ["name"] },
+            { "VendorInvoiceDto", ["vendorName", "balance"] }
+        };
+    }
+
+    [Theory]
+    [MemberData(nameof(RequestSchemas))]
+    public async Task RequestSchema_ListsItsMandatoryPropertiesAsRequired(string schema, string[] required)
+    {
+        JsonElement document = await GetDocumentAsync();
+
+        Assert.Equal(required.Order(), RequiredNamesOf(SchemaReferredBy(document, $"{SchemaPrefix}{schema}")).Order());
+    }
+
+    [Fact]
+    public async Task VendorResponseSchema_NeverOffersANullId()
+    {
+        JsonElement document = await GetDocumentAsync();
+        JsonElement vendor = SchemaReferredBy(document, $"{SchemaPrefix}VendorResponseDto");
+
+        Assert.False(OffersNull(vendor.GetProperty("properties").GetProperty("id")));
+    }
+
+    [Fact]
+    public async Task SuccessEnvelopes_NeverOfferNullData()
+    {
+        JsonElement document = await GetDocumentAsync();
+        JsonProperty[] envelopes = [.. document.GetProperty("components").GetProperty("schemas").EnumerateObject()
+            .Where(schema => schema.Name.Contains("ApiResponseOf", StringComparison.Ordinal))];
+
+        string[] offers = [.. envelopes
+            .Where(envelope => OffersNull(envelope.Value.GetProperty("properties").GetProperty("data")))
+            .Select(envelope => envelope.Name)];
+
+        Assert.NotEmpty(envelopes);
+        Assert.Empty(offers);
+    }
+
     [Fact]
     public async Task Document_NeverOffersANumberAsAString()
     {
@@ -244,7 +310,9 @@ public class Given_OpenApiDocument(ApiFactory factory)
         return new()
         {
             { "GET", "/vendors/{id}", "404", "/vendors/vendors-1-A", null },
-            { "POST", "/vendors", "400", "/vendors", """{"name":""}""" }
+            { "POST", "/vendors", "400", "/vendors", """{"name":""}""" },
+            { "POST", "/vendors", "400", "/vendors", "{}" },
+            { "POST", "/vendorinvoices", "400", "/vendorinvoices", "{}" }
         };
     }
 

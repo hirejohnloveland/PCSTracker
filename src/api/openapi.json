@@ -5,7 +5,7 @@
     "version": "1.0.0"
   },
   "paths": {
-    "/VendorInvoices": {
+    "/vendorinvoices": {
       "post": {
         "tags": [
           "VendorInvoices"
@@ -114,7 +114,7 @@
         }
       }
     },
-    "/Vendors": {
+    "/vendors": {
       "post": {
         "tags": [
           "Vendors"
@@ -336,7 +336,7 @@
         }
       }
     },
-    "/Vendors/{id}": {
+    "/vendors/{id}": {
       "get": {
         "tags": [
           "Vendors"
@@ -435,7 +435,7 @@
         }
       }
     },
-    "/Vendors/{id}/activate": {
+    "/vendors/{id}/activate": {
       "post": {
         "tags": [
           "Vendors"
@@ -534,7 +534,7 @@
         }
       }
     },
-    "/Vendors/{id}/deactivate": {
+    "/vendors/{id}/deactivate": {
       "post": {
         "tags": [
           "Vendors"
@@ -715,15 +715,8 @@
         "type": "object",
         "properties": {
           "data": {
-            "oneOf": [
-              {
-                "type": "null"
-              },
-              {
-                "description": "The result of the use case.",
-                "$ref": "#/components/schemas/VendorInvoiceResponseDto"
-              }
-            ]
+            "description": "The result of the use case.",
+            "$ref": "#/components/schemas/VendorInvoiceResponseDto"
           },
           "metadata": {
             "description": "Describes the response.",
@@ -740,15 +733,8 @@
         "type": "object",
         "properties": {
           "data": {
-            "oneOf": [
-              {
-                "type": "null"
-              },
-              {
-                "description": "The result of the use case.",
-                "$ref": "#/components/schemas/VendorResponseDto"
-              }
-            ]
+            "description": "The result of the use case.",
+            "$ref": "#/components/schemas/VendorResponseDto"
           },
           "metadata": {
             "description": "Describes the response.",
@@ -758,6 +744,9 @@
         "description": "The body of a successful response that carries one result. A response that carries a page of a list is a\nPagedApiResponse\u0026lt;T\u0026gt;."
       },
       "CreateVendorDto": {
+        "required": [
+          "name"
+        ],
         "type": "object",
         "properties": {
           "name": {
@@ -850,6 +839,10 @@
         "description": "One entry in the \u0060errors\u0060 array of a problem response."
       },
       "VendorInvoiceDto": {
+        "required": [
+          "vendorName",
+          "balance"
+        ],
         "type": "object",
         "properties": {
           "vendorName": {
@@ -887,10 +880,7 @@
         "type": "object",
         "properties": {
           "id": {
-            "type": [
-              "null",
-              "string"
-            ]
+            "type": "string"
           },
           "name": {
             "type": "string"

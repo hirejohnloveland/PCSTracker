@@ -5,6 +5,8 @@ namespace PartsTrackerErp.GoldenPattern.Api.Registration;
 
 internal static class OpenApiRegistration
 {
+    private const string SuccessEnvelopePrefix = "ApiResponseOf";
+
     internal static IHostApplicationBuilder AddApiOpenApi(this IHostApplicationBuilder builder)
     {
         // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
@@ -19,6 +21,31 @@ internal static class OpenApiRegistration
                 {
                     schema.Type = type & ~JsonSchemaType.String;
                     schema.Pattern = null;
+                }
+
+                return Task.CompletedTask;
+            });
+
+            // ApiResponse<T>.Data has the type parameter's type, which carries no nullability, so the generator offers
+            // null beside the schema of T. A success always carries its data. This runs on the finished document,
+            // because the generator adds the null after the schema transformers have run.
+            options.AddDocumentTransformer((document, _, _) =>
+            {
+                foreach ((string name, IOpenApiSchema envelope) in document.Components?.Schemas ?? new Dictionary<string, IOpenApiSchema>())
+                {
+                    if (!name.StartsWith(SuccessEnvelopePrefix, StringComparison.Ordinal)
+                        || envelope.Properties is not { } properties
+                        || !properties.TryGetValue("data", out IOpenApiSchema? data)
+                        || data.OneOf is not { } alternatives)
+                    {
+                        continue;
+                    }
+
+                    IOpenApiSchema[] nonNull = [.. alternatives.Where(alternative => alternative is not OpenApiSchema { Type: JsonSchemaType.Null })];
+                    if (nonNull.Length == 1)
+                    {
+                        properties["data"] = nonNull[0];
+                    }
                 }
 
                 return Task.CompletedTask;

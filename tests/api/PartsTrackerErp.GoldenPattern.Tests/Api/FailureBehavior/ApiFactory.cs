@@ -51,6 +51,8 @@ public sealed class ApiFactory : WebApplicationFactory<Program>
 
         public Task AddAsync(Vendor vendor, CancellationToken cancellationToken = default)
         {
+            vendor.WithId("vendors-1-A");
+
             return Task.CompletedTask;
         }
     }

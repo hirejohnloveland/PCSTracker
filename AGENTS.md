@@ -6,6 +6,8 @@ Before adding or moving code, read [docs/project-structure.md](docs/project-stru
 
 Architecture decisions are recorded in [docs/adr/README.md](docs/adr/README.md). Read the ones that cover the area you are changing.
 
+For front-end work under `src/web`, also follow [src/web/AGENTS.md](src/web/AGENTS.md).
+
 ## C#
 
 `dotnet build` treats warnings as errors, including style violations. The rules agents most often get wrong:

@@ -23,6 +23,7 @@ const allVendors: Vendor[] = Array.from({ length: 30 }, (_, index) => ({
   id: `vendors/${index + 1}-A`,
   name: `${index < 5 ? 'Acme' : 'Vendor'} ${String(index + 1).padStart(2, '0')}`,
   isActive: index % 2 === 0,
+  quickbooksId: index === 0 ? 'qb-1' : null,
 }));
 
 class FakeVendorsApi extends Service {
@@ -74,6 +75,18 @@ module('Acceptance | vendors list', function (hooks) {
     assert.strictEqual(currentURL(), '/vendors');
     assert.dom('table.vendors tbody tr').exists({ count: PAGE_SIZE });
     assert.dom('nav.pagination').containsText('Page 1 of 2');
+  });
+
+  test('the QuickBooks Id column shows the id, and is blank for a vendor with none', async function (assert) {
+    await visit('/vendors');
+
+    assert.dom('table.vendors th:nth-child(2)').hasText('QuickBooks Id');
+    assert
+      .dom('table.vendors tbody tr:nth-child(1) td:nth-child(2)')
+      .hasText('qb-1');
+    assert
+      .dom('table.vendors tbody tr:nth-child(2) td:nth-child(2)')
+      .hasText('');
   });
 
   test('Next and Previous move between pages', async function (assert) {

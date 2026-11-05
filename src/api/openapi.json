@@ -995,7 +995,8 @@
         "required": [
           "id",
           "name",
-          "isActive"
+          "isActive",
+          "quickbooksId"
         ],
         "type": "object",
         "properties": {
@@ -1007,9 +1008,15 @@
           },
           "isActive": {
             "type": "boolean"
+          },
+          "quickbooksId": {
+            "type": [
+              "null",
+              "string"
+            ]
           }
         },
-        "description": "A vendor as the API reports it."
+        "description": "A vendor as the API reports it. QuickbooksId is null for a vendor that is not linked to QuickBooks."
       }
     }
   },

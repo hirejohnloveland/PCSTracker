@@ -14,7 +14,7 @@ public class Given_VendorMappingExtensions
 
         VendorResponseDto response = vendor.ToResponseDto();
 
-        Assert.Equal(new VendorResponseDto("vendors-1-A", "Acme", true), response);
+        Assert.Equal(new VendorResponseDto("vendors-1-A", "Acme", true, null), response);
     }
 
     [Fact]
@@ -25,7 +25,27 @@ public class Given_VendorMappingExtensions
 
         VendorResponseDto response = vendor.ToResponseDto();
 
-        Assert.Equal(new VendorResponseDto("vendors-1-A", "Acme", false), response);
+        Assert.Equal(new VendorResponseDto("vendors-1-A", "Acme", false, null), response);
+    }
+
+    [Fact]
+    public void ToResponseDto_VendorLinkedToQuickbooks_CopiesTheQuickbooksId()
+    {
+        Vendor vendor = Vendor.Create("Acme").WithId("vendors-1-A").WithQuickbooksId("qb-42");
+
+        VendorResponseDto response = vendor.ToResponseDto();
+
+        Assert.Equal(new VendorResponseDto("vendors-1-A", "Acme", true, "qb-42"), response);
+    }
+
+    [Fact]
+    public void ToResponseDto_VendorNotLinkedToQuickbooks_HasNoQuickbooksId()
+    {
+        Vendor vendor = Vendor.Create("Acme").WithId("vendors-1-A");
+
+        VendorResponseDto response = vendor.ToResponseDto();
+
+        Assert.Null(response.QuickbooksId);
     }
 
     [Fact]

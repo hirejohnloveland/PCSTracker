@@ -40,22 +40,26 @@ interface VendorsIndexSignature {
   </form>
 
   {{#if @model.data.length}}
-    <table class="vendors">
-      <thead>
-        <tr>
-          <th>Name</th>
-          <th>Status</th>
-        </tr>
-      </thead>
-      <tbody>
-        {{#each @model.data as |vendor|}}
+    <div class="vendors-table-wrap">
+      <table class="vendors">
+        <thead>
           <tr>
-            <td>{{vendor.name}}</td>
-            <td>{{if vendor.isActive "Active" "Inactive"}}</td>
+            <th>Name</th>
+            <th class="quickbooks-id">QuickBooks Id</th>
+            <th>Status</th>
           </tr>
-        {{/each}}
-      </tbody>
-    </table>
+        </thead>
+        <tbody>
+          {{#each @model.data as |vendor|}}
+            <tr>
+              <td>{{vendor.name}}</td>
+              <td class="quickbooks-id">{{vendor.quickbooksId}}</td>
+              <td>{{if vendor.isActive "Active" "Inactive"}}</td>
+            </tr>
+          {{/each}}
+        </tbody>
+      </table>
+    </div>
   {{else}}
     <p>No vendors found.</p>
   {{/if}}

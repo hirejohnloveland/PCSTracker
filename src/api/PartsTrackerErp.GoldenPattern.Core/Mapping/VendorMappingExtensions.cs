@@ -10,6 +10,10 @@ public static class VendorMappingExtensions
         string id = vendor.Id
             ?? throw new InvalidOperationException("A vendor has no id until it is stored, and a response describes a stored vendor.");
 
-        return new VendorResponseDto(Id: id, Name: vendor.Name, IsActive: vendor.IsActive);
+        return new VendorResponseDto(
+            Id: id,
+            Name: vendor.Name,
+            IsActive: vendor.IsActive,
+            QuickbooksId: vendor.QuickbooksId);
     }
 }

@@ -5,11 +5,11 @@ import { setupApplicationTest } from 'web/tests/helpers';
 module('Acceptance | home', function (hooks) {
   setupApplicationTest(hooks);
 
-  test('visiting / shows the navbar and the welcome text', async function (assert) {
+  test('visiting / shows the navbar and the heading', async function (assert) {
     await visit('/');
 
     assert.strictEqual(currentURL(), '/');
     assert.dom('nav').exists();
-    assert.dom('h1').hasText('Welcome to Tracker');
+    assert.dom('h1').hasText('PCS Tracker');
   });
 });

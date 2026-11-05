@@ -774,11 +774,12 @@ export interface components {
             /** Format: double */
             balance: number;
         };
-        /** @description A vendor as the API reports it. */
+        /** @description A vendor as the API reports it. QuickbooksId is null for a vendor that is not linked to QuickBooks. */
         VendorResponseDto: {
             id: string;
             name: string;
             isActive: boolean;
+            quickbooksId: null | string;
         };
     };
     responses: never;

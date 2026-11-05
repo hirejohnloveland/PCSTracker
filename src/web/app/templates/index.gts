@@ -1,5 +1,3 @@
-import { pageTitle } from 'ember-page-title';
-
 <template>
   <h1>PCS Tracker</h1>
   <h2>Parts Control System</h2>

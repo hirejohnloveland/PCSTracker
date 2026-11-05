@@ -6,11 +6,11 @@ import NavBar from 'web/components/nav-bar';
 module('Integration | Component | nav-bar', function (hooks) {
   setupRenderingTest(hooks);
 
-  test('it renders the brand and the Home link', async function (assert) {
+  test('it renders the brand and the Vendor Management link', async function (assert) {
     await render(<template><NavBar /></template>);
 
     assert.dom('nav').exists();
-    assert.dom('.nav-brand').hasText('Tracker');
-    assert.dom('.nav-links').containsText('Home');
+    assert.dom('.nav-brand').hasText('PCS Home');
+    assert.dom('.nav-links').containsText('Vendor Management');
   });
 });

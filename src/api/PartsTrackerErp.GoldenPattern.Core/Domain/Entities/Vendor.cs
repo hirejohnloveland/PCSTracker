@@ -13,6 +13,9 @@ public sealed class Vendor
 
     public bool IsActive { get; private set; }
 
+    // Null for a vendor that is not linked to QuickBooks, including every vendor stored before this property existed.
+    public string? QuickbooksId { get; private set; }
+
     public static Vendor Create(string name)
     {
         if (string.IsNullOrWhiteSpace(name))

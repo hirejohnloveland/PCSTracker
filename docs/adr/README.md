@@ -25,3 +25,5 @@ The goal is not preserving code in two places. It's making sure an agent or a pe
 | [0013](0013-observability.md) | Observability with OpenTelemetry and Azure Monitor |
 | [0014](0014-pagination.md) | Pagination for list endpoints |
 | [0015](0015-openapi-responses.md) | Actions declare their responses for OpenAPI |
+| [0016](0016-generated-api-types.md) | The front end's API types are generated from the OpenAPI document |
+| [0017](0017-api-client.md) | Front-end code calls the API through one client |

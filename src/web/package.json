@@ -17,6 +17,7 @@
   "scripts": {
     "build": "vite build",
     "format": "prettier . --cache --write",
+    "generate:api": "openapi-typescript ../api/openapi.json -o app/types/api.d.ts",
     "lint": "concurrently \"npm:lint:*(!fix)\" --names \"lint:\" --prefixColors auto",
     "lint:css": "stylelint \"**/*.css\"",
     "lint:css:fix": "concurrently \"npm:lint:css -- --fix\"",
@@ -75,6 +76,7 @@
     "eslint-plugin-n": "^17.24.0",
     "eslint-plugin-qunit": "^8.2.6",
     "globals": "^16.5.0",
+    "openapi-typescript": "^7.13.0",
     "prettier": "^3.9.6",
     "prettier-plugin-ember-template-tag": "^2.1.8",
     "qunit": "^2.26.0",
@@ -85,6 +87,11 @@
     "typescript": "^6.0.3",
     "typescript-eslint": "^8.70.0",
     "vite": "^8.3.0"
+  },
+  "overrides": {
+    "openapi-typescript": {
+      "typescript": "$typescript"
+    }
   },
   "engines": {
     "node": ">= 20.19.0"

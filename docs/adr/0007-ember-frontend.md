@@ -9,7 +9,7 @@ The solution has an API and needs a browser front end. Ember.js is a convention-
 - The front end is an Ember.js application in `src/web`.
 - It is generated with `ember new` and keeps the generated layout. New files go where Ember's generators put them, using Ember's standard folder names.
 - It is written in TypeScript (`.ts` and `.gts` files).
-- It does not use Ember Data or WarpDrive. Code that calls the API uses the browser's `fetch` directly.
+- It does not use Ember Data or WarpDrive. Code that calls the API uses the browser's `fetch` through the API client ([ADR 0017](0017-api-client.md)).
 
 ## Consequences
 

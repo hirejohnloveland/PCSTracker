@@ -4,6 +4,9 @@
 # compiled output
 /dist/
 
+# generated from the API's OpenAPI document
+/app/types/api.d.ts
+
 # misc
 /coverage/
 !.*

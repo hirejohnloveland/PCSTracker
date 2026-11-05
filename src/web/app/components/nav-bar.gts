@@ -5,6 +5,7 @@ import { LinkTo } from '@ember/routing';
     <LinkTo @route="index" class="nav-brand">Tracker</LinkTo>
     <ul class="nav-links">
       <li><LinkTo @route="index">Home</LinkTo></li>
+      <li><LinkTo @route="vendors">Vendors</LinkTo></li>
     </ul>
   </nav>
 </template>

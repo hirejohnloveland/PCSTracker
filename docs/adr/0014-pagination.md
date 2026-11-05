@@ -20,6 +20,13 @@ A list endpoint can match more items than a caller wants at once, and the caller
 - The validator rejects a page whose offset, `(page - 1) * pageSize`, does not fit an int.
 - A list has no sort parameter. Its filters are the ones its request DTO defines, which for vendors is a case-insensitive name prefix.
 
+## Front end
+
+- A list screen keeps `page` and its filters in the URL as query parameters, so a page can be linked to and survives a refresh. The route sets `refreshModel` on each, and the controller declares them with defaults of `1` and an empty filter.
+- Changing a filter resets `page` to 1.
+- The screen does not send `pageSize`, so the API's default applies.
+- The `pagination-controls` component takes `page` and `totalPages` from the response's `pagination`. It shows Previous and Next as links that change only `page`, and as plain disabled text on the first and last page. It shows nothing when `totalPages` is 0.
+
 ## Reference implementation
 
 - The envelope: [`PagedApiResponse.cs`](../../src/api/PartsTrackerErp.GoldenPattern.Core/Contracts/Responses/PagedApiResponse.cs)
@@ -27,4 +34,6 @@ A list endpoint can match more items than a caller wants at once, and the caller
 - The request and its rules: [`PagedRequestDto.cs`](../../src/api/PartsTrackerErp.GoldenPattern.Core/Contracts/Requests/PagedRequestDto.cs), [`ListVendorsDto.cs`](../../src/api/PartsTrackerErp.GoldenPattern.Core/Contracts/Requests/ListVendorsDto.cs) and [`PagedRequestDtoValidator.cs`](../../src/api/PartsTrackerErp.GoldenPattern.Core/Validation/Validators/PagedRequestDtoValidator.cs)
 - The paging query: [`VendorRepository.ListAsync`](../../src/api/PartsTrackerErp.GoldenPattern.Core/Repositories/Implementations/VendorRepository.cs)
 - Mapping a page to its response: [`PagedResultMappingExtensions.ToPagedResponseDto`](../../src/api/PartsTrackerErp.GoldenPattern.Core/Mapping/PagedResultMappingExtensions.cs), called in [`VendorsApplicationService.ListAsync`](../../src/api/PartsTrackerErp.GoldenPattern.Core/ApplicationServices/Implementations/VendorsApplicationService.cs)
+- A list screen: [`vendors/index` route](../../src/web/app/routes/vendors/index.ts), [controller](../../src/web/app/controllers/vendors/index.ts), and [template](../../src/web/app/templates/vendors/index.gts)
+- The paging controls: [`pagination-controls.gts`](../../src/web/app/components/pagination-controls.gts)
 - A pipeline test of the envelope: [`Given_ApiFailureBehavior.Vendors_List_AnswersWithTheDataPaginationAndMetadata`](../../tests/api/PartsTrackerErp.GoldenPattern.Tests/Api/FailureBehavior/Given_ApiFailureBehavior.cs)

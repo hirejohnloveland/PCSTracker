@@ -39,3 +39,33 @@ body {
   margin: 0 auto;
   padding: 1.5rem;
 }
+
+.filter {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+}
+
+.vendors {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.vendors th,
+.vendors td {
+  padding: 0.5rem;
+  border-bottom: 1px solid #d2d6dc;
+  text-align: left;
+}
+
+.pagination {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-top: 1rem;
+}
+
+.pagination .disabled {
+  color: #9aa5b1;
+}

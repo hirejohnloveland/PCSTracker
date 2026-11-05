@@ -6,15 +6,15 @@ Before adding or moving files, read [docs/project-structure.md](../../docs/proje
 
 Architecture decisions for this app are recorded in [docs/adr/README.md](../../docs/adr/README.md). Read the ones that cover the area you are changing. Front-end ADRs agents most often need:
 
-| ADR | Topic |
-|-----|-------|
-| [0007](../../docs/adr/0007-ember-frontend.md) | Ember.js layout and TypeScript |
-| [0014](../../docs/adr/0014-pagination.md) | List pagination (query params and controls) |
-| [0016](../../docs/adr/0016-generated-api-types.md) | OpenAPI-generated types; do not edit `app/types/api.d.ts` by hand |
-| [0017](../../docs/adr/0017-api-client.md) | Call the API only through `api-client` and feature services |
-| [0018](../../docs/adr/0018-list-text-filters.md) | List text filters and debounce via `ember-lifeline` |
-| [0019](../../docs/adr/0019-front-end-error-handling.md) | Failed user actions go through the shared error dialog |
-| [0020](../../docs/adr/0020-front-end-responsiveness.md) | Mobile-first layout; one shared breakpoint |
+| ADR                                                     | Topic                                                             |
+| ------------------------------------------------------- | ----------------------------------------------------------------- |
+| [0007](../../docs/adr/0007-ember-frontend.md)           | Ember.js layout and TypeScript                                    |
+| [0014](../../docs/adr/0014-pagination.md)               | List pagination (query params and controls)                       |
+| [0016](../../docs/adr/0016-generated-api-types.md)      | OpenAPI-generated types; do not edit `app/types/api.d.ts` by hand |
+| [0017](../../docs/adr/0017-api-client.md)               | Call the API only through `api-client` and feature services       |
+| [0018](../../docs/adr/0018-list-text-filters.md)        | List text filters and debounce via `ember-lifeline`               |
+| [0019](../../docs/adr/0019-front-end-error-handling.md) | Failed user actions go through the shared error dialog            |
+| [0020](../../docs/adr/0020-front-end-responsiveness.md) | Mobile-first layout; one shared breakpoint                        |
 
 ## Rules agents most often get wrong
 

@@ -2,6 +2,7 @@ import type { TOC } from '@ember/component/template-only';
 import { on } from '@ember/modifier';
 import { pageTitle } from 'ember-page-title';
 import PaginationControls from 'web/components/pagination-controls';
+import VendorRow from 'web/components/vendor-row';
 import type VendorsIndexController from 'web/controllers/vendors/index';
 import type { VendorPage } from 'web/services/vendors-api';
 
@@ -51,11 +52,7 @@ interface VendorsIndexSignature {
         </thead>
         <tbody>
           {{#each @model.data as |vendor|}}
-            <tr>
-              <td>{{vendor.name}}</td>
-              <td class="quickbooks-id">{{vendor.quickbooksId}}</td>
-              <td>{{if vendor.isActive "Active" "Inactive"}}</td>
-            </tr>
+            <VendorRow @vendor={{vendor}} />
           {{/each}}
         </tbody>
       </table>

@@ -36,7 +36,7 @@ public sealed class VendorsApplicationService(
         CancellationToken cancellationToken = default)
     {
         PagedResult<Vendor> vendors = await vendorRepository.ListAsync(
-            namePrefix: request.Name?.Trim(),
+            nameSearch: request.Name?.Trim(),
             page: request.Page,
             pageSize: request.PageSize,
             cancellationToken: cancellationToken);

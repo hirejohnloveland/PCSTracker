@@ -230,7 +230,7 @@
           {
             "name": "name",
             "in": "query",
-            "description": "Lists only vendors whose name starts with this text, ignoring case. Null or blank lists every vendor.",
+            "description": "Lists only vendors whose name contains every word of this text, ignoring case. A word matches inside the words of\nthe name, so \u0022sup\u0022 finds \u0022Acme Supply\u0022. Null or blank lists every vendor.",
             "schema": {
               "type": "string"
             }

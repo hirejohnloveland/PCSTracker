@@ -111,7 +111,10 @@ export interface paths {
         get: {
             parameters: {
                 query?: {
-                    /** @description Lists only vendors whose name starts with this text, ignoring case. Null or blank lists every vendor. */
+                    /**
+                     * @description Lists only vendors whose name contains every word of this text, ignoring case. A word matches inside the words of
+                     *     the name, so "sup" finds "Acme Supply". Null or blank lists every vendor.
+                     */
                     name?: string;
                     page?: number;
                     pageSize?: number;

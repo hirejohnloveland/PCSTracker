@@ -27,3 +27,5 @@ The goal is not preserving code in two places. It's making sure an agent or a pe
 | [0015](0015-openapi-responses.md) | Actions declare their responses for OpenAPI |
 | [0016](0016-generated-api-types.md) | The front end's API types are generated from the OpenAPI document |
 | [0017](0017-api-client.md) | Front-end code calls the API through one client |
+| [0018](0018-list-text-filter.md) | A list's text filter is a case-insensitive word search |
+| [0019](0019-live-list-filter.md) | A list screen's text filter applies as the user types |

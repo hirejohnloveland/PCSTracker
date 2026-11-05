@@ -29,9 +29,9 @@ class FakeVendorsApi extends Service {
 
   list(query: ListVendorsQuery): Promise<VendorPage> {
     FakeVendorsApi.calls.push(query);
-    const prefix = (query.name ?? '').toLowerCase();
+    const text = (query.name ?? '').toLowerCase();
     const matches = allVendors.filter((vendor) =>
-      vendor.name.toLowerCase().startsWith(prefix),
+      vendor.name.toLowerCase().includes(text),
     );
     const page = query.page ?? 1;
     const start = (page - 1) * PAGE_SIZE;

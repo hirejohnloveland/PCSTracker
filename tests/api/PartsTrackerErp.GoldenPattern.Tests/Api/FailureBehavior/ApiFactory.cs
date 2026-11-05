@@ -41,7 +41,7 @@ public sealed class ApiFactory : WebApplicationFactory<Program>
         }
 
         public Task<PagedResult<Vendor>> ListAsync(
-            string? namePrefix,
+            string? nameSearch,
             int page,
             int pageSize,
             CancellationToken cancellationToken = default)

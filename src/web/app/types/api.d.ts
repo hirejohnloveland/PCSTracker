@@ -4,6 +4,97 @@
  */
 
 export interface paths {
+    "/quickbooks/vendors/sync": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["ApiResponseOfQuickbooksSyncResponseDto"];
+                        "application/json": components["schemas"]["ApiResponseOfQuickbooksSyncResponseDto"];
+                        "text/json": components["schemas"]["ApiResponseOfQuickbooksSyncResponseDto"];
+                    };
+                };
+                /** @description Bad Request */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ApiProblemDetails"];
+                    };
+                };
+                /** @description Unauthorized */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ApiProblemDetails"];
+                    };
+                };
+                /** @description Forbidden */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ApiProblemDetails"];
+                    };
+                };
+                /** @description Not Found */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ApiProblemDetails"];
+                    };
+                };
+                /** @description Conflict */
+                409: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ApiProblemDetails"];
+                    };
+                };
+                /** @description Internal Server Error */
+                500: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ApiProblemDetails"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/vendorinvoices": {
         parameters: {
             query?: never;
@@ -594,6 +685,16 @@ export interface components {
          * @description The body of a successful response that carries one result. A response that carries a page of a list is a
          *     PagedApiResponse&lt;T&gt;.
          */
+        ApiResponseOfQuickbooksSyncResponseDto: {
+            /** @description The result of the use case. */
+            data: components["schemas"]["QuickbooksSyncResponseDto"];
+            /** @description Describes the response. */
+            metadata: components["schemas"]["ApiResponseMetadata"];
+        };
+        /**
+         * @description The body of a successful response that carries one result. A response that carries a page of a list is a
+         *     PagedApiResponse&lt;T&gt;.
+         */
         ApiResponseOfVendorInvoiceResponseDto: {
             /** @description The result of the use case. */
             data: components["schemas"]["VendorInvoiceResponseDto"];
@@ -656,6 +757,11 @@ export interface components {
              *     parameter name, such as `#/pageSize`. Only request problems have one.
              */
             pointer: null | string;
+        };
+        /** @description The outcome of a vendor sync with QuickBooks. */
+        QuickbooksSyncResponseDto: {
+            /** Format: int32 */
+            vendorsSynced: number;
         };
         VendorInvoiceDto: {
             vendorName: string;

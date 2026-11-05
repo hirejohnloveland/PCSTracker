@@ -5,6 +5,95 @@
     "version": "1.0.0"
   },
   "paths": {
+    "/quickbooks/vendors/sync": {
+      "post": {
+        "tags": [
+          "Quickbooks"
+        ],
+        "responses": {
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiProblemDetails"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiProblemDetails"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiProblemDetails"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiProblemDetails"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflict",
+            "content": {
+              "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiProblemDetails"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiProblemDetails"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseOfQuickbooksSyncResponseDto"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseOfQuickbooksSyncResponseDto"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseOfQuickbooksSyncResponseDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/vendorinvoices": {
       "post": {
         "tags": [
@@ -707,6 +796,24 @@
         },
         "description": "Describes one successful response."
       },
+      "ApiResponseOfQuickbooksSyncResponseDto": {
+        "required": [
+          "data",
+          "metadata"
+        ],
+        "type": "object",
+        "properties": {
+          "data": {
+            "description": "The result of the use case.",
+            "$ref": "#/components/schemas/QuickbooksSyncResponseDto"
+          },
+          "metadata": {
+            "description": "Describes the response.",
+            "$ref": "#/components/schemas/ApiResponseMetadata"
+          }
+        },
+        "description": "The body of a successful response that carries one result. A response that carries a page of a list is a\nPagedApiResponse\u0026lt;T\u0026gt;."
+      },
       "ApiResponseOfVendorInvoiceResponseDto": {
         "required": [
           "data",
@@ -838,6 +945,19 @@
         },
         "description": "One entry in the \u0060errors\u0060 array of a problem response."
       },
+      "QuickbooksSyncResponseDto": {
+        "required": [
+          "vendorsSynced"
+        ],
+        "type": "object",
+        "properties": {
+          "vendorsSynced": {
+            "type": "integer",
+            "format": "int32"
+          }
+        },
+        "description": "The outcome of a vendor sync with QuickBooks."
+      },
       "VendorInvoiceDto": {
         "required": [
           "vendorName",
@@ -894,6 +1014,9 @@
     }
   },
   "tags": [
+    {
+      "name": "Quickbooks"
+    },
     {
       "name": "VendorInvoices"
     },

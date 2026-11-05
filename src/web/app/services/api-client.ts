@@ -74,7 +74,7 @@ export default class ApiClientService extends Service {
     return this.send<T>('GET', `${path}${toQueryString(query)}`);
   }
 
-  async postJson<T>(path: string, body: unknown): Promise<T> {
+  async postJson<T>(path: string, body?: unknown): Promise<T> {
     return this.send<T>('POST', path, body);
   }
 

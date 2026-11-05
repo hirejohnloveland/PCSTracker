@@ -10,6 +10,7 @@ import {
 } from '@ember/test-helpers';
 import { module, test } from 'qunit';
 import { setupApplicationTest } from 'web/tests/helpers';
+import { ApiError } from 'web/services/api-client';
 import type {
   ListVendorsQuery,
   Vendor,
@@ -49,12 +50,21 @@ class FakeVendorsApi extends Service {
   }
 }
 
+class FakeQuickbooksApi extends Service {
+  static failure: ApiError = new ApiError({ status: 500, title: 'unset' });
+
+  syncVendors(): Promise<never> {
+    return Promise.reject(FakeQuickbooksApi.failure);
+  }
+}
+
 module('Acceptance | vendors list', function (hooks) {
   setupApplicationTest(hooks);
 
   hooks.beforeEach(function () {
     FakeVendorsApi.calls = [];
     this.owner.register('service:vendors-api', FakeVendorsApi);
+    this.owner.register('service:quickbooks-api', FakeQuickbooksApi);
   });
 
   test('the navbar leads to the first page of vendors', async function (assert) {
@@ -143,5 +153,44 @@ module('Acceptance | vendors list', function (hooks) {
 
     assert.dom('table.vendors').doesNotExist();
     assert.dom('main').containsText('No vendors found.');
+  });
+
+  test('Sync with QuickBooks shows the API message in a warning dialog that Close dismisses', async function (assert) {
+    FakeQuickbooksApi.failure = new ApiError({
+      status: 409,
+      title: 'Conflict',
+      detail: 'This feature is not implemented yet.',
+      traceId: 'trace-409',
+    });
+    await visit('/vendors');
+    assert.dom('dialog').doesNotExist();
+
+    await click('.page-header button');
+
+    assert.dom('dialog[open]').exists();
+    assert.dom('dialog').hasClass('warning');
+    assert.dom('dialog').containsText('This feature is not implemented yet.');
+    assert.dom('dialog .trace-id').doesNotExist();
+
+    await click('dialog button');
+
+    assert.dom('dialog').doesNotExist();
+    assert.strictEqual(currentURL(), '/vendors');
+  });
+
+  test('an unexpected failure shows an error dialog with the trace id', async function (assert) {
+    FakeQuickbooksApi.failure = new ApiError({
+      status: 500,
+      title: 'Internal Server Error',
+      detail: 'An unexpected error occurred.',
+      traceId: 'trace-500',
+    });
+    await visit('/vendors');
+
+    await click('.page-header button');
+
+    assert.dom('dialog[open]').hasClass('error');
+    assert.dom('dialog').containsText('An unexpected error occurred.');
+    assert.dom('dialog .trace-id').containsText('trace-500');
   });
 });

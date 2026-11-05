@@ -55,6 +55,19 @@ module('Unit | Service | api-client', function (hooks) {
     assert.strictEqual(requests[0]?.init?.body, '{"name":"Acme"}');
   });
 
+  test('post without a body sends no body and no content type', async function (assert) {
+    stubFetch(Response.json({ data: {} }));
+    const client = this.owner.lookup('service:api-client') as ApiClientService;
+
+    await client.postJson('/quickbooks/vendors/sync');
+
+    assert.strictEqual(requests[0]?.url, '/api/quickbooks/vendors/sync');
+    assert.strictEqual(requests[0]?.init?.body, undefined);
+    assert.notOk(
+      (requests[0]?.init?.headers as Record<string, string>)['Content-Type'],
+    );
+  });
+
   test('a problem response becomes an ApiError with its errors and trace id', async function (assert) {
     stubFetch(
       Response.json(

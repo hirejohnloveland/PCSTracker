@@ -14,7 +14,12 @@ interface VendorsIndexSignature {
 
 <template>
   {{pageTitle "Vendors"}}
-  <h1>Vendors</h1>
+  <div class="page-header">
+    <h1>Vendors</h1>
+    <button type="button" {{on "click" @controller.syncWithQuickbooks}}>
+      Sync with QuickBooks
+    </button>
+  </div>
 
   <form class="filter" {{on "submit" @controller.filterNow}}>
     <label for="vendor-name-filter">Name</label>

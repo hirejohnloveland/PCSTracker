@@ -28,3 +28,4 @@ The goal is not preserving code in two places. It's making sure an agent or a pe
 | [0016](0016-generated-api-types.md) | The front end's API types are generated from the OpenAPI document |
 | [0017](0017-api-client.md) | Front-end code calls the API through one client |
 | [0018](0018-list-text-filters.md) | List text filters |
+| [0019](0019-front-end-error-handling.md) | A failed user action is shown in one error dialog |

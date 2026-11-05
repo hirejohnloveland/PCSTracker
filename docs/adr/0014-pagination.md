@@ -18,12 +18,12 @@ A list endpoint can match more items than a caller wants at once, and the caller
 - RavenDB queries are eventually consistent and loading by id is not, so a record created a moment ago can be missing from a list for a few milliseconds. The create response and a get by id are not affected. A list does not wait for non-stale results.
 - RavenDB creates an auto-index the first time a list query uses a new filter or sort. No static index is defined.
 - The validator rejects a page whose offset, `(page - 1) * pageSize`, does not fit an int.
-- A list has no sort parameter. Its filters are the ones its request DTO defines. A text filter works as in [ADR 0018](0018-list-text-filter.md).
+- A list has no sort parameter. Its filters are the ones its request DTO defines. A text filter works as in [ADR 0018](0018-list-text-filters.md).
 
 ## Front end
 
 - A list screen keeps `page` and its filters in the URL as query parameters, so a page can be linked to and survives a refresh. The route sets `refreshModel` on each, and the controller declares them with defaults of `1` and an empty filter.
-- Changing a filter resets `page` to 1. How a text filter applies is in [ADR 0019](0019-live-list-filter.md).
+- Changing a filter resets `page` to 1. How a text filter applies is in [ADR 0018](0018-list-text-filters.md).
 - The screen does not send `pageSize`, so the API's default applies.
 - The `pagination-controls` component takes `page` and `totalPages` from the response's `pagination`. It shows Previous and Next as links that change only `page`, and as plain disabled text on the first and last page. It shows nothing when `totalPages` is 0.
 

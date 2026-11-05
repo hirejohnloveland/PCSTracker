@@ -3,7 +3,7 @@ import ErrorDialog from 'web/components/error-dialog';
 import NavBar from 'web/components/nav-bar';
 
 <template>
-  {{pageTitle "Tracker"}}
+  {{pageTitle "PCS Tracker"}}
   <NavBar />
 
   <main class="page">

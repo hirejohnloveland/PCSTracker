@@ -118,6 +118,26 @@ module('Acceptance | vendors list', function (hooks) {
     assert.dom('table.vendors tbody tr').exists({ count: 5 });
   });
 
+  test('Clear filters is enabled only while a filter is applied', async function (assert) {
+    await visit('/vendors');
+    assert.dom('form.filter button').hasText('Clear filters').isDisabled();
+
+    await fillIn('#vendor-name-filter', 'acme');
+    assert.dom('form.filter button').isNotDisabled();
+  });
+
+  test('Clear filters empties the filter and returns to the full first page', async function (assert) {
+    await visit('/vendors?name=acme');
+    assert.dom('table.vendors tbody tr').exists({ count: 5 });
+
+    await click('form.filter button');
+
+    assert.strictEqual(currentURL(), '/vendors');
+    assert.dom('#vendor-name-filter').hasValue('');
+    assert.dom('table.vendors tbody tr').exists({ count: PAGE_SIZE });
+    assert.dom('form.filter button').isDisabled();
+  });
+
   test('a filter with no matches says so', async function (assert) {
     await visit('/vendors?name=zzz');
 

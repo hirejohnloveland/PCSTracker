@@ -25,6 +25,13 @@ interface VendorsIndexSignature {
       value={{@controller.name}}
       {{on "input" @controller.filterAsYouType}}
     />
+    <button
+      type="button"
+      disabled={{unless @controller.hasFilters true}}
+      {{on "click" @controller.clearFilters}}
+    >
+      Clear filters
+    </button>
   </form>
 
   {{#if @model.data.length}}

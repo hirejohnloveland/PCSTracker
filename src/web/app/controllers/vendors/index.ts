@@ -11,6 +11,16 @@ export default class VendorsIndexController extends Controller {
   @tracked name = '';
   @tracked page = 1;
 
+  get hasFilters(): boolean {
+    return this.name !== '';
+  }
+
+  @action
+  clearFilters(): void {
+    cancelDebounce(this, 'applyName');
+    this.applyName('');
+  }
+
   @action
   filterAsYouType(event: Event): void {
     const value = (event.target as HTMLInputElement).value;

@@ -11,6 +11,10 @@ interface VendorRowSignature {
 <template>
   <tr ...attributes>
     <td>{{@vendor.name}}</td>
+    <td class="description">{{@vendor.description}}</td>
+    <td class="contact">{{@vendor.contact}}</td>
+    <td class="phone">{{@vendor.phone}}</td>
+    <td class="notes">{{@vendor.notes}}</td>
     <td class="quickbooks-id">{{@vendor.quickbooksId}}</td>
     <td>{{if @vendor.isActive "Active" "Inactive"}}</td>
   </tr>

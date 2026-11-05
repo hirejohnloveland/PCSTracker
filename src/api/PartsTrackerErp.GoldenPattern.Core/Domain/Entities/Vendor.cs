@@ -16,7 +16,23 @@ public sealed class Vendor
     // Null for a vendor that is not linked to QuickBooks, including every vendor stored before this property existed.
     public string? QuickbooksId { get; private set; }
 
-    public static Vendor Create(string name)
+    // Description, Contact, Phone and Notes are null when none was provided, including for every vendor stored before
+    // these properties existed.
+    public string? Description { get; private set; }
+
+    public string? Contact { get; private set; }
+
+    public string? Phone { get; private set; }
+
+    public string? Notes { get; private set; }
+
+    public static Vendor Create(
+        string name,
+        string? description = null,
+        string? contact = null,
+        string? phone = null,
+        string? notes = null,
+        string? quickbooksId = null)
     {
         if (string.IsNullOrWhiteSpace(name))
         {
@@ -26,7 +42,12 @@ public sealed class Vendor
         return new Vendor
         {
             Name = name.Trim(),
-            IsActive = true
+            IsActive = true,
+            Description = NullIfBlank(description),
+            Contact = NullIfBlank(contact),
+            Phone = NullIfBlank(phone),
+            Notes = NullIfBlank(notes),
+            QuickbooksId = NullIfBlank(quickbooksId)
         };
     }
 
@@ -38,5 +59,10 @@ public sealed class Vendor
     public void Deactivate()
     {
         IsActive = false;
+    }
+
+    private static string? NullIfBlank(string? value)
+    {
+        return string.IsNullOrWhiteSpace(value) ? null : value.Trim();
     }
 }

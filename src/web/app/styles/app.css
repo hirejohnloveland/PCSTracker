@@ -109,7 +109,7 @@ body {
 
 .vendors {
   width: 100%;
-  min-width: 20rem;
+  min-width: 72rem;
   border-collapse: collapse;
   table-layout: fixed;
 }
@@ -120,6 +120,30 @@ body {
   border-bottom: 1px solid #d2d6dc;
   text-align: left;
   overflow-wrap: anywhere;
+}
+
+.vendors th:first-child {
+  width: 12rem;
+}
+
+.vendors th.description {
+  width: 14rem;
+}
+
+.vendors th.contact {
+  width: 9rem;
+}
+
+.vendors th.phone {
+  width: 8rem;
+}
+
+.vendors th.notes {
+  width: 14rem;
+}
+
+.vendors th.quickbooks-id {
+  width: 8rem;
 }
 
 .vendors th:last-child {
@@ -150,11 +174,6 @@ body {
 
   .page {
     padding: 1.5rem;
-  }
-
-  .vendors th:first-child,
-  .vendors th:last-child {
-    width: 35%;
   }
 
   .vendors th:last-child,

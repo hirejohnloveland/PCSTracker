@@ -24,6 +24,10 @@ const allVendors: Vendor[] = Array.from({ length: 30 }, (_, index) => ({
   name: `${index < 5 ? 'Acme' : 'Vendor'} ${String(index + 1).padStart(2, '0')}`,
   isActive: index % 2 === 0,
   quickbooksId: index === 0 ? 'qb-1' : null,
+  description: index === 0 ? 'Refrigeration parts' : null,
+  contact: null,
+  phone: null,
+  notes: null,
 }));
 
 class FakeVendorsApi extends Service {
@@ -80,13 +84,25 @@ module('Acceptance | vendors list', function (hooks) {
   test('the QuickBooks Id column shows the id, and is blank for a vendor with none', async function (assert) {
     await visit('/vendors');
 
-    assert.dom('table.vendors th:nth-child(2)').hasText('QuickBooks Id');
+    assert.dom('table.vendors th.quickbooks-id').hasText('QuickBooks Id');
     assert
-      .dom('table.vendors tbody tr:nth-child(1) td:nth-child(2)')
+      .dom('table.vendors tbody tr:nth-child(1) td.quickbooks-id')
       .hasText('qb-1');
     assert
-      .dom('table.vendors tbody tr:nth-child(2) td:nth-child(2)')
+      .dom('table.vendors tbody tr:nth-child(2) td.quickbooks-id')
       .hasText('');
+  });
+
+  test('the table shows the vendor details but not the vendor id', async function (assert) {
+    await visit('/vendors');
+
+    assert
+      .dom('table.vendors thead')
+      .hasText('Name Description Contact Phone Notes QuickBooks Id Status');
+    assert
+      .dom('table.vendors tbody tr:nth-child(1) td.description')
+      .hasText('Refrigeration parts');
+    assert.dom('table.vendors').doesNotContainText('vendors/1-A');
   });
 
   test('Next and Previous move between pages', async function (assert) {

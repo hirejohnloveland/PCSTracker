@@ -29,7 +29,9 @@ public class Given_VendorsApplicationService
             .Setup(r => r.AddAsync(It.IsAny<Vendor>(), It.IsAny<CancellationToken>()))
             .Callback<Vendor, CancellationToken>((vendor, _) => vendor.WithId("vendors-1-A"));
 
-        ServiceResponse<VendorResponseDto> response = await _service.AddAsync("  Acme  ", token);
+        ServiceResponse<VendorResponseDto> response = await _service.AddAsync(
+            new CreateVendorDto { Name = "  Acme  " },
+            token);
 
         Assert.True(response.Success);
         Assert.Equal("vendors-1-A", response.Data.Id);
@@ -37,6 +39,30 @@ public class Given_VendorsApplicationService
         Assert.True(response.Data.IsActive);
         _repository.Verify(r => r.AddAsync(It.Is<Vendor>(v => v.Name == "Acme" && v.IsActive), token), Times.Once);
         _unitOfWork.Verify(u => u.SaveChangesAsync(token), Times.Once);
+    }
+
+    [Fact]
+    public async Task AddAsync_StoresTheTrimmedDescriptionContactPhoneNotesAndQuickbooksIdAndLeavesBlankOnesNull()
+    {
+        _repository
+            .Setup(r => r.AddAsync(It.IsAny<Vendor>(), It.IsAny<CancellationToken>()))
+            .Callback<Vendor, CancellationToken>((vendor, _) => vendor.WithId("vendors-1-A"));
+
+        ServiceResponse<VendorResponseDto> response = await _service.AddAsync(
+            new CreateVendorDto
+            {
+                Name = "Acme",
+                Description = "  Refrigeration parts  ",
+                Contact = "Pat",
+                Phone = "   ",
+                Notes = null,
+                QuickbooksId = "  58  "
+            });
+
+        Assert.True(response.Success);
+        Assert.Equal(
+            new VendorResponseDto("vendors-1-A", "Acme", true, "58", "Refrigeration parts", "Pat", null, null),
+            response.Data);
     }
 
     [Fact]
@@ -61,7 +87,7 @@ public class Given_VendorsApplicationService
         ServiceResponse<VendorResponseDto> response = await _service.GetAsync("7", token);
 
         Assert.True(response.Success);
-        Assert.Equal(new VendorResponseDto("vendors-1-A", "Acme", true, null), response.Data);
+        Assert.Equal(new VendorResponseDto("vendors-1-A", "Acme", true, null, null, null, null, null), response.Data);
         _unitOfWork.Verify(u => u.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Never);
     }
 
@@ -104,7 +130,7 @@ public class Given_VendorsApplicationService
 
         Assert.True(response.Success);
         Assert.Equal(
-            [new VendorResponseDto("vendors-1-A", "Acme", true, null), new VendorResponseDto("vendors-2-A", "Beta", false, null)],
+            [new VendorResponseDto("vendors-1-A", "Acme", true, null, null, null, null, null), new VendorResponseDto("vendors-2-A", "Beta", false, null, null, null, null, null)],
             response.Data.Items);
         Assert.Equal(
             new PaginationMetadata(Page: 3, PageSize: 10, TotalCount: 21, TotalPages: 3),
@@ -134,7 +160,7 @@ public class Given_VendorsApplicationService
         ServiceResponse<VendorResponseDto> response = await _service.ActivateAsync("7", token);
 
         Assert.True(response.Success);
-        Assert.Equal(new VendorResponseDto("vendors-1-A", "Acme", true, null), response.Data);
+        Assert.Equal(new VendorResponseDto("vendors-1-A", "Acme", true, null, null, null, null, null), response.Data);
         Assert.True(vendor.IsActive);
         _unitOfWork.Verify(u => u.SaveChangesAsync(token), Times.Once);
     }
@@ -161,7 +187,7 @@ public class Given_VendorsApplicationService
         ServiceResponse<VendorResponseDto> response = await _service.DeactivateAsync("7", token);
 
         Assert.True(response.Success);
-        Assert.Equal(new VendorResponseDto("vendors-1-A", "Acme", false, null), response.Data);
+        Assert.Equal(new VendorResponseDto("vendors-1-A", "Acme", false, null, null, null, null, null), response.Data);
         Assert.False(vendor.IsActive);
         _unitOfWork.Verify(u => u.SaveChangesAsync(token), Times.Once);
     }

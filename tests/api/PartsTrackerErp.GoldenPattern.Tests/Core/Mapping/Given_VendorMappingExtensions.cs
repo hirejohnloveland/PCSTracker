@@ -14,7 +14,7 @@ public class Given_VendorMappingExtensions
 
         VendorResponseDto response = vendor.ToResponseDto();
 
-        Assert.Equal(new VendorResponseDto("vendors-1-A", "Acme", true, null), response);
+        Assert.Equal(new VendorResponseDto("vendors-1-A", "Acme", true, null, null, null, null, null), response);
     }
 
     [Fact]
@@ -25,7 +25,7 @@ public class Given_VendorMappingExtensions
 
         VendorResponseDto response = vendor.ToResponseDto();
 
-        Assert.Equal(new VendorResponseDto("vendors-1-A", "Acme", false, null), response);
+        Assert.Equal(new VendorResponseDto("vendors-1-A", "Acme", false, null, null, null, null, null), response);
     }
 
     [Fact]
@@ -35,7 +35,17 @@ public class Given_VendorMappingExtensions
 
         VendorResponseDto response = vendor.ToResponseDto();
 
-        Assert.Equal(new VendorResponseDto("vendors-1-A", "Acme", true, "qb-42"), response);
+        Assert.Equal(new VendorResponseDto("vendors-1-A", "Acme", true, "qb-42", null, null, null, null), response);
+    }
+
+    [Fact]
+    public void ToResponseDto_CopiesTheDescriptionContactPhoneAndNotes()
+    {
+        Vendor vendor = Vendor.Create("Acme", "Parts", "Pat", "555-0100", "Net 30").WithId("vendors-1-A");
+
+        VendorResponseDto response = vendor.ToResponseDto();
+
+        Assert.Equal(new VendorResponseDto("vendors-1-A", "Acme", true, null, "Parts", "Pat", "555-0100", "Net 30"), response);
     }
 
     [Fact]

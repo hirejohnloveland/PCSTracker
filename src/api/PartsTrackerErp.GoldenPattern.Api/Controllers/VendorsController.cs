@@ -23,7 +23,7 @@ public class VendorsController(IVendorsApplicationService vendorsApplicationServ
             return InvalidRequest(validation);
         }
 
-        ServiceResponse<VendorResponseDto> response = await vendorsApplicationService.AddAsync(request.Name, cancellationToken);
+        ServiceResponse<VendorResponseDto> response = await vendorsApplicationService.AddAsync(request, cancellationToken);
         return ToCreatedResult(response);
     }
 

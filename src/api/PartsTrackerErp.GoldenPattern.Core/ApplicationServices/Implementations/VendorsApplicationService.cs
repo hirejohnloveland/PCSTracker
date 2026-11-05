@@ -12,9 +12,15 @@ public sealed class VendorsApplicationService(
     IVendorRepository vendorRepository,
     IUnitOfWork unitOfWork) : IVendorsApplicationService
 {
-    public async Task<ServiceResponse<VendorResponseDto>> AddAsync(string name, CancellationToken cancellationToken = default)
+    public async Task<ServiceResponse<VendorResponseDto>> AddAsync(CreateVendorDto request, CancellationToken cancellationToken = default)
     {
-        var vendor = Vendor.Create(name);
+        var vendor = Vendor.Create(
+            request.Name,
+            request.Description,
+            request.Contact,
+            request.Phone,
+            request.Notes,
+            request.QuickbooksId);
         await vendorRepository.AddAsync(vendor, cancellationToken);
         await unitOfWork.SaveChangesAsync(cancellationToken);
         return ServiceResponse<VendorResponseDto>.Succeed(vendor.ToResponseDto());

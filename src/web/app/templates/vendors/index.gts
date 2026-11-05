@@ -46,6 +46,10 @@ interface VendorsIndexSignature {
         <thead>
           <tr>
             <th>Name</th>
+            <th class="description">Description</th>
+            <th class="contact">Contact</th>
+            <th class="phone">Phone</th>
+            <th class="notes">Notes</th>
             <th class="quickbooks-id">QuickBooks Id</th>
             <th>Status</th>
           </tr>

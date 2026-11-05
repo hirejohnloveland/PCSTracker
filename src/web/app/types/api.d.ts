@@ -713,6 +713,11 @@ export interface components {
         };
         CreateVendorDto: {
             name: string;
+            description?: null | string;
+            contact?: null | string;
+            phone?: null | string;
+            notes?: null | string;
+            quickbooksId?: null | string;
         };
         /** @description The body of every successful response that carries one page of a list. */
         PagedApiResponseOfVendorResponseDto: {
@@ -774,12 +779,20 @@ export interface components {
             /** Format: double */
             balance: number;
         };
-        /** @description A vendor as the API reports it. QuickbooksId is null for a vendor that is not linked to QuickBooks. */
+        /**
+         * @description A vendor as the API reports it. QuickbooksId is null for a vendor that is not linked to QuickBooks.
+         *     Description, Contact, Phone and Notes are
+         *     null when none was provided.
+         */
         VendorResponseDto: {
             id: string;
             name: string;
             isActive: boolean;
             quickbooksId: null | string;
+            description: null | string;
+            contact: null | string;
+            phone: null | string;
+            notes: null | string;
         };
     };
     responses: never;

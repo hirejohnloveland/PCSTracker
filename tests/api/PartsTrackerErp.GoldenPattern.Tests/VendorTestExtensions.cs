@@ -16,8 +16,7 @@ internal static class VendorTestExtensions
     }
 
     /// <summary>
-    /// Gives a vendor the QuickBooks id that a vendor linked to QuickBooks has. The setter is private, and nothing in
-    /// the application sets it yet.
+    /// Gives an existing vendor a QuickBooks id. The setter is private, and only <see cref="Vendor.Create"/> sets it.
     /// </summary>
     public static Vendor WithQuickbooksId(this Vendor vendor, string quickbooksId)
     {

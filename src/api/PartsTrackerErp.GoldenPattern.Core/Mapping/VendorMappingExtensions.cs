@@ -14,6 +14,10 @@ public static class VendorMappingExtensions
             Id: id,
             Name: vendor.Name,
             IsActive: vendor.IsActive,
-            QuickbooksId: vendor.QuickbooksId);
+            QuickbooksId: vendor.QuickbooksId,
+            Description: vendor.Description,
+            Contact: vendor.Contact,
+            Phone: vendor.Phone,
+            Notes: vendor.Notes);
     }
 }

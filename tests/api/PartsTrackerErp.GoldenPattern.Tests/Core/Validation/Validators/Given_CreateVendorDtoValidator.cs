@@ -1,0 +1,171 @@
+using FluentValidation.Results;
+using PartsTrackerErp.GoldenPattern.Core.Contracts.Requests;
+using PartsTrackerErp.GoldenPattern.Core.Validation.Validators;
+
+namespace PartsTrackerErp.GoldenPattern.Tests.Core.Validation.Validators;
+
+[Trait(Constants.TestCategory, Constants.UnitTestCategory)]
+public class Given_CreateVendorDtoValidator
+{
+    private readonly CreateVendorDtoValidator _validator = new();
+
+    [Fact]
+    public async Task ValidateAsync_OnlyAName_IsValid()
+    {
+        ValidationResult result = await _validator.ValidateAsync(new CreateVendorDto { Name = "Acme" });
+
+        Assert.True(result.IsValid);
+    }
+
+    [Fact]
+    public async Task ValidateAsync_AllFieldsAtTheirLimits_IsValid()
+    {
+        var request = new CreateVendorDto
+        {
+            Name = new string('n', CreateVendorDtoValidator.NameMaxLength),
+            Description = new string('d', CreateVendorDtoValidator.DescriptionMaxLength),
+            Contact = new string('c', CreateVendorDtoValidator.ContactMaxLength),
+            Phone = "555-0100",
+            Notes = new string('o', CreateVendorDtoValidator.NotesMaxLength),
+            QuickbooksId = new string('9', CreateVendorDtoValidator.QuickbooksIdMaxLength)
+        };
+
+        ValidationResult result = await _validator.ValidateAsync(request);
+
+        Assert.True(result.IsValid);
+    }
+
+    [Theory]
+    [InlineData("")]
+    [InlineData("   ")]
+    public async Task ValidateAsync_BlankName_FailsOnName(string name)
+    {
+        ValidationResult result = await _validator.ValidateAsync(new CreateVendorDto { Name = name });
+
+        ValidationFailure failure = Assert.Single(result.Errors);
+        Assert.Equal("Name", failure.PropertyName);
+        Assert.Equal("Vendor name is required.", failure.ErrorMessage);
+    }
+
+    [Fact]
+    public async Task ValidateAsync_NameOverTheLimit_FailsOnName()
+    {
+        var request = new CreateVendorDto { Name = new string('n', CreateVendorDtoValidator.NameMaxLength + 1) };
+
+        ValidationResult result = await _validator.ValidateAsync(request);
+
+        ValidationFailure failure = Assert.Single(result.Errors);
+        Assert.Equal("Name", failure.PropertyName);
+        Assert.Equal("Vendor name must be 200 characters or fewer.", failure.ErrorMessage);
+    }
+
+    [Fact]
+    public async Task ValidateAsync_DescriptionOverTheLimit_FailsOnDescription()
+    {
+        var request = new CreateVendorDto
+        {
+            Name = "Acme",
+            Description = new string('d', CreateVendorDtoValidator.DescriptionMaxLength + 1)
+        };
+
+        ValidationResult result = await _validator.ValidateAsync(request);
+
+        ValidationFailure failure = Assert.Single(result.Errors);
+        Assert.Equal("Description", failure.PropertyName);
+        Assert.Equal("Description must be 500 characters or fewer.", failure.ErrorMessage);
+    }
+
+    [Fact]
+    public async Task ValidateAsync_ContactOverTheLimit_FailsOnContact()
+    {
+        var request = new CreateVendorDto
+        {
+            Name = "Acme",
+            Contact = new string('c', CreateVendorDtoValidator.ContactMaxLength + 1)
+        };
+
+        ValidationResult result = await _validator.ValidateAsync(request);
+
+        ValidationFailure failure = Assert.Single(result.Errors);
+        Assert.Equal("Contact", failure.PropertyName);
+        Assert.Equal("Contact must be 200 characters or fewer.", failure.ErrorMessage);
+    }
+
+    [Fact]
+    public async Task ValidateAsync_NotesOverTheLimit_FailsOnNotes()
+    {
+        var request = new CreateVendorDto
+        {
+            Name = "Acme",
+            Notes = new string('o', CreateVendorDtoValidator.NotesMaxLength + 1)
+        };
+
+        ValidationResult result = await _validator.ValidateAsync(request);
+
+        ValidationFailure failure = Assert.Single(result.Errors);
+        Assert.Equal("Notes", failure.PropertyName);
+        Assert.Equal("Notes must be 4000 characters or fewer.", failure.ErrorMessage);
+    }
+
+    [Fact]
+    public async Task ValidateAsync_QuickbooksIdOverTheLimit_FailsOnQuickbooksId()
+    {
+        var request = new CreateVendorDto
+        {
+            Name = "Acme",
+            QuickbooksId = new string('9', CreateVendorDtoValidator.QuickbooksIdMaxLength + 1)
+        };
+
+        ValidationResult result = await _validator.ValidateAsync(request);
+
+        ValidationFailure failure = Assert.Single(result.Errors);
+        Assert.Equal("QuickbooksId", failure.PropertyName);
+        Assert.Equal("QuickBooks Id must be 50 characters or fewer.", failure.ErrorMessage);
+    }
+
+    [Theory]
+    [InlineData(null)]
+    [InlineData("")]
+    [InlineData("   ")]
+    [InlineData("5550100")]
+    [InlineData("555-0100")]
+    [InlineData("(631) 555-0100")]
+    [InlineData("631.555.0100")]
+    [InlineData("+1 631 555 0100")]
+    [InlineData("631-555-0100 x123")]
+    [InlineData("631-555-0100 ext. 123")]
+    public async Task ValidateAsync_AcceptablePhone_IsValid(string? phone)
+    {
+        ValidationResult result = await _validator.ValidateAsync(new CreateVendorDto { Name = "Acme", Phone = phone });
+
+        Assert.True(result.IsValid);
+    }
+
+    [Theory]
+    [InlineData("call me")]
+    [InlineData("555-CALL")]
+    [InlineData("555-0100 x")]
+    [InlineData("-5550100")]
+    [InlineData("555-0100; DROP")]
+    public async Task ValidateAsync_PhoneWithUnacceptableCharacters_FailsOnPhone(string phone)
+    {
+        ValidationResult result = await _validator.ValidateAsync(new CreateVendorDto { Name = "Acme", Phone = phone });
+
+        ValidationFailure failure = Assert.Single(result.Errors);
+        Assert.Equal("Phone", failure.PropertyName);
+        Assert.Equal(
+            "Phone may contain only digits, spaces, + - ( ) . and an optional extension such as x123.",
+            failure.ErrorMessage);
+    }
+
+    [Fact]
+    public async Task ValidateAsync_PhoneOverTheLimit_FailsOnPhone()
+    {
+        var request = new CreateVendorDto { Name = "Acme", Phone = new string('5', CreateVendorDtoValidator.PhoneMaxLength + 1) };
+
+        ValidationResult result = await _validator.ValidateAsync(request);
+
+        Assert.Contains(result.Errors, failure =>
+            failure.PropertyName == "Phone" && failure.ErrorMessage == "Phone must be 50 characters or fewer.");
+    }
+}

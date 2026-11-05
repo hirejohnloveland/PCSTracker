@@ -858,6 +858,36 @@
         "properties": {
           "name": {
             "type": "string"
+          },
+          "description": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "contact": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "phone": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "notes": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "quickbooksId": {
+            "type": [
+              "null",
+              "string"
+            ]
           }
         }
       },
@@ -996,7 +1026,11 @@
           "id",
           "name",
           "isActive",
-          "quickbooksId"
+          "quickbooksId",
+          "description",
+          "contact",
+          "phone",
+          "notes"
         ],
         "type": "object",
         "properties": {
@@ -1014,9 +1048,33 @@
               "null",
               "string"
             ]
+          },
+          "description": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "contact": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "phone": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "notes": {
+            "type": [
+              "null",
+              "string"
+            ]
           }
         },
-        "description": "A vendor as the API reports it. QuickbooksId is null for a vendor that is not linked to QuickBooks."
+        "description": "A vendor as the API reports it. QuickbooksId is null for a vendor that is not linked to QuickBooks.\nDescription, Contact, Phone and Notes are\nnull when none was provided."
       }
     }
   },

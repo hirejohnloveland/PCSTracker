@@ -1,5 +1,13 @@
 import Service from '@ember/service';
-import { click, currentURL, fillIn, visit } from '@ember/test-helpers';
+import {
+  click,
+  currentURL,
+  fillIn,
+  find,
+  settled,
+  triggerEvent,
+  visit,
+} from '@ember/test-helpers';
 import { module, test } from 'qunit';
 import { setupApplicationTest } from 'web/tests/helpers';
 import type {
@@ -17,7 +25,10 @@ const allVendors: Vendor[] = Array.from({ length: 30 }, (_, index) => ({
 }));
 
 class FakeVendorsApi extends Service {
+  static calls: ListVendorsQuery[] = [];
+
   list(query: ListVendorsQuery): Promise<VendorPage> {
+    FakeVendorsApi.calls.push(query);
     const prefix = (query.name ?? '').toLowerCase();
     const matches = allVendors.filter((vendor) =>
       vendor.name.toLowerCase().startsWith(prefix),
@@ -42,6 +53,7 @@ module('Acceptance | vendors list', function (hooks) {
   setupApplicationTest(hooks);
 
   hooks.beforeEach(function () {
+    FakeVendorsApi.calls = [];
     this.owner.register('service:vendors-api', FakeVendorsApi);
   });
 
@@ -71,12 +83,39 @@ module('Acceptance | vendors list', function (hooks) {
   test('filtering by name shows only matching vendors and returns to page 1', async function (assert) {
     await visit('/vendors?page=2');
     await fillIn('#vendor-name-filter', 'acme');
-    await click('form.filter button');
 
     assert.strictEqual(currentURL(), '/vendors?name=acme');
     assert.dom('table.vendors tbody tr').exists({ count: 5 });
     assert.dom('table.vendors tbody').containsText('Acme 01');
     assert.dom('nav.pagination').containsText('Page 1 of 1');
+  });
+
+  test('typing quickly sends one request for the final text', async function (assert) {
+    await visit('/vendors');
+    const input = find('#vendor-name-filter') as HTMLInputElement;
+
+    for (const text of ['a', 'ac', 'acm']) {
+      input.value = text;
+      input.dispatchEvent(new Event('input', { bubbles: true }));
+    }
+    await settled();
+
+    assert.strictEqual(currentURL(), '/vendors?name=acm');
+    assert.deepEqual(
+      FakeVendorsApi.calls.map((query) => query.name),
+      ['', 'acm'],
+    );
+  });
+
+  test('pressing Enter applies the filter', async function (assert) {
+    await visit('/vendors');
+    const input = find('#vendor-name-filter') as HTMLInputElement;
+    input.value = 'acme';
+
+    await triggerEvent('form.filter', 'submit');
+
+    assert.strictEqual(currentURL(), '/vendors?name=acme');
+    assert.dom('table.vendors tbody tr').exists({ count: 5 });
   });
 
   test('a filter with no matches says so', async function (assert) {

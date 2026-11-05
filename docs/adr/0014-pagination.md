@@ -23,6 +23,7 @@ A list endpoint can match more items than a caller wants at once, and the caller
 ## Front end
 
 - A list screen keeps `page` and its filters in the URL as query parameters, so a page can be linked to and survives a refresh. The route sets `refreshModel` on each, and the controller declares them with defaults of `1` and an empty filter.
+- A text filter applies as the user types, 300 ms after the last keystroke, using `debounceTask` from `ember-lifeline`. Pressing Enter applies it at once. The filter's URL change replaces the current history entry, so Back leaves the list instead of stepping through typed values.
 - Changing a filter resets `page` to 1.
 - The screen does not send `pageSize`, so the API's default applies.
 - The `pagination-controls` component takes `page` and `totalPages` from the response's `pagination`. It shows Previous and Next as links that change only `page`, and as plain disabled text on the first and last page. It shows nothing when `totalPages` is 0.

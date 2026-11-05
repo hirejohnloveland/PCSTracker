@@ -11,7 +11,7 @@ export default class VendorsIndexRoute extends Route {
   @service declare vendorsApi: VendorsApiService;
 
   queryParams = {
-    name: { refreshModel: true },
+    name: { refreshModel: true, replace: true },
     page: { refreshModel: true },
   };
 

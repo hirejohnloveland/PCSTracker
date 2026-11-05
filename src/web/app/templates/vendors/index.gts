@@ -16,15 +16,15 @@ interface VendorsIndexSignature {
   {{pageTitle "Vendors"}}
   <h1>Vendors</h1>
 
-  <form class="filter" {{on "submit" @controller.applyFilter}}>
+  <form class="filter" {{on "submit" @controller.filterNow}}>
     <label for="vendor-name-filter">Name</label>
     <input
       id="vendor-name-filter"
       name="name"
       type="search"
       value={{@controller.name}}
+      {{on "input" @controller.filterAsYouType}}
     />
-    <button type="submit">Filter</button>
   </form>
 
   {{#if @model.data.length}}

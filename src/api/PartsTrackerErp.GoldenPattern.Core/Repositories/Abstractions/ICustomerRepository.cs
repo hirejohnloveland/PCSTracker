@@ -17,5 +17,10 @@ public interface ICustomerRepository
         int pageSize,
         CancellationToken cancellationToken = default);
 
+    /// <summary>
+    /// Whether a customer has exactly this name, matching case.
+    /// </summary>
+    Task<bool> ExistsByNameAsync(string name, CancellationToken cancellationToken = default);
+
     Task AddAsync(Customer customer, CancellationToken cancellationToken = default);
 }

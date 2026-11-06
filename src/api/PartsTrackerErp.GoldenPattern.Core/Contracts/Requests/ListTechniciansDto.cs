@@ -7,4 +7,9 @@ public sealed class ListTechniciansDto : PagedRequestDto
     /// words of the name, so "ost" finds "Bob Osborne". Null or blank lists every technician.
     /// </summary>
     public string? Name { get; set; }
+
+    /// <summary>
+    /// True lists only active technicians and false lists only inactive ones. Null lists both.
+    /// </summary>
+    public bool? Active { get; set; }
 }

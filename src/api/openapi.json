@@ -710,6 +710,559 @@
         }
       }
     },
+    "/refrigerant-log": {
+      "post": {
+        "tags": [
+          "RefrigerantLog"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RefrigerantLogEntryDto"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RefrigerantLogEntryDto"
+              }
+            },
+            "application/*\u002Bjson": {
+              "schema": {
+                "$ref": "#/components/schemas/RefrigerantLogEntryDto"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiProblemDetails"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiProblemDetails"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiProblemDetails"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiProblemDetails"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflict",
+            "content": {
+              "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiProblemDetails"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiProblemDetails"
+                }
+              }
+            }
+          },
+          "201": {
+            "description": "Created",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseOfRefrigerantLogEntryResponseDto"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseOfRefrigerantLogEntryResponseDto"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseOfRefrigerantLogEntryResponseDto"
+                }
+              }
+            }
+          }
+        }
+      },
+      "get": {
+        "tags": [
+          "RefrigerantLog"
+        ],
+        "parameters": [
+          {
+            "name": "dateFrom",
+            "in": "query",
+            "description": "Lists only entries dated on or after this date. Null lists entries from any date.",
+            "schema": {
+              "type": "string",
+              "format": "date"
+            }
+          },
+          {
+            "name": "dateTo",
+            "in": "query",
+            "description": "Lists only entries dated on or before this date. Null lists entries up to any date.",
+            "schema": {
+              "type": "string",
+              "format": "date"
+            }
+          },
+          {
+            "name": "technician",
+            "in": "query",
+            "description": "Lists only entries logged for the technician with exactly this name. Null or blank lists every technician.",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "customer",
+            "in": "query",
+            "description": "Lists only entries whose customer name contains every word of this text, ignoring case. A word matches inside the\nwords of the name. Null or blank lists every customer.",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "page",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          {
+            "name": "pageSize",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiProblemDetails"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiProblemDetails"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiProblemDetails"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiProblemDetails"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflict",
+            "content": {
+              "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiProblemDetails"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiProblemDetails"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/PagedApiResponseOfRefrigerantLogEntryResponseDto"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PagedApiResponseOfRefrigerantLogEntryResponseDto"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PagedApiResponseOfRefrigerantLogEntryResponseDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/refrigerant-log/refrigerants": {
+      "get": {
+        "tags": [
+          "RefrigerantLog"
+        ],
+        "responses": {
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiProblemDetails"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiProblemDetails"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiProblemDetails"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiProblemDetails"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflict",
+            "content": {
+              "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiProblemDetails"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiProblemDetails"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseOfRefrigerantTypesResponseDto"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseOfRefrigerantTypesResponseDto"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseOfRefrigerantTypesResponseDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/refrigerant-log/{id}": {
+      "get": {
+        "tags": [
+          "RefrigerantLog"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiProblemDetails"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiProblemDetails"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiProblemDetails"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiProblemDetails"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflict",
+            "content": {
+              "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiProblemDetails"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiProblemDetails"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseOfRefrigerantLogEntryResponseDto"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseOfRefrigerantLogEntryResponseDto"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseOfRefrigerantLogEntryResponseDto"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "RefrigerantLog"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RefrigerantLogEntryDto"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RefrigerantLogEntryDto"
+              }
+            },
+            "application/*\u002Bjson": {
+              "schema": {
+                "$ref": "#/components/schemas/RefrigerantLogEntryDto"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiProblemDetails"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiProblemDetails"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiProblemDetails"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiProblemDetails"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflict",
+            "content": {
+              "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiProblemDetails"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiProblemDetails"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseOfRefrigerantLogEntryResponseDto"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseOfRefrigerantLogEntryResponseDto"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseOfRefrigerantLogEntryResponseDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/technicians": {
       "post": {
         "tags": [
@@ -829,6 +1382,14 @@
             "description": "Lists only technicians whose full name contains every word of this text, ignoring case. A word matches inside the\nwords of the name, so \u0022ost\u0022 finds \u0022Bob Osborne\u0022. Null or blank lists every technician.",
             "schema": {
               "type": "string"
+            }
+          },
+          {
+            "name": "active",
+            "in": "query",
+            "description": "True lists only active technicians and false lists only inactive ones. Null lists both.",
+            "schema": {
+              "type": "boolean"
             }
           },
           {
@@ -1894,6 +2455,42 @@
         },
         "description": "The body of a successful response that carries one result. A response that carries a page of a list is a\nPagedApiResponse\u0026lt;T\u0026gt;."
       },
+      "ApiResponseOfRefrigerantLogEntryResponseDto": {
+        "required": [
+          "data",
+          "metadata"
+        ],
+        "type": "object",
+        "properties": {
+          "data": {
+            "description": "The result of the use case.",
+            "$ref": "#/components/schemas/RefrigerantLogEntryResponseDto"
+          },
+          "metadata": {
+            "description": "Describes the response.",
+            "$ref": "#/components/schemas/ApiResponseMetadata"
+          }
+        },
+        "description": "The body of a successful response that carries one result. A response that carries a page of a list is a\nPagedApiResponse\u0026lt;T\u0026gt;."
+      },
+      "ApiResponseOfRefrigerantTypesResponseDto": {
+        "required": [
+          "data",
+          "metadata"
+        ],
+        "type": "object",
+        "properties": {
+          "data": {
+            "description": "The result of the use case.",
+            "$ref": "#/components/schemas/RefrigerantTypesResponseDto"
+          },
+          "metadata": {
+            "description": "Describes the response.",
+            "$ref": "#/components/schemas/ApiResponseMetadata"
+          }
+        },
+        "description": "The body of a successful response that carries one result. A response that carries a page of a list is a\nPagedApiResponse\u0026lt;T\u0026gt;."
+      },
       "ApiResponseOfTechnicianResponseDto": {
         "required": [
           "data",
@@ -2085,6 +2682,32 @@
         },
         "description": "The body of every successful response that carries one page of a list."
       },
+      "PagedApiResponseOfRefrigerantLogEntryResponseDto": {
+        "required": [
+          "data",
+          "pagination",
+          "metadata"
+        ],
+        "type": "object",
+        "properties": {
+          "data": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/RefrigerantLogEntryResponseDto"
+            },
+            "description": "The items on the page."
+          },
+          "pagination": {
+            "description": "Where the page sits in the whole list.",
+            "$ref": "#/components/schemas/PaginationMetadata"
+          },
+          "metadata": {
+            "description": "Describes the response.",
+            "$ref": "#/components/schemas/ApiResponseMetadata"
+          }
+        },
+        "description": "The body of every successful response that carries one page of a list."
+      },
       "PagedApiResponseOfTechnicianResponseDto": {
         "required": [
           "data",
@@ -2207,6 +2830,137 @@
           }
         },
         "description": "The outcome of a vendor sync with QuickBooks."
+      },
+      "RefrigerantLogEntryDto": {
+        "required": [
+          "date",
+          "technician",
+          "refrigerantType",
+          "amountLbs",
+          "notes"
+        ],
+        "type": "object",
+        "properties": {
+          "date": {
+            "type": "string",
+            "format": "date"
+          },
+          "technician": {
+            "type": "string"
+          },
+          "refrigerantType": {
+            "type": "string"
+          },
+          "amountLbs": {
+            "type": "number",
+            "format": "double"
+          },
+          "notes": {
+            "type": "string"
+          },
+          "ticketNumber": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "jobName": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "customer": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "vendorInvoiceRef": {
+            "type": [
+              "null",
+              "string"
+            ]
+          }
+        },
+        "description": "The details of a refrigerant log entry, supplied to create one or to replace the details of an existing one. The date,\ntechnician, refrigerant type, amount and notes are required. The technician must be the full name of an existing\ntechnician, the refrigerant type must be one of the configured refrigerant types, and the amount must be greater than\nzero. A ticket number, job name, customer or vendor invoice ref that is left out or blank is stored as none. A\ncustomer that is given must be the name of an existing customer."
+      },
+      "RefrigerantLogEntryResponseDto": {
+        "required": [
+          "id",
+          "date",
+          "technician",
+          "refrigerantType",
+          "amountLbs",
+          "notes",
+          "ticketNumber",
+          "jobName",
+          "customer",
+          "vendorInvoiceRef"
+        ],
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "date": {
+            "type": "string",
+            "format": "date"
+          },
+          "technician": {
+            "type": "string"
+          },
+          "refrigerantType": {
+            "type": "string"
+          },
+          "amountLbs": {
+            "type": "number",
+            "format": "double"
+          },
+          "notes": {
+            "type": "string"
+          },
+          "ticketNumber": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "jobName": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "customer": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "vendorInvoiceRef": {
+            "type": [
+              "null",
+              "string"
+            ]
+          }
+        },
+        "description": "A refrigerant log entry as the API reports it. TicketNumber, JobName,\nCustomer and VendorInvoiceRef are null when none was provided."
+      },
+      "RefrigerantTypesResponseDto": {
+        "required": [
+          "refrigerants"
+        ],
+        "type": "object",
+        "properties": {
+          "refrigerants": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        },
+        "description": "The refrigerant types a log entry can use, as configured in the refrigerant settings."
       },
       "TechnicianDto": {
         "required": [
@@ -2439,6 +3193,9 @@
     },
     {
       "name": "Quickbooks"
+    },
+    {
+      "name": "RefrigerantLog"
     },
     {
       "name": "Technicians"

@@ -17,6 +17,7 @@ public sealed class TechnicianRepository(IAsyncDocumentSession session) : ITechn
 
     public async Task<PagedResult<Technician>> ListAsync(
         string? nameSearch,
+        bool? active,
         int page,
         int pageSize,
         CancellationToken cancellationToken = default)
@@ -32,6 +33,12 @@ public sealed class TechnicianRepository(IAsyncDocumentSession session) : ITechn
             query = query.Search(technician => technician.FullName, terms, @operator: SearchOperator.And);
         }
 
+        if (active is not null)
+        {
+            bool isActive = active.Value;
+            query = query.Where(technician => technician.Active == isActive);
+        }
+
         List<Technician> technicians = await query
             .OrderBy(technician => technician.FullName)
             .ThenBy(technician => technician.Id)
@@ -40,6 +47,14 @@ public sealed class TechnicianRepository(IAsyncDocumentSession session) : ITechn
             .ToListAsync(cancellationToken);
 
         return new PagedResult<Technician>(technicians, (int)statistics.TotalResults);
+    }
+
+    public async Task<bool> ExistsByNameAsync(string fullName, CancellationToken cancellationToken = default)
+    {
+        // Exact makes the comparison case-sensitive, where RavenDB compares text without regard to case by default.
+        return await session.Query<Technician>()
+            .Where(technician => technician.FullName == fullName, exact: true)
+            .AnyAsync(cancellationToken);
     }
 
     public Task AddAsync(Technician technician, CancellationToken cancellationToken = default)

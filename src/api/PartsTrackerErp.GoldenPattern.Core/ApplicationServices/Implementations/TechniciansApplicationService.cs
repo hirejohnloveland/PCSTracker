@@ -69,6 +69,7 @@ public sealed class TechniciansApplicationService(
     {
         PagedResult<Technician> technicians = await technicianRepository.ListAsync(
             nameSearch: request.Name?.Trim(),
+            active: request.Active,
             page: request.Page,
             pageSize: request.PageSize,
             cancellationToken: cancellationToken);

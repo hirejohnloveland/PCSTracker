@@ -769,6 +769,18 @@ public class Given_ApiFailureBehavior
     }
 
     [Fact]
+    public async Task RefrigerantLog_List_AnswersWithTheDataPaginationAndMetadata()
+    {
+        HttpResponseMessage response = await _client.GetAsync("/refrigerant-log");
+
+        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+        JsonElement body = await ReadJsonAsync(response);
+        Assert.Equal(["data", "metadata", "pagination"], PropertyNames(body));
+        Assert.Empty(body.GetProperty("data").EnumerateArray());
+        Assert.Equal(["page", "pageSize", "totalCount", "totalPages"], PropertyNames(body.GetProperty("pagination")));
+    }
+
+    [Fact]
     public async Task Technicians_ListWithPagingOutOfRange_Returns400WithAPointerForEachParameter()
     {
         JsonElement problem = await ReadProblemAsync(

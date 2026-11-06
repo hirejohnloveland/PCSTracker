@@ -150,8 +150,18 @@ public class Given_TechniciansApplicationService
             token);
 
         Assert.True(response.Success);
-        _repository.Verify(r => r.ListAsync("Bob", 3, 10, token), Times.Once);
+        _repository.Verify(r => r.ListAsync("Bob", null, 3, 10, token), Times.Once);
         _unitOfWork.Verify(u => u.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Never);
+    }
+
+    [Fact]
+    public async Task ListAsync_ActiveFilter_PassesItToTheRepository()
+    {
+        SetupList(new PagedResult<Technician>([], 0));
+
+        await _service.ListAsync(new ListTechniciansDto { Active = true });
+
+        _repository.Verify(r => r.ListAsync(null, true, 1, 25, It.IsAny<CancellationToken>()), Times.Once);
     }
 
     [Fact]
@@ -161,7 +171,7 @@ public class Given_TechniciansApplicationService
 
         await _service.ListAsync(new ListTechniciansDto());
 
-        _repository.Verify(r => r.ListAsync(null, 1, 25, It.IsAny<CancellationToken>()), Times.Once);
+        _repository.Verify(r => r.ListAsync(null, null, 1, 25, It.IsAny<CancellationToken>()), Times.Once);
     }
 
     [Fact]
@@ -205,7 +215,7 @@ public class Given_TechniciansApplicationService
     private void SetupList(PagedResult<Technician> result)
     {
         _repository
-            .Setup(r => r.ListAsync(It.IsAny<string?>(), It.IsAny<int>(), It.IsAny<int>(), It.IsAny<CancellationToken>()))
+            .Setup(r => r.ListAsync(It.IsAny<string?>(), It.IsAny<bool?>(), It.IsAny<int>(), It.IsAny<int>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(result);
     }
 

@@ -42,6 +42,14 @@ public sealed class CustomerRepository(IAsyncDocumentSession session) : ICustome
         return new PagedResult<Customer>(customers, (int)statistics.TotalResults);
     }
 
+    public async Task<bool> ExistsByNameAsync(string name, CancellationToken cancellationToken = default)
+    {
+        // Exact makes the comparison case-sensitive, where RavenDB compares text without regard to case by default.
+        return await session.Query<Customer>()
+            .Where(customer => customer.Name == name, exact: true)
+            .AnyAsync(cancellationToken);
+    }
+
     public Task AddAsync(Customer customer, CancellationToken cancellationToken = default)
     {
         return session.StoreAsync(customer, cancellationToken);

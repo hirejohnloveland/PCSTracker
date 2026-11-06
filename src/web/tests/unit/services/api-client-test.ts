@@ -44,6 +44,18 @@ module('Unit | Service | api-client', function (hooks) {
     assert.strictEqual(requests[0]?.init?.method, 'GET');
   });
 
+  test('get sends a boolean query value, including false', async function (assert) {
+    stubFetch(Response.json({ data: [] }));
+    const client = this.owner.lookup('service:api-client') as ApiClientService;
+
+    await client.getJson('/technicians', { active: false, pageSize: 100 });
+
+    assert.strictEqual(
+      requests[0]?.url,
+      '/api/technicians?active=false&pageSize=100',
+    );
+  });
+
   test('post sends the body as JSON', async function (assert) {
     stubFetch(Response.json({ data: { id: 'vendors/1-A' } }, { status: 201 }));
     const client = this.owner.lookup('service:api-client') as ApiClientService;

@@ -633,6 +633,459 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/refrigerant-log": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: {
+            parameters: {
+                query?: {
+                    /** @description Lists only entries dated on or after this date. Null lists entries from any date. */
+                    dateFrom?: string;
+                    /** @description Lists only entries dated on or before this date. Null lists entries up to any date. */
+                    dateTo?: string;
+                    /** @description Lists only entries logged for the technician with exactly this name. Null or blank lists every technician. */
+                    technician?: string;
+                    /**
+                     * @description Lists only entries whose customer name contains every word of this text, ignoring case. A word matches inside the
+                     *     words of the name. Null or blank lists every customer.
+                     */
+                    customer?: string;
+                    page?: number;
+                    pageSize?: number;
+                };
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["PagedApiResponseOfRefrigerantLogEntryResponseDto"];
+                        "application/json": components["schemas"]["PagedApiResponseOfRefrigerantLogEntryResponseDto"];
+                        "text/json": components["schemas"]["PagedApiResponseOfRefrigerantLogEntryResponseDto"];
+                    };
+                };
+                /** @description Bad Request */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ApiProblemDetails"];
+                    };
+                };
+                /** @description Unauthorized */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ApiProblemDetails"];
+                    };
+                };
+                /** @description Forbidden */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ApiProblemDetails"];
+                    };
+                };
+                /** @description Not Found */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ApiProblemDetails"];
+                    };
+                };
+                /** @description Conflict */
+                409: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ApiProblemDetails"];
+                    };
+                };
+                /** @description Internal Server Error */
+                500: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ApiProblemDetails"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": components["schemas"]["RefrigerantLogEntryDto"];
+                    "text/json": components["schemas"]["RefrigerantLogEntryDto"];
+                    "application/*+json": components["schemas"]["RefrigerantLogEntryDto"];
+                };
+            };
+            responses: {
+                /** @description Created */
+                201: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["ApiResponseOfRefrigerantLogEntryResponseDto"];
+                        "application/json": components["schemas"]["ApiResponseOfRefrigerantLogEntryResponseDto"];
+                        "text/json": components["schemas"]["ApiResponseOfRefrigerantLogEntryResponseDto"];
+                    };
+                };
+                /** @description Bad Request */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ApiProblemDetails"];
+                    };
+                };
+                /** @description Unauthorized */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ApiProblemDetails"];
+                    };
+                };
+                /** @description Forbidden */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ApiProblemDetails"];
+                    };
+                };
+                /** @description Not Found */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ApiProblemDetails"];
+                    };
+                };
+                /** @description Conflict */
+                409: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ApiProblemDetails"];
+                    };
+                };
+                /** @description Internal Server Error */
+                500: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ApiProblemDetails"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/refrigerant-log/refrigerants": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["ApiResponseOfRefrigerantTypesResponseDto"];
+                        "application/json": components["schemas"]["ApiResponseOfRefrigerantTypesResponseDto"];
+                        "text/json": components["schemas"]["ApiResponseOfRefrigerantTypesResponseDto"];
+                    };
+                };
+                /** @description Bad Request */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ApiProblemDetails"];
+                    };
+                };
+                /** @description Unauthorized */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ApiProblemDetails"];
+                    };
+                };
+                /** @description Forbidden */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ApiProblemDetails"];
+                    };
+                };
+                /** @description Not Found */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ApiProblemDetails"];
+                    };
+                };
+                /** @description Conflict */
+                409: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ApiProblemDetails"];
+                    };
+                };
+                /** @description Internal Server Error */
+                500: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ApiProblemDetails"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/refrigerant-log/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["ApiResponseOfRefrigerantLogEntryResponseDto"];
+                        "application/json": components["schemas"]["ApiResponseOfRefrigerantLogEntryResponseDto"];
+                        "text/json": components["schemas"]["ApiResponseOfRefrigerantLogEntryResponseDto"];
+                    };
+                };
+                /** @description Bad Request */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ApiProblemDetails"];
+                    };
+                };
+                /** @description Unauthorized */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ApiProblemDetails"];
+                    };
+                };
+                /** @description Forbidden */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ApiProblemDetails"];
+                    };
+                };
+                /** @description Not Found */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ApiProblemDetails"];
+                    };
+                };
+                /** @description Conflict */
+                409: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ApiProblemDetails"];
+                    };
+                };
+                /** @description Internal Server Error */
+                500: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ApiProblemDetails"];
+                    };
+                };
+            };
+        };
+        put: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": components["schemas"]["RefrigerantLogEntryDto"];
+                    "text/json": components["schemas"]["RefrigerantLogEntryDto"];
+                    "application/*+json": components["schemas"]["RefrigerantLogEntryDto"];
+                };
+            };
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["ApiResponseOfRefrigerantLogEntryResponseDto"];
+                        "application/json": components["schemas"]["ApiResponseOfRefrigerantLogEntryResponseDto"];
+                        "text/json": components["schemas"]["ApiResponseOfRefrigerantLogEntryResponseDto"];
+                    };
+                };
+                /** @description Bad Request */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ApiProblemDetails"];
+                    };
+                };
+                /** @description Unauthorized */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ApiProblemDetails"];
+                    };
+                };
+                /** @description Forbidden */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ApiProblemDetails"];
+                    };
+                };
+                /** @description Not Found */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ApiProblemDetails"];
+                    };
+                };
+                /** @description Conflict */
+                409: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ApiProblemDetails"];
+                    };
+                };
+                /** @description Internal Server Error */
+                500: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ApiProblemDetails"];
+                    };
+                };
+            };
+        };
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/technicians": {
         parameters: {
             query?: never;
@@ -648,6 +1101,8 @@ export interface paths {
                      *     words of the name, so "ost" finds "Bob Osborne". Null or blank lists every technician.
                      */
                     name?: string;
+                    /** @description True lists only active technicians and false lists only inactive ones. Null lists both. */
+                    active?: boolean;
                     page?: number;
                     pageSize?: number;
                 };
@@ -1587,6 +2042,26 @@ export interface components {
          * @description The body of a successful response that carries one result. A response that carries a page of a list is a
          *     PagedApiResponse&lt;T&gt;.
          */
+        ApiResponseOfRefrigerantLogEntryResponseDto: {
+            /** @description The result of the use case. */
+            data: components["schemas"]["RefrigerantLogEntryResponseDto"];
+            /** @description Describes the response. */
+            metadata: components["schemas"]["ApiResponseMetadata"];
+        };
+        /**
+         * @description The body of a successful response that carries one result. A response that carries a page of a list is a
+         *     PagedApiResponse&lt;T&gt;.
+         */
+        ApiResponseOfRefrigerantTypesResponseDto: {
+            /** @description The result of the use case. */
+            data: components["schemas"]["RefrigerantTypesResponseDto"];
+            /** @description Describes the response. */
+            metadata: components["schemas"]["ApiResponseMetadata"];
+        };
+        /**
+         * @description The body of a successful response that carries one result. A response that carries a page of a list is a
+         *     PagedApiResponse&lt;T&gt;.
+         */
         ApiResponseOfTechnicianResponseDto: {
             /** @description The result of the use case. */
             data: components["schemas"]["TechnicianResponseDto"];
@@ -1659,6 +2134,15 @@ export interface components {
             metadata: components["schemas"]["ApiResponseMetadata"];
         };
         /** @description The body of every successful response that carries one page of a list. */
+        PagedApiResponseOfRefrigerantLogEntryResponseDto: {
+            /** @description The items on the page. */
+            data: components["schemas"]["RefrigerantLogEntryResponseDto"][];
+            /** @description Where the page sits in the whole list. */
+            pagination: components["schemas"]["PaginationMetadata"];
+            /** @description Describes the response. */
+            metadata: components["schemas"]["ApiResponseMetadata"];
+        };
+        /** @description The body of every successful response that carries one page of a list. */
         PagedApiResponseOfTechnicianResponseDto: {
             /** @description The items on the page. */
             data: components["schemas"]["TechnicianResponseDto"][];
@@ -1715,6 +2199,48 @@ export interface components {
         QuickbooksSyncResponseDto: {
             /** Format: int32 */
             vendorsSynced: number;
+        };
+        /**
+         * @description The details of a refrigerant log entry, supplied to create one or to replace the details of an existing one. The date,
+         *     technician, refrigerant type, amount and notes are required. The technician must be the full name of an existing
+         *     technician, the refrigerant type must be one of the configured refrigerant types, and the amount must be greater than
+         *     zero. A ticket number, job name, customer or vendor invoice ref that is left out or blank is stored as none. A
+         *     customer that is given must be the name of an existing customer.
+         */
+        RefrigerantLogEntryDto: {
+            /** Format: date */
+            date: string;
+            technician: string;
+            refrigerantType: string;
+            /** Format: double */
+            amountLbs: number;
+            notes: string;
+            ticketNumber?: null | string;
+            jobName?: null | string;
+            customer?: null | string;
+            vendorInvoiceRef?: null | string;
+        };
+        /**
+         * @description A refrigerant log entry as the API reports it. TicketNumber, JobName,
+         *     Customer and VendorInvoiceRef are null when none was provided.
+         */
+        RefrigerantLogEntryResponseDto: {
+            id: string;
+            /** Format: date */
+            date: string;
+            technician: string;
+            refrigerantType: string;
+            /** Format: double */
+            amountLbs: number;
+            notes: string;
+            ticketNumber: null | string;
+            jobName: null | string;
+            customer: null | string;
+            vendorInvoiceRef: null | string;
+        };
+        /** @description The refrigerant types a log entry can use, as configured in the refrigerant settings. */
+        RefrigerantTypesResponseDto: {
+            refrigerants: string[];
         };
         /**
          * @description The details of a technician, supplied to create one or to replace the details of an existing one. A phone, notes or

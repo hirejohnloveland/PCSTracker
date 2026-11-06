@@ -26,11 +26,13 @@ public sealed class ApiFactory : WebApplicationFactory<Program>
             services.RemoveAll<IVendorRepository>();
             services.RemoveAll<ICustomerRepository>();
             services.RemoveAll<ITechnicianRepository>();
+            services.RemoveAll<IRefrigerantLogRepository>();
             services.RemoveAll<ISettingsRepository>();
             services.RemoveAll<IUnitOfWork>();
             services.AddScoped<IVendorRepository, EmptyVendorRepository>();
             services.AddScoped<ICustomerRepository, EmptyCustomerRepository>();
             services.AddScoped<ITechnicianRepository, EmptyTechnicianRepository>();
+            services.AddScoped<IRefrigerantLogRepository, EmptyRefrigerantLogRepository>();
             services.AddScoped<ISettingsRepository, DefaultSettingsRepository>();
             services.AddScoped<IUnitOfWork, NoOpUnitOfWork>();
 
@@ -80,9 +82,41 @@ public sealed class ApiFactory : WebApplicationFactory<Program>
             return Task.FromResult(new PagedResult<Customer>([], 0));
         }
 
+        public Task<bool> ExistsByNameAsync(string name, CancellationToken cancellationToken = default)
+        {
+            return Task.FromResult(false);
+        }
+
         public Task AddAsync(Customer customer, CancellationToken cancellationToken = default)
         {
             customer.WithId("customers-1-A");
+
+            return Task.CompletedTask;
+        }
+    }
+
+    private sealed class EmptyRefrigerantLogRepository : IRefrigerantLogRepository
+    {
+        public Task<RefrigerantLogEntry?> GetAsync(string id, CancellationToken cancellationToken = default)
+        {
+            return Task.FromResult<RefrigerantLogEntry?>(null);
+        }
+
+        public Task<PagedResult<RefrigerantLogEntry>> ListAsync(
+            DateOnly? dateFrom,
+            DateOnly? dateTo,
+            string? technician,
+            string? customerSearch,
+            int page,
+            int pageSize,
+            CancellationToken cancellationToken = default)
+        {
+            return Task.FromResult(new PagedResult<RefrigerantLogEntry>([], 0));
+        }
+
+        public Task AddAsync(RefrigerantLogEntry entry, CancellationToken cancellationToken = default)
+        {
+            entry.WithId("refrigerantlogentries/1-A");
 
             return Task.CompletedTask;
         }
@@ -97,11 +131,17 @@ public sealed class ApiFactory : WebApplicationFactory<Program>
 
         public Task<PagedResult<Technician>> ListAsync(
             string? nameSearch,
+            bool? active,
             int page,
             int pageSize,
             CancellationToken cancellationToken = default)
         {
             return Task.FromResult(new PagedResult<Technician>([], 0));
+        }
+
+        public Task<bool> ExistsByNameAsync(string fullName, CancellationToken cancellationToken = default)
+        {
+            return Task.FromResult(false);
         }
 
         public Task AddAsync(Technician technician, CancellationToken cancellationToken = default)

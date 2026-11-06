@@ -16,4 +16,8 @@ Router.map(function () {
   this.route('technicians', function () {
     this.route('details', { path: '/:technician_id' });
   });
+  this.route('refrigerant-log', function () {
+    this.route('new');
+    this.route('details', { path: '/:entry_id' });
+  });
 });

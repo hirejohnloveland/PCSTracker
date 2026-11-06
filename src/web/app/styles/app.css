@@ -141,9 +141,20 @@ body {
   flex: 1 1 12rem;
 }
 
+.filter-field {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.filter-field-grow {
+  flex: 1 1 16rem;
+}
+
 .vendors-table-wrap,
 .customers-table-wrap,
-.technicians-table-wrap {
+.technicians-table-wrap,
+.refrigerant-log-table-wrap {
   width: 100%;
   overflow-x: auto;
   -webkit-overflow-scrolling: touch;
@@ -151,7 +162,8 @@ body {
 
 .vendors,
 .customers,
-.technicians {
+.technicians,
+.refrigerant-log {
   width: 100%;
   min-width: 20rem;
   border-collapse: collapse;
@@ -163,7 +175,9 @@ body {
 .customers th,
 .customers td,
 .technicians th,
-.technicians td {
+.technicians td,
+.refrigerant-log th,
+.refrigerant-log td {
   padding: 0.5rem;
   border-bottom: 1px solid #d2d6dc;
   text-align: left;
@@ -182,6 +196,22 @@ body {
   width: 6rem;
 }
 
+.refrigerant-log {
+  min-width: 48rem;
+}
+
+.refrigerant-log th.date {
+  width: 6.5rem;
+}
+
+.refrigerant-log th.amount {
+  width: 4rem;
+}
+
+.refrigerant-log th.actions {
+  width: 6rem;
+}
+
 .vendors td.description,
 .customers td.description {
   overflow: hidden;
@@ -191,7 +221,8 @@ body {
 
 .vendors .actions,
 .customers .actions,
-.technicians .actions {
+.technicians .actions,
+.refrigerant-log .actions {
   text-align: right;
 }
 
@@ -217,7 +248,8 @@ body {
 
 .vendor-details,
 .customer-details,
-.technician-details {
+.technician-details,
+.refrigerant-log-details {
   display: flex;
   flex-direction: column;
   gap: 0.5rem;
@@ -232,6 +264,11 @@ body {
 .customer-details input[type="tel"],
 .customer-details textarea,
 .technician-details input[type="text"],
+.refrigerant-log-details input[type="text"],
+.refrigerant-log-details input[type="date"],
+.refrigerant-log-details input[type="number"],
+.refrigerant-log-details select,
+.refrigerant-log-details textarea,
 .technician-details input[type="tel"],
 .technician-details select,
 .technician-details textarea {
@@ -242,7 +279,9 @@ body {
 
 .vendor-details .field-error,
 .customer-details .field-error,
-.technician-details .field-error {
+.technician-details .field-error,
+.refrigerant-log-details .field-error,
+.page > .field-error {
   margin: 0;
   color: #c53030;
   font-size: 0.875rem;

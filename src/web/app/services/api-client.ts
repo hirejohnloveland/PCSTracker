@@ -4,7 +4,7 @@ import type { components } from 'web/types/api';
 type ProblemDetails = components['schemas']['ApiProblemDetails'];
 export type ProblemError = components['schemas']['ProblemError'];
 
-export type QueryValue = string | number | undefined;
+export type QueryValue = string | number | boolean | undefined;
 
 interface ApiErrorInit {
   status: number;

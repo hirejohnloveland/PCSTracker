@@ -176,6 +176,12 @@ body {
   font: inherit;
 }
 
+.vendor-details .field-error {
+  margin: 0;
+  color: #c53030;
+  font-size: 0.875rem;
+}
+
 .form-actions {
   display: flex;
   flex-wrap: wrap;

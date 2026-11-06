@@ -14,7 +14,8 @@ The API reports every failure the same way ([ADR 0011](0011-problem-details.md))
   - 5xx and a network failure (status 0) are unexpected. The dialog is an error titled "Something went wrong".
   - Anything thrown that is not an `ApiError` is an error with the message "An unexpected error occurred."
 - The dialog shows the `traceId` as a reference for a 5xx failure, so a user can quote it to support. It is not shown for other failures.
-- This ADR does not decide how a route that fails to load, or a form that receives validation errors with a `pointer`, shows them.
+- A form validates its fields against the front end's data model, and it does not send a request while a field is invalid. The API validates again ([ADR 0005](0005-fluent-validation.md)), so a validation failure from the API means the two sides disagree, and it is shown in this dialog like any other failure.
+- This ADR does not decide how a route that fails to load shows its failure.
 
 ## Consequences
 

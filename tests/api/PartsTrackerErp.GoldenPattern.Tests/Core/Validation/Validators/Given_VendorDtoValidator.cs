@@ -25,7 +25,7 @@ public class Given_VendorDtoValidator
             Name = new string('n', VendorDtoValidator.NameMaxLength),
             Description = new string('d', VendorDtoValidator.DescriptionMaxLength),
             Contact = new string('c', VendorDtoValidator.ContactMaxLength),
-            Phone = "555-0100",
+            Phone = "214-309-2915",
             Notes = new string('o', VendorDtoValidator.NotesMaxLength),
             QuickbooksId = new string('9', VendorDtoValidator.QuickbooksIdMaxLength)
         };
@@ -127,14 +127,15 @@ public class Given_VendorDtoValidator
     [InlineData(null)]
     [InlineData("")]
     [InlineData("   ")]
-    [InlineData("5550100")]
-    [InlineData("555-0100")]
-    [InlineData("(631) 555-0100")]
-    [InlineData("631.555.0100")]
-    [InlineData("+1 631 555 0100")]
-    [InlineData("631-555-0100 x123")]
-    [InlineData("631-555-0100 ext. 123")]
-    public async Task ValidateAsync_AcceptablePhone_IsValid(string? phone)
+    [InlineData("2143092915")]
+    [InlineData("(214) 309-2915")]
+    [InlineData("214.309.2915")]
+    [InlineData("1-214-309-2915")]
+    [InlineData("+1 214 309 2915")]
+    [InlineData("214-309-2915 x123")]
+    [InlineData("214-309-2915 ext. 123")]
+    [InlineData("+1 416 392 2489")]
+    public async Task ValidateAsync_ValidUsOrCanadianPhone_IsValid(string? phone)
     {
         ValidationResult result = await _validator.ValidateAsync(new VendorDto { Name = "Acme", Phone = phone });
 
@@ -143,21 +144,23 @@ public class Given_VendorDtoValidator
 
     [Theory]
     [InlineData("call me")]
-    [InlineData("555-CALL")]
-    [InlineData("555-0100 x")]
-    [InlineData("-5550100")]
-    [InlineData("555-0100; DROP")]
-    public async Task ValidateAsync_PhoneWithUnacceptableCharacters_FailsOnPhone(string phone)
+    [InlineData("1-800-FLOWERS")]
+    [InlineData("214-309-2915 x")]
+    [InlineData("-2143092915")]
+    [InlineData("214-309-2915; DROP")]
+    [InlineData("1-214-309-29156314-1")]
+    [InlineData("5550100")]
+    [InlineData("309-2915")]
+    [InlineData("123-456-7890")]
+    [InlineData("+44 20 7946 0958")]
+    public async Task ValidateAsync_PhoneThatIsNotAValidUsOrCanadianNumber_FailsOnPhone(string phone)
     {
         ValidationResult result = await _validator.ValidateAsync(new VendorDto { Name = "Acme", Phone = phone });
 
         ValidationFailure failure = Assert.Single(result.Errors);
         Assert.Equal("Phone", failure.PropertyName);
-        Assert.Equal(
-            "Phone may contain only digits, spaces, + - ( ) . and an optional extension such as x123.",
-            failure.ErrorMessage);
+        Assert.Equal(VendorDtoValidator.PhoneMessage, failure.ErrorMessage);
     }
-
     [Fact]
     public async Task ValidateAsync_PhoneOverTheLimit_FailsOnPhone()
     {

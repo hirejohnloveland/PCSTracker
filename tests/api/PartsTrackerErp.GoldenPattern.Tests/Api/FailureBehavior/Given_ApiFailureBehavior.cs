@@ -443,14 +443,26 @@ public class Given_ApiFailureBehavior
     }
 
     [Fact]
-    public async Task Vendors_AddWithoutTheNameProperty_Returns400BeforeTheValidatorRuns()
+    public async Task Vendors_AddWithoutTheNameProperty_Returns400PointingAtTheName()
     {
         JsonElement problem = await ReadProblemAsync(
             await _client.PostAsync("/vendors", Json("{}")),
             HttpStatusCode.BadRequest);
 
-        Assert.Contains(ErrorsOf(problem), error => error.GetProperty("detail").GetString() == "The input was not valid.");
-        Assert.DoesNotContain(ErrorsOf(problem), error => error.GetProperty("detail").GetString() == "Vendor name is required.");
+        JsonElement error = Assert.Single(ErrorsOf(problem));
+        Assert.Equal("InvalidRequest", error.GetProperty("code").GetString());
+        Assert.Equal("Vendor name is required.", error.GetProperty("detail").GetString());
+        Assert.Equal("#/name", error.GetProperty("pointer").GetString());
+    }
+
+    [Fact]
+    public async Task Vendors_AddWithoutTheNameAndWithAnInvalidPhone_ReportsBothFields()
+    {
+        JsonElement problem = await ReadProblemAsync(
+            await _client.PostAsync("/vendors", Json("""{"phone":"call me"}""")),
+            HttpStatusCode.BadRequest);
+
+        Assert.Equal(["#/name", "#/phone"], ErrorsOf(problem).Select(error => error.GetProperty("pointer").GetString()).Order());
     }
 
     [Fact]

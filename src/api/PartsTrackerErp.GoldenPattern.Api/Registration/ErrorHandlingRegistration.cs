@@ -1,3 +1,4 @@
+using System.Text.Json.Serialization.Metadata;
 using Microsoft.AspNetCore.Mvc;
 using PartsTrackerErp.GoldenPattern.Api.ErrorHandling;
 
@@ -18,7 +19,25 @@ internal static class ErrorHandlingRegistration
         // and CreateInvalidModelStateResponse gives it a generic one.
         builder.Services.Configure<JsonOptions>(options => options.AllowInputFormatterExceptionMessages = false);
 
+        // A request that leaves out a property binds with it unset, and the request's validator reports it by name at
+        // its pointer. Left to MVC, a missing property fails the binding, and the error names only the whole body.
+        builder.Services.Configure<JsonOptions>(options =>
+            options.JsonSerializerOptions.TypeInfoResolver = new DefaultJsonTypeInfoResolver
+            {
+                Modifiers = { LeavePresenceToValidators }
+            });
+        builder.Services.Configure<MvcOptions>(
+            options => options.SuppressImplicitRequiredAttributeForNonNullableReferenceTypes = true);
+
         return builder;
+    }
+
+    private static void LeavePresenceToValidators(JsonTypeInfo typeInfo)
+    {
+        foreach (JsonPropertyInfo property in typeInfo.Properties)
+        {
+            property.IsRequired = false;
+        }
     }
 
     private static ObjectResult CreateInvalidModelStateResponse(ActionContext context)

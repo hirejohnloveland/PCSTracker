@@ -3,6 +3,7 @@ import { click, currentURL, fillIn, visit } from '@ember/test-helpers';
 import { module, test } from 'qunit';
 import { setupApplicationTest } from 'web/tests/helpers';
 import { ApiError } from 'web/services/api-client';
+import { PHONE_MESSAGE } from 'web/utils/vendor-validation';
 import type {
   ListVendorsQuery,
   Vendor,
@@ -17,7 +18,7 @@ const vendor: Vendor = {
   quickbooksId: 'qb-1',
   description: 'Refrigeration parts',
   contact: 'Pat',
-  phone: '555-0100',
+  phone: '214-309-2915',
   notes: 'Net 30',
 };
 
@@ -90,7 +91,7 @@ module('Acceptance | vendor details', function (hooks) {
     assert.dom('#vendor-name').hasValue('Acme Parts');
     assert.dom('#vendor-description').hasValue('Refrigeration parts');
     assert.dom('#vendor-contact').hasValue('Pat');
-    assert.dom('#vendor-phone').hasValue('555-0100');
+    assert.dom('#vendor-phone').hasValue('214-309-2915');
     assert.dom('#vendor-quickbooks-id').hasValue('qb-1');
     assert.dom('#vendor-notes').hasValue('Net 30');
     assert.dom('main').doesNotContainText('vendors-1-A');
@@ -110,7 +111,7 @@ module('Acceptance | vendor details', function (hooks) {
       ['#vendor-name', 'Acme Supply', 'Acme Parts'],
       ['#vendor-description', 'Other', 'Refrigeration parts'],
       ['#vendor-contact', 'Sam', 'Pat'],
-      ['#vendor-phone', '555-0199', '555-0100'],
+      ['#vendor-phone', '214-309-2916', '214-309-2915'],
       ['#vendor-quickbooks-id', 'qb-2', 'qb-1'],
       ['#vendor-notes', 'Net 60', 'Net 30'],
     ];
@@ -138,7 +139,7 @@ module('Acceptance | vendor details', function (hooks) {
           name: 'Acme Supply',
           description: 'Refrigeration parts',
           contact: 'Pat',
-          phone: '555-0100',
+          phone: '214-309-2915',
           notes: '',
           quickbooksId: 'qb-1',
         },
@@ -153,20 +154,70 @@ module('Acceptance | vendor details', function (hooks) {
     FakeVendorsApi.failure = new ApiError({
       status: 400,
       title: 'Validation Failed',
-      detail: 'Vendor name is required.',
+      detail: 'The vendor could not be saved.',
     });
     await visit('/vendors/vendors-1-A');
-    await fillIn('#vendor-name', '');
+    await fillIn('#vendor-name', 'Acme Supply');
 
     await click('button[type="submit"]');
 
     assert.dom('dialog[open]').exists();
-    assert.dom('dialog').containsText('Vendor name is required.');
-    assert.dom('#vendor-name').hasValue('');
+    assert.dom('dialog').containsText('The vendor could not be saved.');
+    assert.dom('#vendor-name').hasValue('Acme Supply');
 
     await click('dialog button');
 
     assert.dom('dialog').doesNotExist();
+    assert.dom('button[type="submit"]').isNotDisabled();
+  });
+
+  test('an invalid phone shows its message and keeps Save disabled until it is fixed', async function (assert) {
+    await visit('/vendors/vendors-1-A');
+    assert.dom('.field-error').doesNotExist();
+
+    await fillIn('#vendor-phone', 'call me');
+
+    assert.dom('#vendor-phone-error').hasText(PHONE_MESSAGE);
+    assert.dom('#vendor-phone').hasAttribute('aria-invalid', 'true');
+    assert.dom('button[type="submit"]').isDisabled();
+
+    await fillIn('#vendor-phone', '(214) 309-2916');
+
+    assert.dom('#vendor-phone-error').doesNotExist();
+    assert.dom('button[type="submit"]').isNotDisabled();
+  });
+
+  test('an invalid field keeps Save disabled even when another field is valid and changed', async function (assert) {
+    await visit('/vendors/vendors-1-A');
+    await fillIn('#vendor-name', '');
+    await fillIn('#vendor-contact', 'Sam');
+
+    assert.dom('#vendor-name-error').hasText('Vendor name is required.');
+    assert.dom('button[type="submit"]').isDisabled();
+
+    await fillIn('#vendor-name', 'Acme Parts');
+
+    assert.dom('#vendor-name-error').doesNotExist();
+    assert.dom('button[type="submit"]').isNotDisabled();
+  });
+
+  test('a field over its length limit shows a message and disables Save', async function (assert) {
+    await visit('/vendors/vendors-1-A');
+
+    await fillIn('#vendor-quickbooks-id', '9'.repeat(51));
+
+    assert
+      .dom('#vendor-quickbooks-id-error')
+      .hasText('QuickBooks Id must be 50 characters or fewer.');
+    assert.dom('button[type="submit"]').isDisabled();
+  });
+
+  test('a blank phone is valid', async function (assert) {
+    await visit('/vendors/vendors-1-A');
+
+    await fillIn('#vendor-phone', '');
+
+    assert.dom('#vendor-phone-error').doesNotExist();
     assert.dom('button[type="submit"]').isNotDisabled();
   });
 

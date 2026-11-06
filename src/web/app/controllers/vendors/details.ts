@@ -6,9 +6,19 @@ import { tracked } from '@glimmer/tracking';
 import type ErrorDialogService from 'web/services/error-dialog';
 import type VendorsApiService from 'web/services/vendors-api';
 import type { Vendor } from 'web/services/vendors-api';
+import {
+  validateVendorField,
+  type VendorTextField,
+} from 'web/utils/vendor-validation';
 
-type TextField =
-  'name' | 'description' | 'contact' | 'phone' | 'notes' | 'quickbooksId';
+const TEXT_FIELDS: VendorTextField[] = [
+  'name',
+  'description',
+  'contact',
+  'phone',
+  'notes',
+  'quickbooksId',
+];
 
 interface VendorForm {
   name: string;
@@ -67,8 +77,24 @@ export default class VendorsDetailsController extends Controller {
     );
   }
 
+  get errors(): Record<VendorTextField, string | null> {
+    return {
+      name: validateVendorField('name', this.name),
+      description: validateVendorField('description', this.description),
+      contact: validateVendorField('contact', this.contact),
+      phone: validateVendorField('phone', this.phone),
+      notes: validateVendorField('notes', this.notes),
+      quickbooksId: validateVendorField('quickbooksId', this.quickbooksId),
+    };
+  }
+
+  get isValid(): boolean {
+    const errors = this.errors;
+    return TEXT_FIELDS.every((field) => errors[field] === null);
+  }
+
   get saveDisabled(): boolean {
-    return !this.isDirty || this.isSaving;
+    return !this.isDirty || !this.isValid || this.isSaving;
   }
 
   load(vendor: Vendor): void {
@@ -80,7 +106,7 @@ export default class VendorsDetailsController extends Controller {
   @action
   setText(event: Event): void {
     const field = event.target as HTMLInputElement | HTMLTextAreaElement;
-    this[field.name as TextField] = field.value;
+    this[field.name as VendorTextField] = field.value;
   }
 
   @action

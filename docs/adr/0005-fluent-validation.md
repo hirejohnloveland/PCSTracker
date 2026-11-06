@@ -9,15 +9,16 @@ Request DTOs need input checks (required fields, ranges, formats) before a use c
 - Boundary/input validation uses FluentValidation.
 - Validators live in [`Core/Validation/Validators`](../../src/api/PartsTrackerErp.GoldenPattern.Core/Validation/Validators) and target request contracts in [`Contracts/Requests`](../../src/api/PartsTrackerErp.GoldenPattern.Core/Contracts/Requests).
 - Validators are registered in `AddCore()` via `AddValidatorsFromAssemblyContaining`.
+- Validation is done on both sides. The API rejects bad input with an error entry for every failing field, each with a message and a `pointer` ([ADR 0011](0011-problem-details.md)). The front end validates input against its data model before it sends a request ([ADR 0019](0019-front-end-error-handling.md)). Neither side relies on the other.
 - Domain rules stay in the domain. FluentValidation does not replace entity or value-object invariants.
-- A request DTO property the caller must send is declared `required`. The OpenAPI document does not read validator rules, so `required` is what lists the property as required there ([ADR 0015](0015-openapi-responses.md)). `required` says the property must be present. The validator still decides whether its value is acceptable: not empty, in range, in format. A property the caller may leave out is not `required`.
+- A request DTO property the caller must send is declared `required`. The OpenAPI document does not read validator rules, so `required` is what lists the property as required there ([ADR 0015](0015-openapi-responses.md)). `required` says the property must be present, and it is the validator, not MVC, that reports one that is missing (see Consequences). The validator also decides whether a value is acceptable: not empty, in range, in format. A property the caller may leave out is not `required`.
 
 ## Consequences
 
 - Validators are plain classes that can be unit tested without hosting ASP.NET Core.
 - Every host that calls `AddCore()` gets the same validators.
 - Controllers (or filters) resolve `IValidator<T>` and return validation failures as HTTP 400 responses.
-- A body that leaves out a `required` property is rejected while the body is read, before a validator runs. It is answered as a body MVC cannot bind ([ADR 0011](0011-problem-details.md)): no entry names the missing property, and the validator's message for it is not sent.
+- A body that leaves out a `required` property still binds, with the property unset. `AddApiErrorHandling` turns off System.Text.Json's required check and MVC's implicit required check, so the validator reports the missing property at its own pointer, such as `#/name`, together with every other failure. A validator must therefore reject an unset value for each property the DTO declares `required`, as `NotEmpty` does for `Name`.
 
 ## Reference implementation
 

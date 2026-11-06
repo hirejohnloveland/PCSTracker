@@ -15,6 +15,7 @@ Architecture decisions for this app are recorded in [docs/adr/README.md](../../d
 | [0018](../../docs/adr/0018-list-text-filters.md)        | List text filters and debounce via `ember-lifeline`               |
 | [0019](../../docs/adr/0019-front-end-error-handling.md) | Failed user actions go through the shared error dialog            |
 | [0020](../../docs/adr/0020-front-end-responsiveness.md) | Mobile-first layout; one shared breakpoint                        |
+| [0021](../../docs/adr/0021-front-end-toasts.md)         | A successful user action is confirmed with `toasts.success`       |
 
 ## Rules agents most often get wrong
 

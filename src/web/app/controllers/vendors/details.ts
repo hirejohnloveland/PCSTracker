@@ -4,6 +4,7 @@ import type RouterService from '@ember/routing/router-service';
 import { service } from '@ember/service';
 import { tracked } from '@glimmer/tracking';
 import type ErrorDialogService from 'web/services/error-dialog';
+import type ToastsService from 'web/services/toasts';
 import type VendorsApiService from 'web/services/vendors-api';
 import type { Vendor } from 'web/services/vendors-api';
 import {
@@ -45,6 +46,7 @@ function toForm(vendor: Vendor): VendorForm {
 export default class VendorsDetailsController extends Controller {
   @service declare errorDialog: ErrorDialogService;
   @service declare router: RouterService;
+  @service declare toasts: ToastsService;
   @service declare vendorsApi: VendorsApiService;
 
   @tracked name = '';
@@ -127,6 +129,8 @@ export default class VendorsDetailsController extends Controller {
         quickbooksId: this.quickbooksId,
       });
       this.applySaved(response.data);
+      this.toasts.success('Vendor saved.');
+      this.router.transitionTo('vendors');
     } catch (error) {
       this.errorDialog.show(error);
     } finally {

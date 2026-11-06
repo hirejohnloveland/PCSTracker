@@ -125,7 +125,7 @@ module('Acceptance | vendor details', function (hooks) {
     }
   });
 
-  test('Save sends every field to the update API and then disables itself', async function (assert) {
+  test('Save sends every field to the update API, shows a success toast and returns to the list', async function (assert) {
     await visit('/vendors/vendors-1-A');
     await fillIn('#vendor-name', 'Acme Supply');
     await fillIn('#vendor-notes', '');
@@ -145,8 +145,8 @@ module('Acceptance | vendor details', function (hooks) {
         },
       },
     ]);
-    assert.dom('button[type="submit"]').isDisabled();
-    assert.dom('#vendor-name').hasValue('Acme Supply');
+    assert.strictEqual(currentURL(), '/vendors');
+    assert.dom('.toast.success').hasText(/Vendor saved\./);
     assert.dom('dialog').doesNotExist();
   });
 

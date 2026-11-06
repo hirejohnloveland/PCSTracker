@@ -7,7 +7,7 @@ using PartsTrackerErp.GoldenPattern.Core.Contracts.Responses;
 
 namespace PartsTrackerErp.GoldenPattern.Api.Controllers;
 
-[Route("refrigerant-log")]
+[Route("[controller]")]
 public class RefrigerantLogController(IRefrigerantLogApplicationService refrigerantLogApplicationService) : ApiControllerBase
 {
     [HttpPost]

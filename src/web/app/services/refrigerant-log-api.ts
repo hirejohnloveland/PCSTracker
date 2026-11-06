@@ -13,28 +13,25 @@ export type RefrigerantLogPage =
 export type RefrigerantTypesResponse =
   components['schemas']['ApiResponseOfRefrigerantTypesResponseDto'];
 export type ListRefrigerantLogQuery = NonNullable<
-  paths['/refrigerant-log']['get']['parameters']['query']
+  paths['/refrigerantlog']['get']['parameters']['query']
 >;
 
 export default class RefrigerantLogApiService extends Service {
   @service declare apiClient: ApiClientService;
 
   async list(query: ListRefrigerantLogQuery): Promise<RefrigerantLogPage> {
-    return this.apiClient.getJson<RefrigerantLogPage>(
-      '/refrigerant-log',
-      query,
-    );
+    return this.apiClient.getJson<RefrigerantLogPage>('/refrigerantlog', query);
   }
 
   async get(id: string): Promise<RefrigerantLogEntryResponse> {
     return this.apiClient.getJson<RefrigerantLogEntryResponse>(
-      `/refrigerant-log/${encodeURIComponent(id)}`,
+      `/refrigerantlog/${encodeURIComponent(id)}`,
     );
   }
 
   async refrigerants(): Promise<RefrigerantTypesResponse> {
     return this.apiClient.getJson<RefrigerantTypesResponse>(
-      '/refrigerant-log/refrigerants',
+      '/refrigerantlog/refrigerants',
     );
   }
 
@@ -42,7 +39,7 @@ export default class RefrigerantLogApiService extends Service {
     entry: RefrigerantLogEntryInput,
   ): Promise<RefrigerantLogEntryResponse> {
     return this.apiClient.postJson<RefrigerantLogEntryResponse>(
-      '/refrigerant-log',
+      '/refrigerantlog',
       entry,
     );
   }
@@ -52,7 +49,7 @@ export default class RefrigerantLogApiService extends Service {
     entry: RefrigerantLogEntryInput,
   ): Promise<RefrigerantLogEntryResponse> {
     return this.apiClient.putJson<RefrigerantLogEntryResponse>(
-      `/refrigerant-log/${encodeURIComponent(id)}`,
+      `/refrigerantlog/${encodeURIComponent(id)}`,
       entry,
     );
   }

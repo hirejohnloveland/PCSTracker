@@ -21,7 +21,7 @@ module('Unit | Service | refrigerant-log-api', function (hooks) {
     notes: 'Recharge',
   };
 
-  test('list asks the API client for /refrigerant-log with the query', async function (assert) {
+  test('list asks the API client for /refrigerantlog with the query', async function (assert) {
     const calls: { path: string; query: unknown }[] = [];
     const page = { data: [] };
 
@@ -42,7 +42,7 @@ module('Unit | Service | refrigerant-log-api', function (hooks) {
     assert.strictEqual(result, page as never);
     assert.deepEqual(calls, [
       {
-        path: '/refrigerant-log',
+        path: '/refrigerantlog',
         query: {
           dateFrom: '2026-05-01',
           technician: 'Bob Osborne',
@@ -67,8 +67,8 @@ module('Unit | Service | refrigerant-log-api', function (hooks) {
     await lookup(this.owner).refrigerants();
 
     assert.deepEqual(calls, [
-      '/refrigerant-log/refrigerantlogentries%2F1-A',
-      '/refrigerant-log/refrigerants',
+      '/refrigerantlog/refrigerantlogentries%2F1-A',
+      '/refrigerantlog/refrigerants',
     ]);
   });
 
@@ -88,7 +88,7 @@ module('Unit | Service | refrigerant-log-api', function (hooks) {
       await lookup(this.owner).create(input),
       response as never,
     );
-    assert.deepEqual(calls, [{ path: '/refrigerant-log', body: input }]);
+    assert.deepEqual(calls, [{ path: '/refrigerantlog', body: input }]);
   });
 
   test('update puts the entry to its id', async function (assert) {
@@ -108,7 +108,7 @@ module('Unit | Service | refrigerant-log-api', function (hooks) {
       response as never,
     );
     assert.deepEqual(calls, [
-      { path: '/refrigerant-log/refrigerantlogentries%2F1-A', body: input },
+      { path: '/refrigerantlog/refrigerantlogentries%2F1-A', body: input },
     ]);
   });
 });

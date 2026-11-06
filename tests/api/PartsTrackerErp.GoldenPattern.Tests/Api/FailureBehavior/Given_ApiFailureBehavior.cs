@@ -771,7 +771,7 @@ public class Given_ApiFailureBehavior
     [Fact]
     public async Task RefrigerantLog_List_AnswersWithTheDataPaginationAndMetadata()
     {
-        HttpResponseMessage response = await _client.GetAsync("/refrigerant-log");
+        HttpResponseMessage response = await _client.GetAsync("/refrigerantlog");
 
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
         JsonElement body = await ReadJsonAsync(response);

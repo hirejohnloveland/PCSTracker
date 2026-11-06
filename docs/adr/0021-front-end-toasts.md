@@ -4,8 +4,6 @@
 
 A successful action that says nothing leaves the user unsure whether it worked. A failure is shown in the error dialog ([ADR 0019](0019-front-end-error-handling.md)), which blocks the page and suits a problem the user must acknowledge. A success needs a lighter confirmation that does not interrupt the user.
 
-No toast library is used. `ember-cli-notifications`, the addon inspected, is built on classic components, has no live region, and closes with a `div` instead of a button.
-
 ## Decision
 
 - An action a user starts, such as clicking Save, confirms its success with `toasts.success(message)`. The action does not render its own message.

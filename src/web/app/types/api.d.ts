@@ -633,7 +633,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/refrigerant-log": {
+    "/refrigerantlog": {
         parameters: {
             query?: never;
             header?: never;
@@ -819,7 +819,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/refrigerant-log/refrigerants": {
+    "/refrigerantlog/refrigerants": {
         parameters: {
             query?: never;
             header?: never;
@@ -910,7 +910,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/refrigerant-log/{id}": {
+    "/refrigerantlog/{id}": {
         parameters: {
             query?: never;
             header?: never;

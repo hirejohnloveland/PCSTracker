@@ -22,7 +22,7 @@ public class Given_OpenApiDocument(ApiFactory factory)
     private static readonly string[] s_failureStatuses = ["400", "401", "403", "404", "409", "500"];
 
     // The operations that create a resource answer 201. Every other operation answers 200.
-    private static readonly string[] s_creates = ["post /vendors", "post /customers", "post /technicians", "post /refrigerant-log", "post /vendorinvoices"];
+    private static readonly string[] s_creates = ["post /vendors", "post /customers", "post /technicians", "post /refrigerantlog", "post /vendorinvoices"];
 
     private readonly HttpClient _client = factory.CreateClient();
 
@@ -228,10 +228,10 @@ public class Given_OpenApiDocument(ApiFactory factory)
     [InlineData("get", "/technicians/{id}", "200", "ApiResponseOfTechnicianResponseDto")]
     [InlineData("get", "/technicians/roles", "200", "ApiResponseOfTechnicianRolesResponseDto")]
     [InlineData("post", "/technicians", "201", "ApiResponseOfTechnicianResponseDto")]
-    [InlineData("get", "/refrigerant-log", "200", "PagedApiResponseOfRefrigerantLogEntryResponseDto")]
-    [InlineData("get", "/refrigerant-log/{id}", "200", "ApiResponseOfRefrigerantLogEntryResponseDto")]
-    [InlineData("get", "/refrigerant-log/refrigerants", "200", "ApiResponseOfRefrigerantTypesResponseDto")]
-    [InlineData("post", "/refrigerant-log", "201", "ApiResponseOfRefrigerantLogEntryResponseDto")]
+    [InlineData("get", "/refrigerantlog", "200", "PagedApiResponseOfRefrigerantLogEntryResponseDto")]
+    [InlineData("get", "/refrigerantlog/{id}", "200", "ApiResponseOfRefrigerantLogEntryResponseDto")]
+    [InlineData("get", "/refrigerantlog/refrigerants", "200", "ApiResponseOfRefrigerantTypesResponseDto")]
+    [InlineData("post", "/refrigerantlog", "201", "ApiResponseOfRefrigerantLogEntryResponseDto")]
     public async Task Operation_SuccessRefersToItsEnvelope(string method, string path, string status, string schema)
     {
         JsonElement operation = OperationNamed(await GetDocumentAsync(), method, path);
@@ -340,8 +340,8 @@ public class Given_OpenApiDocument(ApiFactory factory)
             { "POST", "/customers", "400", "/customers", "{}" },
             { "GET", "/technicians/{id}", "404", "/technicians/technicians-1-A", null },
             { "POST", "/technicians", "400", "/technicians", "{}" },
-            { "GET", "/refrigerant-log/{id}", "404", "/refrigerant-log/refrigerantlogentries-1-A", null },
-            { "POST", "/refrigerant-log", "400", "/refrigerant-log", "{}" },
+            { "GET", "/refrigerantlog/{id}", "404", "/refrigerantlog/refrigerantlogentries-1-A", null },
+            { "POST", "/refrigerantlog", "400", "/refrigerantlog", "{}" },
             { "POST", "/vendorinvoices", "400", "/vendorinvoices", "{}" }
         };
     }

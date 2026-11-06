@@ -710,7 +710,7 @@
         }
       }
     },
-    "/refrigerant-log": {
+    "/refrigerantlog": {
       "post": {
         "tags": [
           "RefrigerantLog"
@@ -958,7 +958,7 @@
         }
       }
     },
-    "/refrigerant-log/refrigerants": {
+    "/refrigerantlog/refrigerants": {
       "get": {
         "tags": [
           "RefrigerantLog"
@@ -1047,7 +1047,7 @@
         }
       }
     },
-    "/refrigerant-log/{id}": {
+    "/refrigerantlog/{id}": {
       "get": {
         "tags": [
           "RefrigerantLog"

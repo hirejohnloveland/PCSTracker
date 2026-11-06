@@ -14,7 +14,7 @@ An API client has to handle failures from domain rules, request validation, unex
 - A `DomainException` reaches the caller as its `errors`. The message of any other exception never reaches a response body.
 - A request that fails FluentValidation is a 400 with one entry per failure. `code` is always `InvalidRequest` and `pointer` is the camelCased property path. A request MVC cannot bind has the same shape with code `InvalidRequest`, through `ApiBehaviorOptions.InvalidModelStateResponseFactory`. MVC adds System.Text.Json's error text to the model state, and so to that response, unless `JsonOptions.AllowInputFormatterExceptionMessages` is false. `AddApiErrorHandling()` sets it false, so the entry for a body that cannot be read has the detail "The input was not valid."
 - `ProblemDetailsMapper.Customize` is registered with `AddProblemDetails`. It sets `instance`, sets `type` for a status that has a category, and adds one default `errors` entry when a problem has none. Problems the framework builds, such as a routing 404 or an authentication 401, then have the same shape. `UseStatusCodePages` gives those responses a body.
-- `traceId` is `Activity.Current?.Id` when there is a current activity — the W3C traceparent form `00-{trace-id}-{span-id}-{flags}` — otherwise `HttpContext.TraceIdentifier`. A success carries the same value in `metadata.traceId`.
+- A problem carries a `traceId`, and a success carries the same value in `metadata.traceId`. [ADR 0013](0013-observability.md) says how it is chosen and how to use it.
 
 ## Consequences
 

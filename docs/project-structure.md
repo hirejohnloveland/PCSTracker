@@ -1,11 +1,6 @@
 # Project Structure and Architectural Responsibilities
 
-**Status:** Repository guidance  
-**Applies to:** `PartsTrackerErp.GoldenPattern` solution and the `src/web` front end
-
-## Purpose
-
-This document defines where code belongs in the Golden Pattern and the responsibilities of each project and folder. Its purpose is to make the template predictable for developers and coding agents, without splitting every architectural boundary into another .NET project.
+This document defines where code belongs in the `PartsTrackerErp.GoldenPattern` solution and the `src/web` front end, and what each project and folder is responsible for.
 
 `PartsTrackerErp.GoldenPattern.Core` is a single class library; folders and namespaces mark its boundaries. See [ADR 0002](adr/0002-single-core-library.md).
 
@@ -61,7 +56,7 @@ Solution: `src/api/PartsTrackerErp.GoldenPattern.slnx`
 3. **Repositories are for persistence owned by this service.** Repository interfaces and implementations live together in `Repositories`. See [ADR 0004](adr/0004-colocated-interfaces.md).
 4. **Integrations are for external systems.** An HTTP client for the Portal Users API belongs under `Integrations`, not `Repositories`, even when its methods look like `GetUser` or `ListUsers`. Its wire DTOs belong in `Contracts/Integrations`.
 5. **Contracts are transport shapes, not automatically domain models.** A DTO becomes a domain entity or value object only when the business model needs domain identity, meaning, or invariants—not merely because it is a JSON object.
-6. **Entities never reach the HTTP surface.** An application service maps an entity to a `Contracts/Responses` DTO before it returns. An entity does not leave the service in a response, in a wrapper such as `ServiceResponse<T>`, in a domain error or exception, or in any other way. See [ADR 0003](adr/0003-domain-driven-design.md).
+6. **Entities never reach the HTTP surface.** An application service maps an entity to a `Contracts/Responses` DTO before it returns. See [ADR 0003](adr/0003-domain-driven-design.md).
 7. **Depend on abstractions at consumption sites.** Application services should receive repository and integration interfaces through dependency injection, not instantiate their concrete implementations. Concrete types are wired at the composition root: `Program.cs` calls registration modules such as Core's `AddCore`, which may reference concrete implementations to register them.
 8. **Folders are logical boundaries, not separate assemblies.** See [ADR 0002](adr/0002-single-core-library.md). Architecture tests in `tests/api/PartsTrackerErp.GoldenPattern.Tests/Architecture` enforce the [permitted dependencies](#permitted-dependencies). Run them in Debug, which ArchUnitNET recommends because it reads the compiled binaries: `dotnet test src/api/PartsTrackerErp.GoldenPattern.slnx -c Debug --filter Category=Architecture`. Add an exception only after discussing it, as with a suppression ([ADR 0009](adr/0009-coding-standards-enforcement.md)), and write it into the rule with its reason.
 9. **DTO names end in `Dto`.** A response DTO ends in `ResponseDto`, such as `VendorResponseDto`, so it never takes the name of a request DTO for the same concept, such as `VendorInvoiceDto`. The response envelope and problem types (`ApiResponse<T>`, `ApiResponseMetadata`, `PagedApiResponse<T>`, `PaginationMetadata`, `ProblemError`) are not DTOs for a domain concept and keep their names.
@@ -86,32 +81,6 @@ Architecture tests enforce each "must not" below. A "may" grants permission and 
 
 ArchUnitNET does not see top-level statements or `const` reads, so these rules do not check `Program.cs` and miss a `const` read across a boundary. Keep `Program.cs` to entry-point calls and the middleware pipeline ([ADR 0001](adr/0001-host-registration-pattern.md)).
 
-## Example: consuming a Users API
-
-Suppose this service fetches user information from the Portal Users API but does not own or store users.
-
-| Concern | Location |
-| --- | --- |
-| Portal Users API response DTO | `Contracts/Integrations/PortalUsers/PortalUserDto.cs` |
-| Client interface | `Integrations/Abstractions/IPortalUsersClient.cs` |
-| HTTP client implementation | `Integrations/Implementations/PortalUsersClient.cs` |
-| Use case that fetches/uses users | `ApplicationServices/Implementations/...` |
-| Response returned by our API | `Contracts/Responses/...` |
-
-The external `PortalUserDto` is **not automatically** a `Domain/Entities/User`. Create a domain model only if this service actually needs one to express its business rules.
-
-## Placement checklist
-
-When adding code, ask:
-
-- Is this HTTP hosting/transport behavior? **API.**
-- Is it coordinating a use case? **ApplicationServices.**
-- Is it a business rule or domain concept? **Domain.**
-- Is it reading/writing our database? **Repositories** (with plumbing in **Infrastructure/Persistence**).
-- Is it communicating with another service? **Integrations** (with payload DTOs in **Contracts/Integrations**).
-- Is it a request, response, or other boundary payload? **Contracts.**
-- Is it input validation or object transformation? **Validation** or **Mapping**, respectively.
-
 ## Web application
 
 The front end is an Ember.js application written in TypeScript in `src/web`. It is not part of the .NET solution. See [ADR 0007](adr/0007-ember-frontend.md).
@@ -129,11 +98,11 @@ It keeps the layout generated by `ember new`. Folder names under `app/` are Embe
 | `app/controllers/` | Query parameters and state derived from a route's model. A controller has the same name as its route. |
 | `app/services/` | Long-lived objects shared across the app, such as session state or API calls. The shared `api-client` and one service for each API resource live here ([ADR 0017](adr/0017-api-client.md)). |
 | `app/types/` | Generated TypeScript types for the API ([ADR 0016](adr/0016-generated-api-types.md)). Do not edit by hand; run `npm run generate:api`. |
+| `app/utils/` | Plain TypeScript functions that use no Ember APIs, such as a screen's field validation. |
 | `app/helpers/` | Small functions used inside templates. |
 | `app/styles/` | Global CSS. |
 | `config/` | Build and runtime settings, such as `environment.js` and `targets.js`. |
 | `public/` | Static files copied to the build output unchanged. |
-| `tests/unit/` | Unit tests for routes, controllers, and services. |
+| `tests/unit/` | Unit tests for services, routes, and utilities. |
 | `tests/integration/` | Tests that render a component or helper. |
-
-**Guiding principle:** Keep the template small and the placement rules clear. Add complexity only when it solves a demonstrated problem.
+| `tests/acceptance/` | Tests that visit a page and act on it as a user would. |

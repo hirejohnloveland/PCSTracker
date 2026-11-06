@@ -11,7 +11,7 @@ Request DTOs need input checks (required fields, ranges, formats) before a use c
 - Validators are registered in `AddCore()` via `AddValidatorsFromAssemblyContaining`.
 - Validation is done on both sides. The API rejects bad input with an error entry for every failing field, each with a message and a `pointer` ([ADR 0011](0011-problem-details.md)). The front end validates input against its data model before it sends a request ([ADR 0019](0019-front-end-error-handling.md)). Neither side relies on the other.
 - Domain rules stay in the domain. FluentValidation does not replace entity or value-object invariants.
-- A request DTO property the caller must send is declared `required`. The OpenAPI document does not read validator rules, so `required` is what lists the property as required there ([ADR 0015](0015-openapi-responses.md)). `required` says the property must be present, and it is the validator, not MVC, that reports one that is missing (see Consequences). The validator also decides whether a value is acceptable: not empty, in range, in format. A property the caller may leave out is not `required`.
+- A request DTO property the caller must send is declared `required`, which is what lists it as required in the OpenAPI document ([ADR 0015](0015-openapi-responses.md)). A property the caller may leave out is not `required`. The validator decides whether a value is acceptable: not empty, in range, in format.
 
 ## Consequences
 

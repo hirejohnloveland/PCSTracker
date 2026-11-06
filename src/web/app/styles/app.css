@@ -141,13 +141,15 @@ body {
   flex: 1 1 12rem;
 }
 
-.vendors-table-wrap {
+.vendors-table-wrap,
+.customers-table-wrap {
   width: 100%;
   overflow-x: auto;
   -webkit-overflow-scrolling: touch;
 }
 
-.vendors {
+.vendors,
+.customers {
   width: 100%;
   min-width: 20rem;
   border-collapse: collapse;
@@ -155,28 +157,34 @@ body {
 }
 
 .vendors th,
-.vendors td {
+.vendors td,
+.customers th,
+.customers td {
   padding: 0.5rem;
   border-bottom: 1px solid #d2d6dc;
   text-align: left;
   overflow-wrap: anywhere;
 }
 
-.vendors th:first-child {
+.vendors th:first-child,
+.customers th:first-child {
   width: 35%;
 }
 
-.vendors th.actions {
+.vendors th.actions,
+.customers th.actions {
   width: 6rem;
 }
 
-.vendors td.description {
+.vendors td.description,
+.customers td.description {
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
 
-.vendors .actions {
+.vendors .actions,
+.customers .actions {
   text-align: right;
 }
 
@@ -200,7 +208,8 @@ body {
   white-space: nowrap;
 }
 
-.vendor-details {
+.vendor-details,
+.customer-details {
   display: flex;
   flex-direction: column;
   gap: 0.5rem;
@@ -210,13 +219,17 @@ body {
 
 .vendor-details input[type="text"],
 .vendor-details input[type="tel"],
-.vendor-details textarea {
+.vendor-details textarea,
+.customer-details input[type="text"],
+.customer-details input[type="tel"],
+.customer-details textarea {
   box-sizing: border-box;
   width: 100%;
   font: inherit;
 }
 
-.vendor-details .field-error {
+.vendor-details .field-error,
+.customer-details .field-error {
   margin: 0;
   color: #c53030;
   font-size: 0.875rem;

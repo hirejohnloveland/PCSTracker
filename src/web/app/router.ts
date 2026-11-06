@@ -10,4 +10,7 @@ Router.map(function () {
   this.route('vendors', function () {
     this.route('details', { path: '/:vendor_id' });
   });
+  this.route('customers', function () {
+    this.route('details', { path: '/:customer_id' });
+  });
 });

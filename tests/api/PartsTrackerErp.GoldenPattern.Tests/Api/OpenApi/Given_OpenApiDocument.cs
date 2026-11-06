@@ -22,7 +22,7 @@ public class Given_OpenApiDocument(ApiFactory factory)
     private static readonly string[] s_failureStatuses = ["400", "401", "403", "404", "409", "500"];
 
     // The operations that create a resource answer 201. Every other operation answers 200.
-    private static readonly string[] s_creates = ["post /vendors", "post /vendorinvoices"];
+    private static readonly string[] s_creates = ["post /vendors", "post /customers", "post /vendorinvoices"];
 
     private readonly HttpClient _client = factory.CreateClient();
 
@@ -221,6 +221,9 @@ public class Given_OpenApiDocument(ApiFactory factory)
     [InlineData("get", "/vendors", "200", "PagedApiResponseOfVendorResponseDto")]
     [InlineData("get", "/vendors/{id}", "200", "ApiResponseOfVendorResponseDto")]
     [InlineData("post", "/vendors", "201", "ApiResponseOfVendorResponseDto")]
+    [InlineData("get", "/customers", "200", "PagedApiResponseOfCustomerResponseDto")]
+    [InlineData("get", "/customers/{id}", "200", "ApiResponseOfCustomerResponseDto")]
+    [InlineData("post", "/customers", "201", "ApiResponseOfCustomerResponseDto")]
     public async Task Operation_SuccessRefersToItsEnvelope(string method, string path, string status, string schema)
     {
         JsonElement operation = OperationNamed(await GetDocumentAsync(), method, path);
@@ -249,6 +252,7 @@ public class Given_OpenApiDocument(ApiFactory factory)
         return new()
         {
             { "VendorDto", ["name"] },
+            { "CustomerDto", ["name"] },
             { "VendorInvoiceDto", ["vendorName", "balance"] }
         };
     }
@@ -269,6 +273,15 @@ public class Given_OpenApiDocument(ApiFactory factory)
         JsonElement vendor = SchemaReferredBy(document, $"{SchemaPrefix}VendorResponseDto");
 
         Assert.False(OffersNull(vendor.GetProperty("properties").GetProperty("id")));
+    }
+
+    [Fact]
+    public async Task CustomerResponseSchema_NeverOffersANullId()
+    {
+        JsonElement document = await GetDocumentAsync();
+        JsonElement customer = SchemaReferredBy(document, $"{SchemaPrefix}CustomerResponseDto");
+
+        Assert.False(OffersNull(customer.GetProperty("properties").GetProperty("id")));
     }
 
     [Fact]
@@ -312,6 +325,9 @@ public class Given_OpenApiDocument(ApiFactory factory)
             { "GET", "/vendors/{id}", "404", "/vendors/vendors-1-A", null },
             { "POST", "/vendors", "400", "/vendors", """{"name":""}""" },
             { "POST", "/vendors", "400", "/vendors", "{}" },
+            { "GET", "/customers/{id}", "404", "/customers/customers-1-A", null },
+            { "POST", "/customers", "400", "/customers", """{"name":""}""" },
+            { "POST", "/customers", "400", "/customers", "{}" },
             { "POST", "/vendorinvoices", "400", "/vendorinvoices", "{}" }
         };
     }

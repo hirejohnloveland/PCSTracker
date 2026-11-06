@@ -23,8 +23,10 @@ public sealed class ApiFactory : WebApplicationFactory<Program>
         builder.ConfigureTestServices(services =>
         {
             services.RemoveAll<IVendorRepository>();
+            services.RemoveAll<ICustomerRepository>();
             services.RemoveAll<IUnitOfWork>();
             services.AddScoped<IVendorRepository, EmptyVendorRepository>();
+            services.AddScoped<ICustomerRepository, EmptyCustomerRepository>();
             services.AddScoped<IUnitOfWork, NoOpUnitOfWork>();
 
             services.AddSingleton<FailureTestingService>();
@@ -52,6 +54,30 @@ public sealed class ApiFactory : WebApplicationFactory<Program>
         public Task AddAsync(Vendor vendor, CancellationToken cancellationToken = default)
         {
             vendor.WithId("vendors-1-A");
+
+            return Task.CompletedTask;
+        }
+    }
+
+    private sealed class EmptyCustomerRepository : ICustomerRepository
+    {
+        public Task<Customer?> GetAsync(string id, CancellationToken cancellationToken = default)
+        {
+            return Task.FromResult<Customer?>(null);
+        }
+
+        public Task<PagedResult<Customer>> ListAsync(
+            string? nameSearch,
+            int page,
+            int pageSize,
+            CancellationToken cancellationToken = default)
+        {
+            return Task.FromResult(new PagedResult<Customer>([], 0));
+        }
+
+        public Task AddAsync(Customer customer, CancellationToken cancellationToken = default)
+        {
+            customer.WithId("customers-1-A");
 
             return Task.CompletedTask;
         }

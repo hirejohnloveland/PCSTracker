@@ -12,4 +12,11 @@ public sealed class QuickbooksApplicationService : IQuickbooksApplicationService
             ErrorType.BusinessRuleViolation,
             QuickbooksErrors.SyncNotImplemented()));
     }
+
+    public Task<ServiceResponse<QuickbooksSyncResponseDto>> SyncCustomersAsync(CancellationToken cancellationToken = default)
+    {
+        return Task.FromResult(ServiceResponse<QuickbooksSyncResponseDto>.Fail(
+            ErrorType.BusinessRuleViolation,
+            QuickbooksErrors.SyncNotImplemented()));
+    }
 }

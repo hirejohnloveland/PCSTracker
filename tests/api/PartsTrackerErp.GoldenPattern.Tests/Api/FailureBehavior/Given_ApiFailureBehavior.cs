@@ -552,6 +552,142 @@ public class Given_ApiFailureBehavior
     }
 
     [Fact]
+    public async Task Customers_UpdateMissingCustomer_Returns404WithCustomerNotFound()
+    {
+        JsonElement problem = await ReadProblemAsync(
+            await _client.PutAsync("/customers/abc", Json("""{"name":"Acme"}""")),
+            HttpStatusCode.NotFound);
+
+        Assert.Equal(TypeBase + "not-found", problem.GetProperty("type").GetString());
+        Assert.Equal("/customers/abc", problem.GetProperty("instance").GetString());
+        JsonElement error = Assert.Single(ErrorsOf(problem));
+        Assert.Equal("CustomerNotFound", error.GetProperty("code").GetString());
+        Assert.Equal("Customer 'abc' was not found.", error.GetProperty("detail").GetString());
+    }
+
+    [Fact]
+    public async Task Customers_AddWithNoName_Returns400PointingAtTheName()
+    {
+        JsonElement problem = await ReadProblemAsync(
+            await _client.PostAsync("/customers", Json("""{"name":""}""")),
+            HttpStatusCode.BadRequest);
+
+        JsonElement error = Assert.Single(ErrorsOf(problem));
+        Assert.Equal("InvalidRequest", error.GetProperty("code").GetString());
+        Assert.Equal("Customer name is required.", error.GetProperty("detail").GetString());
+        Assert.Equal("#/name", error.GetProperty("pointer").GetString());
+    }
+
+    [Fact]
+    public async Task Customers_AddWithoutTheNameProperty_Returns400PointingAtTheName()
+    {
+        JsonElement problem = await ReadProblemAsync(
+            await _client.PostAsync("/customers", Json("{}")),
+            HttpStatusCode.BadRequest);
+
+        JsonElement error = Assert.Single(ErrorsOf(problem));
+        Assert.Equal("InvalidRequest", error.GetProperty("code").GetString());
+        Assert.Equal("Customer name is required.", error.GetProperty("detail").GetString());
+        Assert.Equal("#/name", error.GetProperty("pointer").GetString());
+    }
+
+    [Fact]
+    public async Task Customers_AddWithoutTheNameAndWithAnInvalidPhone_ReportsBothFields()
+    {
+        JsonElement problem = await ReadProblemAsync(
+            await _client.PostAsync("/customers", Json("""{"phone":"call me"}""")),
+            HttpStatusCode.BadRequest);
+
+        Assert.Equal(["#/name", "#/phone"], ErrorsOf(problem).Select(error => error.GetProperty("pointer").GetString()).Order());
+    }
+
+    [Fact]
+    public async Task Customers_AddWithAName_AnswersWithTheCustomerAndMetadata()
+    {
+        HttpResponseMessage response = await _client.PostAsync("/customers", Json("""{"name":"Acme"}"""));
+
+        Assert.Equal(HttpStatusCode.Created, response.StatusCode);
+        JsonElement body = await ReadJsonAsync(response);
+        Assert.Equal("customers-1-A", body.GetProperty("data").GetProperty("id").GetString());
+        Assert.Equal("Acme", body.GetProperty("data").GetProperty("name").GetString());
+        Assert.False(string.IsNullOrEmpty(body.GetProperty("metadata").GetProperty("traceId").GetString()));
+    }
+
+    [Fact]
+    public async Task Customers_List_AnswersWithTheDataPaginationAndMetadata()
+    {
+        HttpResponseMessage response = await _client.GetAsync("/customers");
+
+        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+        JsonElement body = await ReadJsonAsync(response);
+        Assert.Equal(["data", "metadata", "pagination"], PropertyNames(body));
+        Assert.Equal(JsonValueKind.Array, body.GetProperty("data").ValueKind);
+        Assert.Empty(body.GetProperty("data").EnumerateArray());
+        JsonElement pagination = body.GetProperty("pagination");
+        Assert.Equal(["page", "pageSize", "totalCount", "totalPages"], PropertyNames(pagination));
+        Assert.Equal(1, pagination.GetProperty("page").GetInt32());
+        Assert.Equal(25, pagination.GetProperty("pageSize").GetInt32());
+        Assert.Equal(0, pagination.GetProperty("totalCount").GetInt32());
+        Assert.Equal(0, pagination.GetProperty("totalPages").GetInt32());
+        JsonElement metadata = body.GetProperty("metadata");
+        Assert.Equal(["timestamp", "traceId"], PropertyNames(metadata));
+        Assert.False(string.IsNullOrEmpty(metadata.GetProperty("traceId").GetString()));
+    }
+
+    [Fact]
+    public async Task Customers_ListWithAPageAndPageSize_ReportsThemInThePagination()
+    {
+        HttpResponseMessage response = await _client.GetAsync("/customers?page=2&pageSize=10");
+
+        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+        JsonElement pagination = (await ReadJsonAsync(response)).GetProperty("pagination");
+        Assert.Equal(2, pagination.GetProperty("page").GetInt32());
+        Assert.Equal(10, pagination.GetProperty("pageSize").GetInt32());
+    }
+
+    [Fact]
+    public async Task Customers_ListWithPagingOutOfRange_Returns400WithAPointerForEachParameter()
+    {
+        JsonElement problem = await ReadProblemAsync(
+            await _client.GetAsync("/customers?page=0&pageSize=101"),
+            HttpStatusCode.BadRequest);
+
+        Assert.Equal(TypeBase + "validation", problem.GetProperty("type").GetString());
+        Assert.Equal(
+            [("InvalidRequest", "#/page"), ("InvalidRequest", "#/pageSize")],
+            ErrorsOf(problem).Select(error => (
+                error.GetProperty("code").GetString(),
+                error.GetProperty("pointer").GetString())));
+    }
+
+    [Fact]
+    public async Task Customers_ListWithAPageThatIsNotANumber_Returns400PointingAtPage()
+    {
+        JsonElement problem = await ReadProblemAsync(
+            await _client.GetAsync("/customers?page=abc"),
+            HttpStatusCode.BadRequest);
+
+        JsonElement error = Assert.Single(ErrorsOf(problem));
+        Assert.Equal("InvalidRequest", error.GetProperty("code").GetString());
+        Assert.Equal("#/page", error.GetProperty("pointer").GetString());
+    }
+
+    [Fact]
+    public async Task Customers_GetMissingCustomer_Returns404WithCustomerNotFound()
+    {
+        // The id has the shape RavenDB generates for customers, and it must fit a single route segment.
+        JsonElement problem = await ReadProblemAsync(
+            await _client.GetAsync("/customers/customers-1-A"),
+            HttpStatusCode.NotFound);
+
+        Assert.Equal(TypeBase + "not-found", problem.GetProperty("type").GetString());
+        Assert.Equal("/customers/customers-1-A", problem.GetProperty("instance").GetString());
+        JsonElement error = Assert.Single(ErrorsOf(problem));
+        Assert.Equal("CustomerNotFound", error.GetProperty("code").GetString());
+        Assert.Equal("Customer 'customers-1-A' was not found.", error.GetProperty("detail").GetString());
+    }
+
+    [Fact]
     public async Task VendorInvoices_ValidInvoice_AnswersWithTheInvoiceAndMetadata()
     {
         HttpResponseMessage response = await _client.PostAsync("/vendorinvoices", Json("""{"vendorName":"Acme","balance":10.5}"""));

@@ -6,6 +6,7 @@ import { LinkTo } from '@ember/routing';
     <ul class="nav-links">
       <li><LinkTo @route="vendors">Vendor Management</LinkTo></li>
       <li><LinkTo @route="customers">Customer Management</LinkTo></li>
+      <li><LinkTo @route="technicians">Technician Management</LinkTo></li>
     </ul>
   </nav>
 </template>

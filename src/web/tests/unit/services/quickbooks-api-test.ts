@@ -47,4 +47,25 @@ module('Unit | Service | quickbooks-api', function (hooks) {
       { path: '/quickbooks/customers/sync', body: undefined },
     ]);
   });
+
+  test('syncTechnicians posts to /quickbooks/technicians/sync with no body', async function (assert) {
+    const calls: { path: string; body: unknown }[] = [];
+
+    class FakeApiClient extends Service {
+      postJson(path: string, body?: unknown) {
+        calls.push({ path, body });
+        return Promise.resolve({ data: { techniciansSynced: 0 } });
+      }
+    }
+    this.owner.register('service:api-client', FakeApiClient);
+
+    const quickbooksApi = this.owner.lookup(
+      'service:quickbooks-api',
+    ) as QuickbooksApiService;
+    await quickbooksApi.syncTechnicians();
+
+    assert.deepEqual(calls, [
+      { path: '/quickbooks/technicians/sync', body: undefined },
+    ]);
+  });
 });

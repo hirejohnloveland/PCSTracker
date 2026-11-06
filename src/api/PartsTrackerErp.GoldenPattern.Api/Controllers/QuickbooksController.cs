@@ -22,4 +22,12 @@ public class QuickbooksController(IQuickbooksApplicationService quickbooksApplic
         ServiceResponse<QuickbooksSyncResponseDto> response = await quickbooksApplicationService.SyncCustomersAsync(cancellationToken);
         return ToResult(response);
     }
+
+    [HttpPost("technicians/sync")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    public async Task<ActionResult<ApiResponse<QuickbooksSyncResponseDto>>> SyncTechnicians(CancellationToken cancellationToken)
+    {
+        ServiceResponse<QuickbooksSyncResponseDto> response = await quickbooksApplicationService.SyncTechniciansAsync(cancellationToken);
+        return ToResult(response);
+    }
 }

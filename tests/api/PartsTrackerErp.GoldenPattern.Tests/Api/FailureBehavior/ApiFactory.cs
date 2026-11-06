@@ -6,6 +6,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using PartsTrackerErp.GoldenPattern.Core.ApplicationServices.Abstractions;
 using PartsTrackerErp.GoldenPattern.Core.Domain.Entities;
+using PartsTrackerErp.GoldenPattern.Core.Domain.Entities.Settings;
 using PartsTrackerErp.GoldenPattern.Core.Repositories.Abstractions;
 
 namespace PartsTrackerErp.GoldenPattern.Tests.Api.FailureBehavior;
@@ -24,9 +25,13 @@ public sealed class ApiFactory : WebApplicationFactory<Program>
         {
             services.RemoveAll<IVendorRepository>();
             services.RemoveAll<ICustomerRepository>();
+            services.RemoveAll<ITechnicianRepository>();
+            services.RemoveAll<ISettingsRepository>();
             services.RemoveAll<IUnitOfWork>();
             services.AddScoped<IVendorRepository, EmptyVendorRepository>();
             services.AddScoped<ICustomerRepository, EmptyCustomerRepository>();
+            services.AddScoped<ITechnicianRepository, EmptyTechnicianRepository>();
+            services.AddScoped<ISettingsRepository, DefaultSettingsRepository>();
             services.AddScoped<IUnitOfWork, NoOpUnitOfWork>();
 
             services.AddSingleton<FailureTestingService>();
@@ -79,6 +84,45 @@ public sealed class ApiFactory : WebApplicationFactory<Program>
         {
             customer.WithId("customers-1-A");
 
+            return Task.CompletedTask;
+        }
+    }
+
+    private sealed class EmptyTechnicianRepository : ITechnicianRepository
+    {
+        public Task<Technician?> GetAsync(string id, CancellationToken cancellationToken = default)
+        {
+            return Task.FromResult<Technician?>(null);
+        }
+
+        public Task<PagedResult<Technician>> ListAsync(
+            string? nameSearch,
+            int page,
+            int pageSize,
+            CancellationToken cancellationToken = default)
+        {
+            return Task.FromResult(new PagedResult<Technician>([], 0));
+        }
+
+        public Task AddAsync(Technician technician, CancellationToken cancellationToken = default)
+        {
+            technician.WithId("technicians-1-A");
+
+            return Task.CompletedTask;
+        }
+    }
+
+    private sealed class DefaultSettingsRepository : ISettingsRepository
+    {
+        public Task<T> GetAsync<T>(CancellationToken cancellationToken = default)
+            where T : class, ISettingsDocument, new()
+        {
+            return Task.FromResult(new T());
+        }
+
+        public Task StoreAsync<T>(T settings, CancellationToken cancellationToken = default)
+            where T : class, ISettingsDocument
+        {
             return Task.CompletedTask;
         }
     }

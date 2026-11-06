@@ -13,4 +13,7 @@ Router.map(function () {
   this.route('customers', function () {
     this.route('details', { path: '/:customer_id' });
   });
+  this.route('technicians', function () {
+    this.route('details', { path: '/:technician_id' });
+  });
 });

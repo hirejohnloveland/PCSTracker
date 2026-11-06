@@ -142,14 +142,16 @@ body {
 }
 
 .vendors-table-wrap,
-.customers-table-wrap {
+.customers-table-wrap,
+.technicians-table-wrap {
   width: 100%;
   overflow-x: auto;
   -webkit-overflow-scrolling: touch;
 }
 
 .vendors,
-.customers {
+.customers,
+.technicians {
   width: 100%;
   min-width: 20rem;
   border-collapse: collapse;
@@ -159,7 +161,9 @@ body {
 .vendors th,
 .vendors td,
 .customers th,
-.customers td {
+.customers td,
+.technicians th,
+.technicians td {
   padding: 0.5rem;
   border-bottom: 1px solid #d2d6dc;
   text-align: left;
@@ -167,12 +171,14 @@ body {
 }
 
 .vendors th:first-child,
-.customers th:first-child {
+.customers th:first-child,
+.technicians th:first-child {
   width: 35%;
 }
 
 .vendors th.actions,
-.customers th.actions {
+.customers th.actions,
+.technicians th.actions {
   width: 6rem;
 }
 
@@ -184,7 +190,8 @@ body {
 }
 
 .vendors .actions,
-.customers .actions {
+.customers .actions,
+.technicians .actions {
   text-align: right;
 }
 
@@ -209,7 +216,8 @@ body {
 }
 
 .vendor-details,
-.customer-details {
+.customer-details,
+.technician-details {
   display: flex;
   flex-direction: column;
   gap: 0.5rem;
@@ -222,17 +230,28 @@ body {
 .vendor-details textarea,
 .customer-details input[type="text"],
 .customer-details input[type="tel"],
-.customer-details textarea {
+.customer-details textarea,
+.technician-details input[type="text"],
+.technician-details input[type="tel"],
+.technician-details select,
+.technician-details textarea {
   box-sizing: border-box;
   width: 100%;
   font: inherit;
 }
 
 .vendor-details .field-error,
-.customer-details .field-error {
+.customer-details .field-error,
+.technician-details .field-error {
   margin: 0;
   color: #c53030;
   font-size: 0.875rem;
+}
+
+.technician-details .checkbox-label {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
 }
 
 .form-actions {

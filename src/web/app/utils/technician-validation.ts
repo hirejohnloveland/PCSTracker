@@ -1,0 +1,77 @@
+import { parsePhoneNumberFromString } from 'libphonenumber-js/max';
+
+export type TechnicianTextField =
+  'fullName' | 'role' | 'phone' | 'notes' | 'quickbooksId';
+
+// These match the limits and the phone rule in TechnicianDtoValidator in the API.
+const MAX_LENGTHS: Record<Exclude<TechnicianTextField, 'role'>, number> = {
+  fullName: 200,
+  phone: 50,
+  notes: 4000,
+  quickbooksId: 50,
+};
+
+const LABELS: Record<Exclude<TechnicianTextField, 'role'>, string> = {
+  fullName: 'Full name',
+  phone: 'Phone',
+  notes: 'Notes',
+  quickbooksId: 'QuickBooks Id',
+};
+
+// libphonenumber also reads letters as a vanity number such as 1-800-FLOWERS, so
+// the characters are checked first: digits, spaces and common punctuation, an
+// optional leading + or (, and an optional extension (x123 or ext. 123).
+const PHONE_CHARACTERS =
+  /^\s*\+?\(?[0-9][0-9\s().-]*(?:\s*(?:x|ext\.?)\s*[0-9]+)?\s*$/i;
+
+export const PHONE_MESSAGE =
+  'Phone must be a valid US or Canadian number, with an optional extension such as x123.';
+
+export const ROLE_MESSAGE =
+  'Role must be one of the configured technician roles.';
+
+function isUsOrCanadianNumber(value: string): boolean {
+  if (!PHONE_CHARACTERS.test(value)) {
+    return false;
+  }
+
+  const number = parsePhoneNumberFromString(value, 'US');
+  return (
+    number !== undefined &&
+    number.isValid() &&
+    (number.country === 'US' || number.country === 'CA')
+  );
+}
+
+// roles is the list the API reports from the technician role settings.
+export function validateTechnicianField(
+  field: TechnicianTextField,
+  value: string,
+  roles: readonly string[],
+): string | null {
+  if (field === 'fullName' && value.trim() === '') {
+    return 'Full name is required.';
+  }
+
+  if (field === 'role') {
+    if (value.trim() === '') {
+      return 'Role is required.';
+    }
+
+    return roles.includes(value.trim()) ? null : ROLE_MESSAGE;
+  }
+
+  if (value.length > MAX_LENGTHS[field]) {
+    return `${LABELS[field]} must be ${MAX_LENGTHS[field]} characters or fewer.`;
+  }
+
+  if (
+    field === 'phone' &&
+    value.trim() !== '' &&
+    !isUsOrCanadianNumber(value)
+  ) {
+    return PHONE_MESSAGE;
+  }
+
+  return null;
+}

@@ -22,10 +22,12 @@ public static class CoreRegistration
 
         builder.Services.AddScoped<IVendorRepository, VendorRepository>();
         builder.Services.AddScoped<ICustomerRepository, CustomerRepository>();
+        builder.Services.AddScoped<ITechnicianRepository, TechnicianRepository>();
         builder.Services.AddScoped<ISettingsRepository, SettingsRepository>();
         builder.Services.AddScoped<IUnitOfWork, RavenUnitOfWork>();
         builder.Services.AddScoped<IVendorsApplicationService, VendorsApplicationService>();
         builder.Services.AddScoped<ICustomersApplicationService, CustomersApplicationService>();
+        builder.Services.AddScoped<ITechniciansApplicationService, TechniciansApplicationService>();
         builder.Services.AddScoped<IVendorInvoicesApplicationService, VendorInvoicesApplicationService>();
         builder.Services.AddScoped<IQuickbooksApplicationService, QuickbooksApplicationService>();
 

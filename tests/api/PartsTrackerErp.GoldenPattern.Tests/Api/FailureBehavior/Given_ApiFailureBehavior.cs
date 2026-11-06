@@ -688,6 +688,124 @@ public class Given_ApiFailureBehavior
     }
 
     [Fact]
+    public async Task Technicians_UpdateMissingTechnician_Returns404WithTechnicianNotFound()
+    {
+        JsonElement problem = await ReadProblemAsync(
+            await _client.PutAsync("/technicians/abc", Json("""{"fullName":"Bob Osborne","role":"Service Tech"}""")),
+            HttpStatusCode.NotFound);
+
+        Assert.Equal(TypeBase + "not-found", problem.GetProperty("type").GetString());
+        Assert.Equal("/technicians/abc", problem.GetProperty("instance").GetString());
+        JsonElement error = Assert.Single(ErrorsOf(problem));
+        Assert.Equal("TechnicianNotFound", error.GetProperty("code").GetString());
+        Assert.Equal("Technician 'abc' was not found.", error.GetProperty("detail").GetString());
+    }
+
+    [Fact]
+    public async Task Technicians_AddWithNoFullName_Returns400PointingAtTheFullName()
+    {
+        JsonElement problem = await ReadProblemAsync(
+            await _client.PostAsync("/technicians", Json("""{"fullName":"","role":"Service Tech"}""")),
+            HttpStatusCode.BadRequest);
+
+        JsonElement error = Assert.Single(ErrorsOf(problem));
+        Assert.Equal("InvalidRequest", error.GetProperty("code").GetString());
+        Assert.Equal("Full name is required.", error.GetProperty("detail").GetString());
+        Assert.Equal("#/fullName", error.GetProperty("pointer").GetString());
+    }
+
+    [Fact]
+    public async Task Technicians_AddWithAnEmptyBody_ReportsTheFullNameAndTheRole()
+    {
+        JsonElement problem = await ReadProblemAsync(
+            await _client.PostAsync("/technicians", Json("{}")),
+            HttpStatusCode.BadRequest);
+
+        Assert.Equal(
+            ["#/fullName", "#/role"],
+            ErrorsOf(problem).Select(error => error.GetProperty("pointer").GetString()).Order());
+    }
+
+    [Fact]
+    public async Task Technicians_AddWithARoleThatIsNotConfigured_Returns400PointingAtTheRole()
+    {
+        JsonElement problem = await ReadProblemAsync(
+            await _client.PostAsync("/technicians", Json("""{"fullName":"Bob Osborne","role":"Plumber"}""")),
+            HttpStatusCode.BadRequest);
+
+        JsonElement error = Assert.Single(ErrorsOf(problem));
+        Assert.Equal("InvalidRequest", error.GetProperty("code").GetString());
+        Assert.Equal("Role must be one of the configured technician roles.", error.GetProperty("detail").GetString());
+        Assert.Equal("#/role", error.GetProperty("pointer").GetString());
+    }
+
+    [Fact]
+    public async Task Technicians_AddWithAFullNameAndARole_AnswersWithTheTechnicianAndMetadata()
+    {
+        HttpResponseMessage response = await _client.PostAsync(
+            "/technicians",
+            Json("""{"fullName":"Bob Osborne","role":"Service Tech"}"""));
+
+        Assert.Equal(HttpStatusCode.Created, response.StatusCode);
+        JsonElement body = await ReadJsonAsync(response);
+        JsonElement data = body.GetProperty("data");
+        Assert.Equal("technicians-1-A", data.GetProperty("id").GetString());
+        Assert.Equal("Bob Osborne", data.GetProperty("fullName").GetString());
+        Assert.Equal("Service Tech", data.GetProperty("role").GetString());
+        Assert.True(data.GetProperty("active").GetBoolean());
+        Assert.False(string.IsNullOrEmpty(body.GetProperty("metadata").GetProperty("traceId").GetString()));
+    }
+
+    [Fact]
+    public async Task Technicians_List_AnswersWithTheDataPaginationAndMetadata()
+    {
+        HttpResponseMessage response = await _client.GetAsync("/technicians");
+
+        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+        JsonElement body = await ReadJsonAsync(response);
+        Assert.Equal(["data", "metadata", "pagination"], PropertyNames(body));
+        Assert.Empty(body.GetProperty("data").EnumerateArray());
+        Assert.Equal(["page", "pageSize", "totalCount", "totalPages"], PropertyNames(body.GetProperty("pagination")));
+    }
+
+    [Fact]
+    public async Task Technicians_ListWithPagingOutOfRange_Returns400WithAPointerForEachParameter()
+    {
+        JsonElement problem = await ReadProblemAsync(
+            await _client.GetAsync("/technicians?page=0&pageSize=101"),
+            HttpStatusCode.BadRequest);
+
+        Assert.Equal(
+            ["#/page", "#/pageSize"],
+            ErrorsOf(problem).Select(error => error.GetProperty("pointer").GetString()));
+    }
+
+    [Fact]
+    public async Task Technicians_Roles_AnswersWithTheConfiguredRoles()
+    {
+        HttpResponseMessage response = await _client.GetAsync("/technicians/roles");
+
+        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+        JsonElement body = await ReadJsonAsync(response);
+        Assert.Equal(
+            ["Service Tech", "Installer", "Other"],
+            body.GetProperty("data").GetProperty("roles").EnumerateArray().Select(role => role.GetString()));
+    }
+
+    [Fact]
+    public async Task Technicians_GetMissingTechnician_Returns404WithTechnicianNotFound()
+    {
+        JsonElement problem = await ReadProblemAsync(
+            await _client.GetAsync("/technicians/technicians-1-A"),
+            HttpStatusCode.NotFound);
+
+        Assert.Equal(TypeBase + "not-found", problem.GetProperty("type").GetString());
+        JsonElement error = Assert.Single(ErrorsOf(problem));
+        Assert.Equal("TechnicianNotFound", error.GetProperty("code").GetString());
+        Assert.Equal("Technician 'technicians-1-A' was not found.", error.GetProperty("detail").GetString());
+    }
+
+    [Fact]
     public async Task VendorInvoices_ValidInvoice_AnswersWithTheInvoiceAndMetadata()
     {
         HttpResponseMessage response = await _client.PostAsync("/vendorinvoices", Json("""{"vendorName":"Acme","balance":10.5}"""));

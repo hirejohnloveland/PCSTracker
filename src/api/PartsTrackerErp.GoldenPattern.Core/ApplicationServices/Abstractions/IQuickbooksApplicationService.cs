@@ -7,4 +7,6 @@ public interface IQuickbooksApplicationService
     Task<ServiceResponse<QuickbooksSyncResponseDto>> SyncVendorsAsync(CancellationToken cancellationToken = default);
 
     Task<ServiceResponse<QuickbooksSyncResponseDto>> SyncCustomersAsync(CancellationToken cancellationToken = default);
+
+    Task<ServiceResponse<QuickbooksSyncResponseDto>> SyncTechniciansAsync(CancellationToken cancellationToken = default);
 }

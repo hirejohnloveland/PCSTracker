@@ -17,4 +17,10 @@ export default class QuickbooksApiService extends Service {
       '/quickbooks/customers/sync',
     );
   }
+
+  async syncTechnicians(): Promise<QuickbooksSync> {
+    return this.apiClient.postJson<QuickbooksSync>(
+      '/quickbooks/technicians/sync',
+    );
+  }
 }

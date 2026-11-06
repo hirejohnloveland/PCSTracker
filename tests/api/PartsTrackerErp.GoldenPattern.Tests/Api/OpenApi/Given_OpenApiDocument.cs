@@ -22,7 +22,7 @@ public class Given_OpenApiDocument(ApiFactory factory)
     private static readonly string[] s_failureStatuses = ["400", "401", "403", "404", "409", "500"];
 
     // The operations that create a resource answer 201. Every other operation answers 200.
-    private static readonly string[] s_creates = ["post /vendors", "post /customers", "post /vendorinvoices"];
+    private static readonly string[] s_creates = ["post /vendors", "post /customers", "post /technicians", "post /vendorinvoices"];
 
     private readonly HttpClient _client = factory.CreateClient();
 
@@ -224,6 +224,10 @@ public class Given_OpenApiDocument(ApiFactory factory)
     [InlineData("get", "/customers", "200", "PagedApiResponseOfCustomerResponseDto")]
     [InlineData("get", "/customers/{id}", "200", "ApiResponseOfCustomerResponseDto")]
     [InlineData("post", "/customers", "201", "ApiResponseOfCustomerResponseDto")]
+    [InlineData("get", "/technicians", "200", "PagedApiResponseOfTechnicianResponseDto")]
+    [InlineData("get", "/technicians/{id}", "200", "ApiResponseOfTechnicianResponseDto")]
+    [InlineData("get", "/technicians/roles", "200", "ApiResponseOfTechnicianRolesResponseDto")]
+    [InlineData("post", "/technicians", "201", "ApiResponseOfTechnicianResponseDto")]
     public async Task Operation_SuccessRefersToItsEnvelope(string method, string path, string status, string schema)
     {
         JsonElement operation = OperationNamed(await GetDocumentAsync(), method, path);
@@ -253,6 +257,7 @@ public class Given_OpenApiDocument(ApiFactory factory)
         {
             { "VendorDto", ["name"] },
             { "CustomerDto", ["name"] },
+            { "TechnicianDto", ["fullName", "role"] },
             { "VendorInvoiceDto", ["vendorName", "balance"] }
         };
     }
@@ -328,6 +333,8 @@ public class Given_OpenApiDocument(ApiFactory factory)
             { "GET", "/customers/{id}", "404", "/customers/customers-1-A", null },
             { "POST", "/customers", "400", "/customers", """{"name":""}""" },
             { "POST", "/customers", "400", "/customers", "{}" },
+            { "GET", "/technicians/{id}", "404", "/technicians/technicians-1-A", null },
+            { "POST", "/technicians", "400", "/technicians", "{}" },
             { "POST", "/vendorinvoices", "400", "/vendorinvoices", "{}" }
         };
     }

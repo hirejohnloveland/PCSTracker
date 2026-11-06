@@ -17,4 +17,4 @@ A caller can abandon a request, and a host can stop while work is in flight. Wor
 
 ## Reference implementation
 
-- The token threaded from controller to repository: [`VendorsController.Activate`](../../src/api/PartsTrackerErp.GoldenPattern.Api/Controllers/VendorsController.cs) through [`VendorsApplicationService.ActivateAsync`](../../src/api/PartsTrackerErp.GoldenPattern.Core/ApplicationServices/Implementations/VendorsApplicationService.cs) to [`VendorRepository.GetAsync`](../../src/api/PartsTrackerErp.GoldenPattern.Core/Repositories/Implementations/VendorRepository.cs): `await vendorRepository.GetAsync(id, cancellationToken)`.
+- The token threaded from controller to repository: [`VendorsController.Update`](../../src/api/PartsTrackerErp.GoldenPattern.Api/Controllers/VendorsController.cs) through [`VendorsApplicationService.UpdateAsync`](../../src/api/PartsTrackerErp.GoldenPattern.Core/ApplicationServices/Implementations/VendorsApplicationService.cs) to [`VendorRepository.GetAsync`](../../src/api/PartsTrackerErp.GoldenPattern.Core/Repositories/Implementations/VendorRepository.cs): `await vendorRepository.GetAsync(id, cancellationToken)`.

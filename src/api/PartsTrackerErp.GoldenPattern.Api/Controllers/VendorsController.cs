@@ -13,8 +13,8 @@ public class VendorsController(IVendorsApplicationService vendorsApplicationServ
     [HttpPost]
     [ProducesResponseType(StatusCodes.Status201Created)]
     public async Task<ActionResult<ApiResponse<VendorResponseDto>>> Add(
-        [FromBody] CreateVendorDto request,
-        IValidator<CreateVendorDto> validator,
+        [FromBody] VendorDto request,
+        IValidator<VendorDto> validator,
         CancellationToken cancellationToken)
     {
         ValidationResult validation = await validator.ValidateAsync(request, cancellationToken);
@@ -57,8 +57,8 @@ public class VendorsController(IVendorsApplicationService vendorsApplicationServ
     [ProducesResponseType(StatusCodes.Status200OK)]
     public async Task<ActionResult<ApiResponse<VendorResponseDto>>> Update(
         string id,
-        [FromBody] UpdateVendorDto request,
-        IValidator<UpdateVendorDto> validator,
+        [FromBody] VendorDto request,
+        IValidator<VendorDto> validator,
         CancellationToken cancellationToken)
     {
         ValidationResult validation = await validator.ValidateAsync(request, cancellationToken);
@@ -68,22 +68,6 @@ public class VendorsController(IVendorsApplicationService vendorsApplicationServ
         }
 
         ServiceResponse<VendorResponseDto> response = await vendorsApplicationService.UpdateAsync(id, request, cancellationToken);
-        return ToResult(response);
-    }
-
-    [HttpPost("{id}/activate")]
-    [ProducesResponseType(StatusCodes.Status200OK)]
-    public async Task<ActionResult<ApiResponse<VendorResponseDto>>> Activate(string id, CancellationToken cancellationToken)
-    {
-        ServiceResponse<VendorResponseDto> response = await vendorsApplicationService.ActivateAsync(id, cancellationToken);
-        return ToResult(response);
-    }
-
-    [HttpPost("{id}/deactivate")]
-    [ProducesResponseType(StatusCodes.Status200OK)]
-    public async Task<ActionResult<ApiResponse<VendorResponseDto>>> Deactivate(string id, CancellationToken cancellationToken)
-    {
-        ServiceResponse<VendorResponseDto> response = await vendorsApplicationService.DeactivateAsync(id, cancellationToken);
         return ToResult(response);
     }
 }

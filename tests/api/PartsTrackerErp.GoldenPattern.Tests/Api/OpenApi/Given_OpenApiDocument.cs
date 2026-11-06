@@ -248,7 +248,7 @@ public class Given_OpenApiDocument(ApiFactory factory)
     {
         return new()
         {
-            { "CreateVendorDto", ["name"] },
+            { "VendorDto", ["name"] },
             { "VendorInvoiceDto", ["vendorName", "balance"] }
         };
     }

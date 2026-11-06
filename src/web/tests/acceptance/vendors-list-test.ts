@@ -15,14 +15,14 @@ import type {
   ListVendorsQuery,
   Vendor,
   VendorPage,
+  VendorResponse,
 } from 'web/services/vendors-api';
 
 const PAGE_SIZE = 25;
 
 const allVendors: Vendor[] = Array.from({ length: 30 }, (_, index) => ({
-  id: `vendors/${index + 1}-A`,
+  id: `vendors-${index + 1}-A`,
   name: `${index < 5 ? 'Acme' : 'Vendor'} ${String(index + 1).padStart(2, '0')}`,
-  isActive: index % 2 === 0,
   quickbooksId: index === 0 ? 'qb-1' : null,
   description: index === 0 ? 'Refrigeration parts' : null,
   contact: null,
@@ -55,6 +55,20 @@ class FakeVendorsApi extends Service {
   }
 }
 
+class FakeVendorDetailsApi extends FakeVendorsApi {
+  get(id: string): Promise<VendorResponse> {
+    const vendor = allVendors.find((candidate) => candidate.id === id);
+    if (vendor === undefined) {
+      return Promise.reject(new Error(`No vendor ${id}`));
+    }
+
+    return Promise.resolve({
+      data: vendor,
+      metadata: { traceId: 'test', timestamp: new Date().toISOString() },
+    });
+  }
+}
+
 class FakeQuickbooksApi extends Service {
   static failure: ApiError = new ApiError({ status: 500, title: 'unset' });
 
@@ -68,7 +82,7 @@ module('Acceptance | vendors list', function (hooks) {
 
   hooks.beforeEach(function () {
     FakeVendorsApi.calls = [];
-    this.owner.register('service:vendors-api', FakeVendorsApi);
+    this.owner.register('service:vendors-api', FakeVendorDetailsApi);
     this.owner.register('service:quickbooks-api', FakeQuickbooksApi);
   });
 
@@ -81,28 +95,28 @@ module('Acceptance | vendors list', function (hooks) {
     assert.dom('nav.pagination').containsText('Page 1 of 2');
   });
 
-  test('the QuickBooks Id column shows the id, and is blank for a vendor with none', async function (assert) {
+  test('the table shows only the name and description, and not the vendor id', async function (assert) {
     await visit('/vendors');
 
-    assert.dom('table.vendors th.quickbooks-id').hasText('QuickBooks Id');
-    assert
-      .dom('table.vendors tbody tr:nth-child(1) td.quickbooks-id')
-      .hasText('qb-1');
-    assert
-      .dom('table.vendors tbody tr:nth-child(2) td.quickbooks-id')
-      .hasText('');
-  });
-
-  test('the table shows the vendor details but not the vendor id', async function (assert) {
-    await visit('/vendors');
-
-    assert
-      .dom('table.vendors thead')
-      .hasText('Name Description Contact Phone Notes QuickBooks Id Status');
+    assert.dom('table.vendors thead').hasText('Name Description Actions');
     assert
       .dom('table.vendors tbody tr:nth-child(1) td.description')
       .hasText('Refrigeration parts');
-    assert.dom('table.vendors').doesNotContainText('vendors/1-A');
+    assert
+      .dom('table.vendors tbody tr:nth-child(2) td.description')
+      .hasText('');
+    assert.dom('table.vendors').doesNotContainText('vendors-1-A');
+  });
+
+  test('a Details button opens that vendor’s details page', async function (assert) {
+    await visit('/vendors');
+
+    assert
+      .dom('table.vendors tbody tr:nth-child(1) a.button')
+      .hasText('Details');
+    await click('table.vendors tbody tr:nth-child(1) a.button');
+
+    assert.strictEqual(currentURL(), '/vendors/vendors-1-A');
   });
 
   test('Next and Previous move between pages', async function (assert) {

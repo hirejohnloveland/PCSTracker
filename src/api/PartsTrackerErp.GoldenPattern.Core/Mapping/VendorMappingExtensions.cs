@@ -13,7 +13,6 @@ public static class VendorMappingExtensions
         return new VendorResponseDto(
             Id: id,
             Name: vendor.Name,
-            IsActive: vendor.IsActive,
             QuickbooksId: vendor.QuickbooksId,
             Description: vendor.Description,
             Contact: vendor.Contact,

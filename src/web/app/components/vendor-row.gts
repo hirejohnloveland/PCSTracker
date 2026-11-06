@@ -1,4 +1,5 @@
 import type { TOC } from '@ember/component/template-only';
+import { LinkTo } from '@ember/routing';
 import type { Vendor } from 'web/services/vendors-api';
 
 interface VendorRowSignature {
@@ -12,10 +13,12 @@ interface VendorRowSignature {
   <tr ...attributes>
     <td>{{@vendor.name}}</td>
     <td class="description">{{@vendor.description}}</td>
-    <td class="contact">{{@vendor.contact}}</td>
-    <td class="phone">{{@vendor.phone}}</td>
-    <td class="notes">{{@vendor.notes}}</td>
-    <td class="quickbooks-id">{{@vendor.quickbooksId}}</td>
-    <td>{{if @vendor.isActive "Active" "Inactive"}}</td>
+    <td class="actions">
+      <LinkTo
+        @route="vendors.details"
+        @model={{@vendor.id}}
+        class="button"
+      >Details</LinkTo>
+    </td>
   </tr>
 </template> satisfies TOC<VendorRowSignature>;

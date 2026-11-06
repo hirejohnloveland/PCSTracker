@@ -55,6 +55,21 @@ module('Unit | Service | api-client', function (hooks) {
     assert.strictEqual(requests[0]?.init?.body, '{"name":"Acme"}');
   });
 
+  test('put sends the body as JSON', async function (assert) {
+    stubFetch(Response.json({ data: { id: 'vendors-1-A' } }));
+    const client = this.owner.lookup('service:api-client') as ApiClientService;
+
+    await client.putJson('/vendors/vendors-1-A', { name: 'Acme' });
+
+    assert.strictEqual(requests[0]?.url, '/api/vendors/vendors-1-A');
+    assert.strictEqual(requests[0]?.init?.method, 'PUT');
+    assert.strictEqual(requests[0]?.init?.body, '{"name":"Acme"}');
+    assert.strictEqual(
+      (requests[0]?.init?.headers as Record<string, string>)['Content-Type'],
+      'application/json',
+    );
+  });
+
   test('post without a body sends no body and no content type', async function (assert) {
     stubFetch(Response.json({ data: {} }));
     const client = this.owner.lookup('service:api-client') as ApiClientService;

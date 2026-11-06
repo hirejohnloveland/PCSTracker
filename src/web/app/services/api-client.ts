@@ -78,6 +78,10 @@ export default class ApiClientService extends Service {
     return this.send<T>('POST', path, body);
   }
 
+  async putJson<T>(path: string, body: unknown): Promise<T> {
+    return this.send<T>('PUT', path, body);
+  }
+
   private async send<T>(
     method: string,
     url: string,

@@ -39,7 +39,7 @@ A client generated from the document gets the types the schemas describe, so a s
 - The test that ties the declarations to `ErrorType`: [`Given_ApiControllerBase.ApiControllerBase_DeclaredFailures_CoverTheStatusOfEveryErrorType`](../../tests/api/PartsTrackerErp.GoldenPattern.Tests/Api/Controllers/Given_ApiControllerBase.cs)
 - The test of the generated document: [`Given_OpenApiDocument`](../../tests/api/PartsTrackerErp.GoldenPattern.Tests/Api/OpenApi/Given_OpenApiDocument.cs)
 - The test that checks real failures against the document: [`Given_OpenApiDocument.RealFailure_EveryMember_IsDescribedByTheDocument`](../../tests/api/PartsTrackerErp.GoldenPattern.Tests/Api/OpenApi/Given_OpenApiDocument.cs)
-- A request DTO with a required property, [`CreateVendorDto`](../../src/api/PartsTrackerErp.GoldenPattern.Core/Contracts/Requests/CreateVendorDto.cs): `public required string Name { get; set; }`
+- A request DTO with a required property, [`VendorDto`](../../src/api/PartsTrackerErp.GoldenPattern.Core/Contracts/Requests/VendorDto.cs): `public required string Name { get; set; }`
 - A response DTO built only from a stored entity: [`VendorMappingExtensions.ToResponseDto`](../../src/api/PartsTrackerErp.GoldenPattern.Core/Mapping/VendorMappingExtensions.cs)
 - The corrections to the generated document: [`OpenApiRegistration.AddApiOpenApi`](../../src/api/PartsTrackerErp.GoldenPattern.Api/Registration/OpenApiRegistration.cs)
 - Lowercase URLs: [`ControllerRegistration.AddApiControllers`](../../src/api/PartsTrackerErp.GoldenPattern.Api/Registration/ControllerRegistration.cs)

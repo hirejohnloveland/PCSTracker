@@ -416,14 +416,14 @@ public class Given_ApiFailureBehavior
     // ---- The real vendor endpoints ----
 
     [Fact]
-    public async Task Vendors_ActivateMissingVendor_Returns404WithVendorNotFound()
+    public async Task Vendors_UpdateMissingVendor_Returns404WithVendorNotFound()
     {
         JsonElement problem = await ReadProblemAsync(
-            await _client.PostAsync("/vendors/abc/activate", content: null),
+            await _client.PutAsync("/vendors/abc", Json("""{"name":"Acme"}""")),
             HttpStatusCode.NotFound);
 
         Assert.Equal(TypeBase + "not-found", problem.GetProperty("type").GetString());
-        Assert.Equal("/vendors/abc/activate", problem.GetProperty("instance").GetString());
+        Assert.Equal("/vendors/abc", problem.GetProperty("instance").GetString());
         JsonElement error = Assert.Single(ErrorsOf(problem));
         Assert.Equal("VendorNotFound", error.GetProperty("code").GetString());
         Assert.Equal("Vendor 'abc' was not found.", error.GetProperty("detail").GetString());
@@ -462,7 +462,6 @@ public class Given_ApiFailureBehavior
         JsonElement body = await ReadJsonAsync(response);
         Assert.Equal("vendors-1-A", body.GetProperty("data").GetProperty("id").GetString());
         Assert.Equal("Acme", body.GetProperty("data").GetProperty("name").GetString());
-        Assert.True(body.GetProperty("data").GetProperty("isActive").GetBoolean());
         Assert.False(string.IsNullOrEmpty(body.GetProperty("metadata").GetProperty("traceId").GetString()));
     }
 

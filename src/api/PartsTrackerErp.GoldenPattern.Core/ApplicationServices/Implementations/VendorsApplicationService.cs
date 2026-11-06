@@ -12,7 +12,7 @@ public sealed class VendorsApplicationService(
     IVendorRepository vendorRepository,
     IUnitOfWork unitOfWork) : IVendorsApplicationService
 {
-    public async Task<ServiceResponse<VendorResponseDto>> AddAsync(CreateVendorDto request, CancellationToken cancellationToken = default)
+    public async Task<ServiceResponse<VendorResponseDto>> AddAsync(VendorDto request, CancellationToken cancellationToken = default)
     {
         var vendor = Vendor.Create(
             request.Name,
@@ -28,7 +28,7 @@ public sealed class VendorsApplicationService(
 
     public async Task<ServiceResponse<VendorResponseDto>> UpdateAsync(
         string id,
-        UpdateVendorDto request,
+        VendorDto request,
         CancellationToken cancellationToken = default)
     {
         Vendor? vendor = await vendorRepository.GetAsync(id, cancellationToken);
@@ -43,8 +43,7 @@ public sealed class VendorsApplicationService(
             request.Contact,
             request.Phone,
             request.Notes,
-            request.QuickbooksId,
-            request.IsActive);
+            request.QuickbooksId);
         await unitOfWork.SaveChangesAsync(cancellationToken);
         return ServiceResponse<VendorResponseDto>.Succeed(vendor.ToResponseDto());
     }
@@ -76,31 +75,5 @@ public sealed class VendorsApplicationService(
             map: vendor => vendor.ToResponseDto());
 
         return ServiceResponse<PagedResponseDto<VendorResponseDto>>.Succeed(vendorPage);
-    }
-
-    public async Task<ServiceResponse<VendorResponseDto>> ActivateAsync(string id, CancellationToken cancellationToken = default)
-    {
-        Vendor? vendor = await vendorRepository.GetAsync(id, cancellationToken);
-        if (vendor is null)
-        {
-            return ServiceResponse<VendorResponseDto>.Fail(ErrorType.NotFound, VendorErrors.NotFound(id));
-        }
-
-        vendor.Activate();
-        await unitOfWork.SaveChangesAsync(cancellationToken);
-        return ServiceResponse<VendorResponseDto>.Succeed(vendor.ToResponseDto());
-    }
-
-    public async Task<ServiceResponse<VendorResponseDto>> DeactivateAsync(string id, CancellationToken cancellationToken = default)
-    {
-        Vendor? vendor = await vendorRepository.GetAsync(id, cancellationToken);
-        if (vendor is null)
-        {
-            return ServiceResponse<VendorResponseDto>.Fail(ErrorType.NotFound, VendorErrors.NotFound(id));
-        }
-
-        vendor.Deactivate();
-        await unitOfWork.SaveChangesAsync(cancellationToken);
-        return ServiceResponse<VendorResponseDto>.Succeed(vendor.ToResponseDto());
     }
 }

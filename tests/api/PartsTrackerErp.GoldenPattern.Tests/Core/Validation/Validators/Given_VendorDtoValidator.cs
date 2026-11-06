@@ -5,14 +5,14 @@ using PartsTrackerErp.GoldenPattern.Core.Validation.Validators;
 namespace PartsTrackerErp.GoldenPattern.Tests.Core.Validation.Validators;
 
 [Trait(Constants.TestCategory, Constants.UnitTestCategory)]
-public class Given_CreateVendorDtoValidator
+public class Given_VendorDtoValidator
 {
-    private readonly CreateVendorDtoValidator _validator = new();
+    private readonly VendorDtoValidator _validator = new();
 
     [Fact]
     public async Task ValidateAsync_OnlyAName_IsValid()
     {
-        ValidationResult result = await _validator.ValidateAsync(new CreateVendorDto { Name = "Acme" });
+        ValidationResult result = await _validator.ValidateAsync(new VendorDto { Name = "Acme" });
 
         Assert.True(result.IsValid);
     }
@@ -20,14 +20,14 @@ public class Given_CreateVendorDtoValidator
     [Fact]
     public async Task ValidateAsync_AllFieldsAtTheirLimits_IsValid()
     {
-        var request = new CreateVendorDto
+        var request = new VendorDto
         {
-            Name = new string('n', CreateVendorDtoValidator.NameMaxLength),
-            Description = new string('d', CreateVendorDtoValidator.DescriptionMaxLength),
-            Contact = new string('c', CreateVendorDtoValidator.ContactMaxLength),
+            Name = new string('n', VendorDtoValidator.NameMaxLength),
+            Description = new string('d', VendorDtoValidator.DescriptionMaxLength),
+            Contact = new string('c', VendorDtoValidator.ContactMaxLength),
             Phone = "555-0100",
-            Notes = new string('o', CreateVendorDtoValidator.NotesMaxLength),
-            QuickbooksId = new string('9', CreateVendorDtoValidator.QuickbooksIdMaxLength)
+            Notes = new string('o', VendorDtoValidator.NotesMaxLength),
+            QuickbooksId = new string('9', VendorDtoValidator.QuickbooksIdMaxLength)
         };
 
         ValidationResult result = await _validator.ValidateAsync(request);
@@ -40,7 +40,7 @@ public class Given_CreateVendorDtoValidator
     [InlineData("   ")]
     public async Task ValidateAsync_BlankName_FailsOnName(string name)
     {
-        ValidationResult result = await _validator.ValidateAsync(new CreateVendorDto { Name = name });
+        ValidationResult result = await _validator.ValidateAsync(new VendorDto { Name = name });
 
         ValidationFailure failure = Assert.Single(result.Errors);
         Assert.Equal("Name", failure.PropertyName);
@@ -50,7 +50,7 @@ public class Given_CreateVendorDtoValidator
     [Fact]
     public async Task ValidateAsync_NameOverTheLimit_FailsOnName()
     {
-        var request = new CreateVendorDto { Name = new string('n', CreateVendorDtoValidator.NameMaxLength + 1) };
+        var request = new VendorDto { Name = new string('n', VendorDtoValidator.NameMaxLength + 1) };
 
         ValidationResult result = await _validator.ValidateAsync(request);
 
@@ -62,10 +62,10 @@ public class Given_CreateVendorDtoValidator
     [Fact]
     public async Task ValidateAsync_DescriptionOverTheLimit_FailsOnDescription()
     {
-        var request = new CreateVendorDto
+        var request = new VendorDto
         {
             Name = "Acme",
-            Description = new string('d', CreateVendorDtoValidator.DescriptionMaxLength + 1)
+            Description = new string('d', VendorDtoValidator.DescriptionMaxLength + 1)
         };
 
         ValidationResult result = await _validator.ValidateAsync(request);
@@ -78,10 +78,10 @@ public class Given_CreateVendorDtoValidator
     [Fact]
     public async Task ValidateAsync_ContactOverTheLimit_FailsOnContact()
     {
-        var request = new CreateVendorDto
+        var request = new VendorDto
         {
             Name = "Acme",
-            Contact = new string('c', CreateVendorDtoValidator.ContactMaxLength + 1)
+            Contact = new string('c', VendorDtoValidator.ContactMaxLength + 1)
         };
 
         ValidationResult result = await _validator.ValidateAsync(request);
@@ -94,10 +94,10 @@ public class Given_CreateVendorDtoValidator
     [Fact]
     public async Task ValidateAsync_NotesOverTheLimit_FailsOnNotes()
     {
-        var request = new CreateVendorDto
+        var request = new VendorDto
         {
             Name = "Acme",
-            Notes = new string('o', CreateVendorDtoValidator.NotesMaxLength + 1)
+            Notes = new string('o', VendorDtoValidator.NotesMaxLength + 1)
         };
 
         ValidationResult result = await _validator.ValidateAsync(request);
@@ -110,10 +110,10 @@ public class Given_CreateVendorDtoValidator
     [Fact]
     public async Task ValidateAsync_QuickbooksIdOverTheLimit_FailsOnQuickbooksId()
     {
-        var request = new CreateVendorDto
+        var request = new VendorDto
         {
             Name = "Acme",
-            QuickbooksId = new string('9', CreateVendorDtoValidator.QuickbooksIdMaxLength + 1)
+            QuickbooksId = new string('9', VendorDtoValidator.QuickbooksIdMaxLength + 1)
         };
 
         ValidationResult result = await _validator.ValidateAsync(request);
@@ -136,7 +136,7 @@ public class Given_CreateVendorDtoValidator
     [InlineData("631-555-0100 ext. 123")]
     public async Task ValidateAsync_AcceptablePhone_IsValid(string? phone)
     {
-        ValidationResult result = await _validator.ValidateAsync(new CreateVendorDto { Name = "Acme", Phone = phone });
+        ValidationResult result = await _validator.ValidateAsync(new VendorDto { Name = "Acme", Phone = phone });
 
         Assert.True(result.IsValid);
     }
@@ -149,7 +149,7 @@ public class Given_CreateVendorDtoValidator
     [InlineData("555-0100; DROP")]
     public async Task ValidateAsync_PhoneWithUnacceptableCharacters_FailsOnPhone(string phone)
     {
-        ValidationResult result = await _validator.ValidateAsync(new CreateVendorDto { Name = "Acme", Phone = phone });
+        ValidationResult result = await _validator.ValidateAsync(new VendorDto { Name = "Acme", Phone = phone });
 
         ValidationFailure failure = Assert.Single(result.Errors);
         Assert.Equal("Phone", failure.PropertyName);
@@ -161,7 +161,7 @@ public class Given_CreateVendorDtoValidator
     [Fact]
     public async Task ValidateAsync_PhoneOverTheLimit_FailsOnPhone()
     {
-        var request = new CreateVendorDto { Name = "Acme", Phone = new string('5', CreateVendorDtoValidator.PhoneMaxLength + 1) };
+        var request = new VendorDto { Name = "Acme", Phone = new string('5', VendorDtoValidator.PhoneMaxLength + 1) };
 
         ValidationResult result = await _validator.ValidateAsync(request);
 

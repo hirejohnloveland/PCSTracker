@@ -8,24 +8,13 @@ namespace PartsTrackerErp.GoldenPattern.Tests.Core.Mapping;
 public class Given_VendorMappingExtensions
 {
     [Fact]
-    public void ToResponseDto_CopiesTheIdNameAndActiveFlag()
+    public void ToResponseDto_CopiesTheIdAndName()
     {
         Vendor vendor = Vendor.Create("Acme").WithId("vendors-1-A");
 
         VendorResponseDto response = vendor.ToResponseDto();
 
-        Assert.Equal(new VendorResponseDto("vendors-1-A", "Acme", true, null, null, null, null, null), response);
-    }
-
-    [Fact]
-    public void ToResponseDto_DeactivatedVendor_CopiesTheInactiveFlag()
-    {
-        Vendor vendor = Vendor.Create("Acme").WithId("vendors-1-A");
-        vendor.Deactivate();
-
-        VendorResponseDto response = vendor.ToResponseDto();
-
-        Assert.Equal(new VendorResponseDto("vendors-1-A", "Acme", false, null, null, null, null, null), response);
+        Assert.Equal(new VendorResponseDto("vendors-1-A", "Acme", null, null, null, null, null), response);
     }
 
     [Fact]
@@ -35,7 +24,7 @@ public class Given_VendorMappingExtensions
 
         VendorResponseDto response = vendor.ToResponseDto();
 
-        Assert.Equal(new VendorResponseDto("vendors-1-A", "Acme", true, "qb-42", null, null, null, null), response);
+        Assert.Equal(new VendorResponseDto("vendors-1-A", "Acme", "qb-42", null, null, null, null), response);
     }
 
     [Fact]
@@ -45,7 +34,7 @@ public class Given_VendorMappingExtensions
 
         VendorResponseDto response = vendor.ToResponseDto();
 
-        Assert.Equal(new VendorResponseDto("vendors-1-A", "Acme", true, null, "Parts", "Pat", "555-0100", "Net 30"), response);
+        Assert.Equal(new VendorResponseDto("vendors-1-A", "Acme", null, "Parts", "Pat", "555-0100", "Net 30"), response);
     }
 
     [Fact]

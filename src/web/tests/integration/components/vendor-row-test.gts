@@ -7,11 +7,10 @@ import type { Vendor } from 'web/services/vendors-api';
 module('Integration | Component | vendor-row', function (hooks) {
   setupRenderingTest(hooks);
 
-  test('it renders the name, description, contact, phone, notes, QuickBooks id and Active status', async function (assert) {
+  test('it renders the name, the description and a Details button', async function (assert) {
     const vendor: Vendor = {
-      id: '1',
+      id: 'vendors-1-A',
       name: 'Acme Parts',
-      isActive: true,
       quickbooksId: 'QB-42',
       description: 'Refrigeration parts',
       contact: 'Pat',
@@ -27,18 +26,13 @@ module('Integration | Component | vendor-row', function (hooks) {
 
     assert.dom('td:nth-child(1)').hasText('Acme Parts');
     assert.dom('td.description').hasText('Refrigeration parts');
-    assert.dom('td.contact').hasText('Pat');
-    assert.dom('td.phone').hasText('555-0100');
-    assert.dom('td.notes').hasText('Net 30');
-    assert.dom('td.quickbooks-id').hasText('QB-42');
-    assert.dom('td:last-child').hasText('Active');
+    assert.dom('td.actions a.button').hasText('Details');
   });
 
-  test('it renders blank cells and Inactive for an inactive vendor with no optional details', async function (assert) {
+  test('it renders a blank description for a vendor with none', async function (assert) {
     const vendor: Vendor = {
-      id: '2',
+      id: 'vendors-2-A',
       name: 'Old Supply',
-      isActive: false,
       quickbooksId: null,
       description: null,
       contact: null,
@@ -53,23 +47,17 @@ module('Integration | Component | vendor-row', function (hooks) {
     );
 
     assert.dom('td.description').hasText('');
-    assert.dom('td.contact').hasText('');
-    assert.dom('td.phone').hasText('');
-    assert.dom('td.notes').hasText('');
-    assert.dom('td.quickbooks-id').hasText('');
-    assert.dom('td:last-child').hasText('Inactive');
   });
 
-  test('it does not show the vendor id', async function (assert) {
+  test('it shows only the name, description and actions cells', async function (assert) {
     const vendor: Vendor = {
-      id: 'vendors/1-A',
+      id: 'vendors-1-A',
       name: 'Acme Parts',
-      isActive: true,
-      quickbooksId: null,
+      quickbooksId: 'QB-42',
       description: null,
-      contact: null,
-      phone: null,
-      notes: null,
+      contact: 'Pat',
+      phone: '555-0100',
+      notes: 'Net 30',
     };
 
     await render(
@@ -78,6 +66,8 @@ module('Integration | Component | vendor-row', function (hooks) {
       </template>,
     );
 
-    assert.dom('tr').doesNotContainText('vendors/1-A');
+    assert.dom('td').exists({ count: 3 });
+    assert.dom('tr').doesNotContainText('vendors-1-A');
+    assert.dom('tr').doesNotContainText('QB-42');
   });
 });

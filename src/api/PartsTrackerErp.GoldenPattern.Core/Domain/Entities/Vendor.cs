@@ -11,8 +11,6 @@ public sealed class Vendor
 
     public string Name { get; private set; } = string.Empty;
 
-    public bool IsActive { get; private set; }
-
     // Null for a vendor that is not linked to QuickBooks, including every vendor stored before this property existed.
     public string? QuickbooksId { get; private set; }
 
@@ -34,31 +32,34 @@ public sealed class Vendor
         string? notes = null,
         string? quickbooksId = null)
     {
+        var vendor = new Vendor();
+        vendor.Update(name, description, contact, phone, notes, quickbooksId);
+
+        return vendor;
+    }
+
+    /// <summary>
+    /// Replaces every detail. A blank description, contact, phone, notes or QuickBooks id clears it.
+    /// </summary>
+    public void Update(
+        string name,
+        string? description,
+        string? contact,
+        string? phone,
+        string? notes,
+        string? quickbooksId)
+    {
         if (string.IsNullOrWhiteSpace(name))
         {
             throw new ArgumentException("Vendor name is required.");
         }
 
-        return new Vendor
-        {
-            Name = name.Trim(),
-            IsActive = true,
-            Description = NullIfBlank(description),
-            Contact = NullIfBlank(contact),
-            Phone = NullIfBlank(phone),
-            Notes = NullIfBlank(notes),
-            QuickbooksId = NullIfBlank(quickbooksId)
-        };
-    }
-
-    public void Activate()
-    {
-        IsActive = true;
-    }
-
-    public void Deactivate()
-    {
-        IsActive = false;
+        Name = name.Trim();
+        Description = NullIfBlank(description);
+        Contact = NullIfBlank(contact);
+        Phone = NullIfBlank(phone);
+        Notes = NullIfBlank(notes);
+        QuickbooksId = NullIfBlank(quickbooksId);
     }
 
     private static string? NullIfBlank(string? value)

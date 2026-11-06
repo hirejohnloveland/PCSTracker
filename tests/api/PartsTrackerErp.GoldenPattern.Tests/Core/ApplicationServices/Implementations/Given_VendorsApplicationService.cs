@@ -30,14 +30,13 @@ public class Given_VendorsApplicationService
             .Callback<Vendor, CancellationToken>((vendor, _) => vendor.WithId("vendors-1-A"));
 
         ServiceResponse<VendorResponseDto> response = await _service.AddAsync(
-            new CreateVendorDto { Name = "  Acme  " },
+            new VendorDto { Name = "  Acme  " },
             token);
 
         Assert.True(response.Success);
         Assert.Equal("vendors-1-A", response.Data.Id);
         Assert.Equal("Acme", response.Data.Name);
-        Assert.True(response.Data.IsActive);
-        _repository.Verify(r => r.AddAsync(It.Is<Vendor>(v => v.Name == "Acme" && v.IsActive), token), Times.Once);
+        _repository.Verify(r => r.AddAsync(It.Is<Vendor>(v => v.Name == "Acme"), token), Times.Once);
         _unitOfWork.Verify(u => u.SaveChangesAsync(token), Times.Once);
     }
 
@@ -49,7 +48,7 @@ public class Given_VendorsApplicationService
             .Callback<Vendor, CancellationToken>((vendor, _) => vendor.WithId("vendors-1-A"));
 
         ServiceResponse<VendorResponseDto> response = await _service.AddAsync(
-            new CreateVendorDto
+            new VendorDto
             {
                 Name = "Acme",
                 Description = "  Refrigeration parts  ",
@@ -61,8 +60,49 @@ public class Given_VendorsApplicationService
 
         Assert.True(response.Success);
         Assert.Equal(
-            new VendorResponseDto("vendors-1-A", "Acme", true, "58", "Refrigeration parts", "Pat", null, null),
+            new VendorResponseDto("vendors-1-A", "Acme", "58", "Refrigeration parts", "Pat", null, null),
             response.Data);
+    }
+
+    [Fact]
+    public async Task UpdateAsync_MissingVendor_FailsWithNotFoundAndDoesNotSave()
+    {
+        _repository.Setup(r => r.GetAsync("7", It.IsAny<CancellationToken>())).ReturnsAsync((Vendor?)null);
+
+        ServiceResponse<VendorResponseDto> response = await _service.UpdateAsync(
+            "7",
+            new VendorDto { Name = "Acme" });
+
+        AssertNotFound(response, "7");
+        _unitOfWork.Verify(u => u.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Never);
+    }
+
+    [Fact]
+    public async Task UpdateAsync_ExistingVendor_ReplacesItsDetailsSavesAndSucceeds()
+    {
+        using var cancellation = new CancellationTokenSource();
+        CancellationToken token = cancellation.Token;
+        Vendor vendor = Vendor.Create("Acme", "Old", "Old contact", "555-0100", "Old notes", "58").WithId("vendors-1-A");
+        _repository.Setup(r => r.GetAsync("vendors-1-A", token)).ReturnsAsync(vendor);
+
+        ServiceResponse<VendorResponseDto> response = await _service.UpdateAsync(
+            "vendors-1-A",
+            new VendorDto
+            {
+                Name = "  Acme Supply  ",
+                Description = "New",
+                Contact = "   ",
+                Phone = null,
+                Notes = "New notes",
+                QuickbooksId = "59"
+            },
+            token);
+
+        Assert.True(response.Success);
+        Assert.Equal(
+            new VendorResponseDto("vendors-1-A", "Acme Supply", "59", "New", null, null, "New notes"),
+            response.Data);
+        _unitOfWork.Verify(u => u.SaveChangesAsync(token), Times.Once);
     }
 
     [Fact]
@@ -87,7 +127,7 @@ public class Given_VendorsApplicationService
         ServiceResponse<VendorResponseDto> response = await _service.GetAsync("7", token);
 
         Assert.True(response.Success);
-        Assert.Equal(new VendorResponseDto("vendors-1-A", "Acme", true, null, null, null, null, null), response.Data);
+        Assert.Equal(new VendorResponseDto("vendors-1-A", "Acme", null, null, null, null, null), response.Data);
         _unitOfWork.Verify(u => u.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Never);
     }
 
@@ -122,7 +162,6 @@ public class Given_VendorsApplicationService
     {
         Vendor acme = Vendor.Create("Acme").WithId("vendors-1-A");
         Vendor beta = Vendor.Create("Beta").WithId("vendors-2-A");
-        beta.Deactivate();
         SetupList(new PagedResult<Vendor>([acme, beta], 21));
 
         ServiceResponse<PagedResponseDto<VendorResponseDto>> response = await _service.ListAsync(
@@ -130,66 +169,11 @@ public class Given_VendorsApplicationService
 
         Assert.True(response.Success);
         Assert.Equal(
-            [new VendorResponseDto("vendors-1-A", "Acme", true, null, null, null, null, null), new VendorResponseDto("vendors-2-A", "Beta", false, null, null, null, null, null)],
+            [new VendorResponseDto("vendors-1-A", "Acme", null, null, null, null, null), new VendorResponseDto("vendors-2-A", "Beta", null, null, null, null, null)],
             response.Data.Items);
         Assert.Equal(
             new PaginationMetadata(Page: 3, PageSize: 10, TotalCount: 21, TotalPages: 3),
             response.Data.Pagination);
-    }
-
-    [Fact]
-    public async Task ActivateAsync_MissingVendor_FailsWithNotFoundAndDoesNotSave()
-    {
-        _repository.Setup(r => r.GetAsync("7", It.IsAny<CancellationToken>())).ReturnsAsync((Vendor?)null);
-
-        ServiceResponse<VendorResponseDto> response = await _service.ActivateAsync("7");
-
-        AssertNotFound(response, "7");
-        _unitOfWork.Verify(u => u.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Never);
-    }
-
-    [Fact]
-    public async Task ActivateAsync_ExistingVendor_ActivatesItSavesAndSucceeds()
-    {
-        using var cancellation = new CancellationTokenSource();
-        CancellationToken token = cancellation.Token;
-        Vendor vendor = Vendor.Create("Acme").WithId("vendors-1-A");
-        vendor.Deactivate();
-        _repository.Setup(r => r.GetAsync("7", token)).ReturnsAsync(vendor);
-
-        ServiceResponse<VendorResponseDto> response = await _service.ActivateAsync("7", token);
-
-        Assert.True(response.Success);
-        Assert.Equal(new VendorResponseDto("vendors-1-A", "Acme", true, null, null, null, null, null), response.Data);
-        Assert.True(vendor.IsActive);
-        _unitOfWork.Verify(u => u.SaveChangesAsync(token), Times.Once);
-    }
-
-    [Fact]
-    public async Task DeactivateAsync_MissingVendor_FailsWithNotFoundAndDoesNotSave()
-    {
-        _repository.Setup(r => r.GetAsync("7", It.IsAny<CancellationToken>())).ReturnsAsync((Vendor?)null);
-
-        ServiceResponse<VendorResponseDto> response = await _service.DeactivateAsync("7");
-
-        AssertNotFound(response, "7");
-        _unitOfWork.Verify(u => u.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Never);
-    }
-
-    [Fact]
-    public async Task DeactivateAsync_ExistingVendor_DeactivatesItSavesAndSucceeds()
-    {
-        using var cancellation = new CancellationTokenSource();
-        CancellationToken token = cancellation.Token;
-        Vendor vendor = Vendor.Create("Acme").WithId("vendors-1-A");
-        _repository.Setup(r => r.GetAsync("7", token)).ReturnsAsync(vendor);
-
-        ServiceResponse<VendorResponseDto> response = await _service.DeactivateAsync("7", token);
-
-        Assert.True(response.Success);
-        Assert.Equal(new VendorResponseDto("vendors-1-A", "Acme", false, null, null, null, null, null), response.Data);
-        Assert.False(vendor.IsActive);
-        _unitOfWork.Verify(u => u.SaveChangesAsync(token), Times.Once);
     }
 
     private void SetupList(PagedResult<Vendor> result)

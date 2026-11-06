@@ -8,7 +8,6 @@ namespace PartsTrackerErp.GoldenPattern.Core.Contracts.Responses;
 public sealed record VendorResponseDto(
     string Id,
     string Name,
-    bool IsActive,
     string? QuickbooksId,
     string? Description,
     string? Contact,

@@ -212,17 +212,17 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/CreateVendorDto"
+                "$ref": "#/components/schemas/VendorDto"
               }
             },
             "text/json": {
               "schema": {
-                "$ref": "#/components/schemas/CreateVendorDto"
+                "$ref": "#/components/schemas/VendorDto"
               }
             },
             "application/*\u002Bjson": {
               "schema": {
-                "$ref": "#/components/schemas/CreateVendorDto"
+                "$ref": "#/components/schemas/VendorDto"
               }
             }
           },
@@ -541,220 +541,22 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/UpdateVendorDto"
+                "$ref": "#/components/schemas/VendorDto"
               }
             },
             "text/json": {
               "schema": {
-                "$ref": "#/components/schemas/UpdateVendorDto"
+                "$ref": "#/components/schemas/VendorDto"
               }
             },
             "application/*\u002Bjson": {
               "schema": {
-                "$ref": "#/components/schemas/UpdateVendorDto"
+                "$ref": "#/components/schemas/VendorDto"
               }
             }
           },
           "required": true
         },
-        "responses": {
-          "400": {
-            "description": "Bad Request",
-            "content": {
-              "application/problem\u002Bjson": {
-                "schema": {
-                  "$ref": "#/components/schemas/ApiProblemDetails"
-                }
-              }
-            }
-          },
-          "401": {
-            "description": "Unauthorized",
-            "content": {
-              "application/problem\u002Bjson": {
-                "schema": {
-                  "$ref": "#/components/schemas/ApiProblemDetails"
-                }
-              }
-            }
-          },
-          "403": {
-            "description": "Forbidden",
-            "content": {
-              "application/problem\u002Bjson": {
-                "schema": {
-                  "$ref": "#/components/schemas/ApiProblemDetails"
-                }
-              }
-            }
-          },
-          "404": {
-            "description": "Not Found",
-            "content": {
-              "application/problem\u002Bjson": {
-                "schema": {
-                  "$ref": "#/components/schemas/ApiProblemDetails"
-                }
-              }
-            }
-          },
-          "409": {
-            "description": "Conflict",
-            "content": {
-              "application/problem\u002Bjson": {
-                "schema": {
-                  "$ref": "#/components/schemas/ApiProblemDetails"
-                }
-              }
-            }
-          },
-          "500": {
-            "description": "Internal Server Error",
-            "content": {
-              "application/problem\u002Bjson": {
-                "schema": {
-                  "$ref": "#/components/schemas/ApiProblemDetails"
-                }
-              }
-            }
-          },
-          "200": {
-            "description": "OK",
-            "content": {
-              "text/plain": {
-                "schema": {
-                  "$ref": "#/components/schemas/ApiResponseOfVendorResponseDto"
-                }
-              },
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ApiResponseOfVendorResponseDto"
-                }
-              },
-              "text/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ApiResponseOfVendorResponseDto"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/vendors/{id}/activate": {
-      "post": {
-        "tags": [
-          "Vendors"
-        ],
-        "parameters": [
-          {
-            "name": "id",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "responses": {
-          "400": {
-            "description": "Bad Request",
-            "content": {
-              "application/problem\u002Bjson": {
-                "schema": {
-                  "$ref": "#/components/schemas/ApiProblemDetails"
-                }
-              }
-            }
-          },
-          "401": {
-            "description": "Unauthorized",
-            "content": {
-              "application/problem\u002Bjson": {
-                "schema": {
-                  "$ref": "#/components/schemas/ApiProblemDetails"
-                }
-              }
-            }
-          },
-          "403": {
-            "description": "Forbidden",
-            "content": {
-              "application/problem\u002Bjson": {
-                "schema": {
-                  "$ref": "#/components/schemas/ApiProblemDetails"
-                }
-              }
-            }
-          },
-          "404": {
-            "description": "Not Found",
-            "content": {
-              "application/problem\u002Bjson": {
-                "schema": {
-                  "$ref": "#/components/schemas/ApiProblemDetails"
-                }
-              }
-            }
-          },
-          "409": {
-            "description": "Conflict",
-            "content": {
-              "application/problem\u002Bjson": {
-                "schema": {
-                  "$ref": "#/components/schemas/ApiProblemDetails"
-                }
-              }
-            }
-          },
-          "500": {
-            "description": "Internal Server Error",
-            "content": {
-              "application/problem\u002Bjson": {
-                "schema": {
-                  "$ref": "#/components/schemas/ApiProblemDetails"
-                }
-              }
-            }
-          },
-          "200": {
-            "description": "OK",
-            "content": {
-              "text/plain": {
-                "schema": {
-                  "$ref": "#/components/schemas/ApiResponseOfVendorResponseDto"
-                }
-              },
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ApiResponseOfVendorResponseDto"
-                }
-              },
-              "text/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ApiResponseOfVendorResponseDto"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/vendors/{id}/deactivate": {
-      "post": {
-        "tags": [
-          "Vendors"
-        ],
-        "parameters": [
-          {
-            "name": "id",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
         "responses": {
           "400": {
             "description": "Bad Request",
@@ -967,47 +769,6 @@
         },
         "description": "The body of a successful response that carries one result. A response that carries a page of a list is a\nPagedApiResponse\u0026lt;T\u0026gt;."
       },
-      "CreateVendorDto": {
-        "required": [
-          "name"
-        ],
-        "type": "object",
-        "properties": {
-          "name": {
-            "type": "string"
-          },
-          "description": {
-            "type": [
-              "null",
-              "string"
-            ]
-          },
-          "contact": {
-            "type": [
-              "null",
-              "string"
-            ]
-          },
-          "phone": {
-            "type": [
-              "null",
-              "string"
-            ]
-          },
-          "notes": {
-            "type": [
-              "null",
-              "string"
-            ]
-          },
-          "quickbooksId": {
-            "type": [
-              "null",
-              "string"
-            ]
-          }
-        }
-      },
       "PagedApiResponseOfVendorResponseDto": {
         "required": [
           "data",
@@ -1105,10 +866,9 @@
         },
         "description": "The outcome of a vendor sync with QuickBooks."
       },
-      "UpdateVendorDto": {
+      "VendorDto": {
         "required": [
-          "name",
-          "isActive"
+          "name"
         ],
         "type": "object",
         "properties": {
@@ -1144,12 +904,9 @@
               "null",
               "string"
             ]
-          },
-          "isActive": {
-            "type": "boolean"
           }
         },
-        "description": "Replaces every editable detail of a vendor. A detail that is left out or blank is cleared, except the name and the\nactive flag, which are required."
+        "description": "The details of a vendor, supplied to create one or to replace the details of an existing one. A detail that is left\nout or blank is stored as none, except the name, which is required."
       },
       "VendorInvoiceDto": {
         "required": [
@@ -1188,7 +945,6 @@
         "required": [
           "id",
           "name",
-          "isActive",
           "quickbooksId",
           "description",
           "contact",
@@ -1202,9 +958,6 @@
           },
           "name": {
             "type": "string"
-          },
-          "isActive": {
-            "type": "boolean"
           },
           "quickbooksId": {
             "type": [

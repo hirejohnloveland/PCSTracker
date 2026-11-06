@@ -1,6 +1,10 @@
 namespace PartsTrackerErp.GoldenPattern.Core.Contracts.Requests;
 
-public sealed class CreateVendorDto : IVendorDetailsDto
+/// <summary>
+/// The details of a vendor, supplied to create one or to replace the details of an existing one. A detail that is left
+/// out or blank is stored as none, except the name, which is required.
+/// </summary>
+public sealed class VendorDto
 {
     public required string Name { get; set; }
 

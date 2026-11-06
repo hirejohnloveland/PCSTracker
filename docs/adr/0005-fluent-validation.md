@@ -21,6 +21,6 @@ Request DTOs need input checks (required fields, ranges, formats) before a use c
 
 ## Reference implementation
 
-- A validator's rule, in [`CreateVendorDtoValidator`](../../src/api/PartsTrackerErp.GoldenPattern.Core/Validation/Validators/CreateVendorDtoValidator.cs): `RuleFor(x => x.Name).NotEmpty().WithMessage("Vendor name is required.");`
-- A property the caller must send, in [`CreateVendorDto`](../../src/api/PartsTrackerErp.GoldenPattern.Core/Contracts/Requests/CreateVendorDto.cs): `public required string Name { get; set; }`
+- A validator's rule, in [`VendorDtoValidator`](../../src/api/PartsTrackerErp.GoldenPattern.Core/Validation/Validators/VendorDtoValidator.cs): `RuleFor(x => x.Name).NotEmpty().WithMessage("Vendor name is required.");`
+- A property the caller must send, in [`VendorDto`](../../src/api/PartsTrackerErp.GoldenPattern.Core/Contracts/Requests/VendorDto.cs): `public required string Name { get; set; }`
 - Registration: [`CoreRegistration.AddCore`](../../src/api/PartsTrackerErp.GoldenPattern.Core/DependencyInjection/CoreRegistration.cs) calls `AddValidatorsFromAssemblyContaining<VendorInvoiceDtoValidator>()`.

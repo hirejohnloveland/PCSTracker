@@ -109,7 +109,7 @@ body {
 
 .vendors {
   width: 100%;
-  min-width: 72rem;
+  min-width: 20rem;
   border-collapse: collapse;
   table-layout: fixed;
 }
@@ -123,35 +123,64 @@ body {
 }
 
 .vendors th:first-child {
-  width: 12rem;
+  width: 35%;
 }
 
-.vendors th.description {
-  width: 14rem;
+.vendors th.actions {
+  width: 6rem;
 }
 
-.vendors th.contact {
-  width: 9rem;
+.vendors td.description {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
-.vendors th.phone {
-  width: 8rem;
+.vendors .actions {
+  text-align: right;
 }
 
-.vendors th.notes {
-  width: 14rem;
+.button {
+  display: inline-block;
+  padding: 0.25rem 0.75rem;
+  border: 1px solid #9aa5b1;
+  border-radius: 0.25rem;
+  background: #f5f7fa;
+  color: inherit;
+  font: inherit;
+  text-decoration: none;
 }
 
-.vendors th.quickbooks-id {
-  width: 8rem;
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
 }
 
-.vendors th:last-child {
-  width: 6.5rem;
+.vendor-details {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  max-width: 40rem;
+  margin-top: 1rem;
 }
 
-.vendors .quickbooks-id {
-  text-align: center;
+.vendor-details input[type="text"],
+.vendor-details input[type="tel"],
+.vendor-details textarea {
+  box-sizing: border-box;
+  width: 100%;
+  font: inherit;
+}
+
+.form-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  margin-top: 0.5rem;
 }
 
 .pagination {
@@ -174,10 +203,5 @@ body {
 
   .page {
     padding: 1.5rem;
-  }
-
-  .vendors th:last-child,
-  .vendors td:last-child {
-    text-align: right;
   }
 }

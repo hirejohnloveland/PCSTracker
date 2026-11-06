@@ -5,11 +5,11 @@ namespace PartsTrackerErp.GoldenPattern.Core.ApplicationServices.Abstractions;
 
 public interface IVendorsApplicationService
 {
-    Task<ServiceResponse<VendorResponseDto>> AddAsync(CreateVendorDto request, CancellationToken cancellationToken = default);
+    Task<ServiceResponse<VendorResponseDto>> AddAsync(VendorDto request, CancellationToken cancellationToken = default);
 
     Task<ServiceResponse<VendorResponseDto>> UpdateAsync(
         string id,
-        UpdateVendorDto request,
+        VendorDto request,
         CancellationToken cancellationToken = default);
 
     Task<ServiceResponse<VendorResponseDto>> GetAsync(string id, CancellationToken cancellationToken = default);
@@ -17,8 +17,4 @@ public interface IVendorsApplicationService
     Task<ServiceResponse<PagedResponseDto<VendorResponseDto>>> ListAsync(
         ListVendorsDto request,
         CancellationToken cancellationToken = default);
-
-    Task<ServiceResponse<VendorResponseDto>> ActivateAsync(string id, CancellationToken cancellationToken = default);
-
-    Task<ServiceResponse<VendorResponseDto>> DeactivateAsync(string id, CancellationToken cancellationToken = default);
 }

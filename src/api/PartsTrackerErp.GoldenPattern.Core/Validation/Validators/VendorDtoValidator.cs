@@ -4,7 +4,7 @@ using PartsTrackerErp.GoldenPattern.Core.Contracts.Requests;
 
 namespace PartsTrackerErp.GoldenPattern.Core.Validation.Validators;
 
-public sealed partial class CreateVendorDtoValidator : AbstractValidator<CreateVendorDto>
+public sealed partial class VendorDtoValidator : AbstractValidator<VendorDto>
 {
     public const int NameMaxLength = 200;
     public const int DescriptionMaxLength = 500;
@@ -13,7 +13,7 @@ public sealed partial class CreateVendorDtoValidator : AbstractValidator<CreateV
     public const int NotesMaxLength = 4000;
     public const int QuickbooksIdMaxLength = 50;
 
-    public CreateVendorDtoValidator()
+    public VendorDtoValidator()
     {
         RuleFor(x => x.Name)
             .NotEmpty()

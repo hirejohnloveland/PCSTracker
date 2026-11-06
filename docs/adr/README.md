@@ -31,3 +31,4 @@ The goal is not preserving code in two places. It's making sure an agent or a pe
 | [0019](0019-front-end-error-handling.md) | A failed user action is shown in one error dialog |
 | [0020](0020-front-end-responsiveness.md) | Front-end layout is responsive by default |
 | [0021](0021-front-end-toasts.md) | A completed user action is confirmed with a toast |
+| [0022](0022-application-settings.md) | Application settings live in RavenDB |

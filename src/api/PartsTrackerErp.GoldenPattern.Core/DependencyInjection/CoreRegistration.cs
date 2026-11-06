@@ -22,6 +22,7 @@ public static class CoreRegistration
 
         builder.Services.AddScoped<IVendorRepository, VendorRepository>();
         builder.Services.AddScoped<ICustomerRepository, CustomerRepository>();
+        builder.Services.AddScoped<ISettingsRepository, SettingsRepository>();
         builder.Services.AddScoped<IUnitOfWork, RavenUnitOfWork>();
         builder.Services.AddScoped<IVendorsApplicationService, VendorsApplicationService>();
         builder.Services.AddScoped<ICustomersApplicationService, CustomersApplicationService>();

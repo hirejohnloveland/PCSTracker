@@ -53,6 +53,24 @@ public class VendorsController(IVendorsApplicationService vendorsApplicationServ
         return ToResult(response);
     }
 
+    [HttpPut("{id}")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    public async Task<ActionResult<ApiResponse<VendorResponseDto>>> Update(
+        string id,
+        [FromBody] UpdateVendorDto request,
+        IValidator<UpdateVendorDto> validator,
+        CancellationToken cancellationToken)
+    {
+        ValidationResult validation = await validator.ValidateAsync(request, cancellationToken);
+        if (!validation.IsValid)
+        {
+            return InvalidRequest(validation);
+        }
+
+        ServiceResponse<VendorResponseDto> response = await vendorsApplicationService.UpdateAsync(id, request, cancellationToken);
+        return ToResult(response);
+    }
+
     [HttpPost("{id}/activate")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     public async Task<ActionResult<ApiResponse<VendorResponseDto>>> Activate(string id, CancellationToken cancellationToken)

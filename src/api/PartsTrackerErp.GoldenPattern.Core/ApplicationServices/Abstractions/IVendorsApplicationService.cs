@@ -7,6 +7,11 @@ public interface IVendorsApplicationService
 {
     Task<ServiceResponse<VendorResponseDto>> AddAsync(CreateVendorDto request, CancellationToken cancellationToken = default);
 
+    Task<ServiceResponse<VendorResponseDto>> UpdateAsync(
+        string id,
+        UpdateVendorDto request,
+        CancellationToken cancellationToken = default);
+
     Task<ServiceResponse<VendorResponseDto>> GetAsync(string id, CancellationToken cancellationToken = default);
 
     Task<ServiceResponse<PagedResponseDto<VendorResponseDto>>> ListAsync(

@@ -26,6 +26,29 @@ public sealed class VendorsApplicationService(
         return ServiceResponse<VendorResponseDto>.Succeed(vendor.ToResponseDto());
     }
 
+    public async Task<ServiceResponse<VendorResponseDto>> UpdateAsync(
+        string id,
+        UpdateVendorDto request,
+        CancellationToken cancellationToken = default)
+    {
+        Vendor? vendor = await vendorRepository.GetAsync(id, cancellationToken);
+        if (vendor is null)
+        {
+            return ServiceResponse<VendorResponseDto>.Fail(ErrorType.NotFound, VendorErrors.NotFound(id));
+        }
+
+        vendor.Update(
+            request.Name,
+            request.Description,
+            request.Contact,
+            request.Phone,
+            request.Notes,
+            request.QuickbooksId,
+            request.IsActive);
+        await unitOfWork.SaveChangesAsync(cancellationToken);
+        return ServiceResponse<VendorResponseDto>.Succeed(vendor.ToResponseDto());
+    }
+
     public async Task<ServiceResponse<VendorResponseDto>> GetAsync(string id, CancellationToken cancellationToken = default)
     {
         Vendor? vendor = await vendorRepository.GetAsync(id, cancellationToken);
